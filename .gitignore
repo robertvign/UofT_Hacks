@@ -1,2 +1,4 @@
 *.txt
 !requirements.txt
+*.mp3
+*.wav

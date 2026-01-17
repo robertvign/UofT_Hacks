@@ -48,8 +48,18 @@ def save_lyrics_to_file(lyrics):
     while line and "[" not in line:
         line = tempString.readline()
     newText = line + tempString.read()
+
+    lines = []
+    for line in io.StringIO(newText):
+        if line.strip() and not (line[0] == "[" or line[-1] == "]"):
+            lines.append(line)
+            
+    
+
+
     with open("genius_lyrics.txt", "w", encoding="utf-8") as file:
-        file.write(newText)
+        file.writelines(lines)
+
 
 
 
