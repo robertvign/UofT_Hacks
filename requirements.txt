@@ -1,2 +1,1 @@
 demucs
-deep_translator
