@@ -9,6 +9,11 @@ from pathlib import Path
 import json
 from typing import List, Dict, Optional
 import tempfile
+from backboard import BackboardClient
+import asyncio
+
+client = BackboardClient(api_key=os.getenv("BACKBOARD_API_KEY"))
+ASSISTANT_ID = os.getenv("BACKBOARD_ASSISTANT_ID")
 
 # Try importing text-to-speech
 try:
@@ -319,6 +324,85 @@ class LessonGenerator:
         self.lessons.append(lesson)
         return lesson
 
+    async def generate_conversation_lesson_with_backboard(
+        self,
+        backboard_generator,
+        num_conversations=3
+    ):
+        """
+        Generate a conversational lesson using Backboard.
+        """
+
+        lesson = {
+            "conversations": []
+        }
+
+        weak_words = self.error_dict.get("weak_words", [])
+        if not weak_words:
+            return lesson
+
+        for word_data in weak_words[:num_conversations]:
+            target_word = word_data["word"]
+
+            question = await backboard_generator.generate_question(target_word)
+
+            lesson["conversations"].append({
+                "question": question,
+                "target_word": target_word,
+                "error_rate": word_data.get("error_rate", 0),
+                "count": word_data.get("count", 0),
+                "instruction": (
+                    f"Answer the question using the word '{target_word}'."
+                )
+            })
+
+        self.lessons.append(lesson)
+        return lesson
+    
+    def get_error_dictionary(self) -> Dict:
+        """Return the error dictionary used to create lessons."""
+        return self.error_dict
+
+class BackboardConversationGenerator:
+    def __init__(self, client, assistant_id: str):
+        """
+        Args:
+            client: BackboardClient instance
+            assistant_id: ID of your Backboard assistant
+        """
+        self.client = client
+        self.assistant_id = assistant_id
+
+    async def generate_question(self, target_word: str) -> str:
+        """
+        Ask Backboard to generate a conversational question
+        that encourages use of the target word.
+        """
+
+        prompt = f"""
+You are a pronunciation coach.
+
+Generate ONE short, natural conversational question
+that encourages the speaker to say the word:
+
+"{target_word}"
+
+Rules:
+- Question only
+- Friendly, everyday English
+- No explanations
+"""
+
+        response = await self.client.run_assistant(
+            assistant_id=self.assistant_id,
+            input=prompt
+        )
+
+        # Normalize output (Backboard sometimes wraps text)
+        text = response.get("output", "").strip()
+        return text
+
+
 
 def create_lesson_from_results(trainer, num_words=10, num_lines=5):
     """
@@ -333,17 +417,17 @@ def create_lesson_from_results(trainer, num_words=10, num_lines=5):
         LessonGenerator instance
     """
     # Get error dictionary
-    error_dict = trainer.get_error_dictionary()
+    error_dictionary = trainer.get_error_dictionary()
     
     # Create lesson generator
-    lesson_gen = LessonGenerator(error_dict, language='en-us')  # Could extract from trainer
+    lesson_gen = LessonGenerator(error_dictionary, language='en-us')  # Could extract from trainer
     
     # Generate lesson
     lesson = lesson_gen.generate_lesson(num_words=num_words, num_lines=num_lines)
     
     return lesson_gen, lesson
 
-
+'''
 def create_line_lesson_from_results(results: Dict, num_lines=5):
     """
     Create lesson for struggling lines from results.
@@ -368,3 +452,21 @@ def create_line_lesson_from_results(results: Dict, num_lines=5):
     line_lesson = lesson_gen.generate_line_lesson(struggling_lines, num_lines=num_lines)
     
     return lesson_gen, line_lesson
+'''
+backboard_gen = BackboardConversationGenerator(
+    client=client,
+    assistant_id=ASSISTANT_ID
+)
+
+lesson_gen = LessonGenerator(error_dict)
+
+async def run():
+    convo_lesson = await lesson_gen.generate_conversation_lesson_with_backboard(
+        backboard_generator=backboard_gen,
+        num_conversations=3
+    )
+
+    lesson_gen.print_conversation_lesson(convo_lesson)
+    lesson_gen.play_conversation_lesson(convo_lesson)
+
+asyncio.run(run())
