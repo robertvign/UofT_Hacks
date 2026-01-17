@@ -10,3 +10,5 @@ librosa
 torchaudio
 transformers
 python-Levenshtein
+backboard
+backboard-sdk
