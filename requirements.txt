@@ -7,5 +7,6 @@ ffmpeg-python
 numpy
 torch
 librosa
-deep_translator
-moviepy
+torchaudio
+transformers
+python-Levenshtein
