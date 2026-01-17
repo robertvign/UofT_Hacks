@@ -4,8 +4,10 @@ Create a video with timed lyrics from lights_music.wav and time_lyrics.txt
 
 import re
 import requests
+import unicodedata
+import numpy as np
 from pathlib import Path
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 
 try:
     from moviepy import AudioFileClip, TextClip, CompositeVideoClip, ColorClip, ImageClip
@@ -191,21 +193,125 @@ def create_lyrics_video(audio_file, lyrics_file, output_file, background_image=N
     text_clips = []
     for start, end, text in lyrics_data:
         try:
-            # Create text clip using moviepy 2.2.1 API
-            # Use 'label' method (doesn't require ImageMagick)
-            # Set duration when creating the clip
-            txt_clip = TextClip(
-                text=text,
-                font_size=60,
-                color='white',
-                method='label',
-                size=(1600, None),
-                text_align='center',
-                duration=end - start
-            )
+            # Normalize text to handle special characters properly
+            # NFC normalization helps with accented characters
+            text = unicodedata.normalize('NFC', text)
             
-            txt_clip = txt_clip.with_position(('center', 'center')).with_start(start)
-            text_clips.append(txt_clip)
+            # Try to use PIL for better Unicode support
+            try:
+                # Create text image using PIL for better Unicode support
+                font_size = 60
+                max_width = 1600
+                
+                # Try to load a system font that supports Unicode
+                font = None
+                font_paths = [
+                    "/System/Library/Fonts/Helvetica.ttc",
+                    "/System/Library/Fonts/Arial.ttf",
+                    "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
+                    "/Library/Fonts/Arial Unicode.ttf",
+                ]
+                
+                for font_path in font_paths:
+                    try:
+                        if font_path.endswith('.ttc'):
+                            # TTC files need index
+                            font = ImageFont.truetype(font_path, font_size, index=0)
+                        else:
+                            font = ImageFont.truetype(font_path, font_size)
+                        break
+                    except:
+                        continue
+                
+                if font is None:
+                    # Fallback to default font
+                    try:
+                        font = ImageFont.load_default()
+                    except:
+                        font = None
+                
+                # Create a temporary image to measure text size
+                temp_img = Image.new('RGBA', (max_width, 200), (0, 0, 0, 0))
+                temp_draw = ImageDraw.Draw(temp_img)
+                
+                # Get text bounding box (use textsize for older PIL, textbbox for newer)
+                try:
+                    bbox = temp_draw.textbbox((0, 0), text, font=font)
+                    text_width = bbox[2] - bbox[0]
+                    text_height = bbox[3] - bbox[1]
+                except AttributeError:
+                    # Fallback for older PIL versions
+                    text_width, text_height = temp_draw.textsize(text, font=font)
+                
+                # Wrap text if needed
+                words = text.split()
+                lines = []
+                current_line = []
+                current_width = 0
+                
+                for word in words:
+                    try:
+                        word_bbox = temp_draw.textbbox((0, 0), word + " ", font=font)
+                        word_width = word_bbox[2] - word_bbox[0]
+                    except AttributeError:
+                        word_width, _ = temp_draw.textsize(word + " ", font=font)
+                    
+                    if current_width + word_width <= max_width:
+                        current_line.append(word)
+                        current_width += word_width
+                    else:
+                        if current_line:
+                            lines.append(" ".join(current_line))
+                        current_line = [word]
+                        current_width = word_width
+                
+                if current_line:
+                    lines.append(" ".join(current_line))
+                
+                # Calculate total height
+                line_height = text_height + 10
+                total_height = len(lines) * line_height + 20
+                
+                # Create the text image
+                text_img = Image.new('RGBA', (max_width, total_height), (0, 0, 0, 0))
+                draw = ImageDraw.Draw(text_img)
+                
+                # Draw each line
+                y_offset = 10
+                for line in lines:
+                    # Center the text
+                    try:
+                        line_bbox = draw.textbbox((0, 0), line, font=font)
+                        line_width = line_bbox[2] - line_bbox[0]
+                    except AttributeError:
+                        line_width, _ = draw.textsize(line, font=font)
+                    x_offset = (max_width - line_width) // 2
+                    draw.text((x_offset, y_offset), line, font=font, fill='white')
+                    y_offset += line_height
+                
+                # Convert PIL image to numpy array for moviepy
+                img_array = np.array(text_img)
+                
+                # Create ImageClip from the PIL image
+                txt_clip = ImageClip(img_array, duration=end - start)
+                txt_clip = txt_clip.with_position(('center', 'center')).with_start(start)
+                text_clips.append(txt_clip)
+                
+            except Exception as pil_error:
+                # Fallback to TextClip if PIL method fails
+                print(f"PIL rendering failed, using TextClip fallback: {pil_error}")
+                txt_clip = TextClip(
+                    text=text,
+                    font_size=60,
+                    color='white',
+                    method='label',
+                    size=(1600, None),
+                    text_align='center',
+                    duration=end - start
+                )
+                txt_clip = txt_clip.with_position(('center', 'center')).with_start(start)
+                text_clips.append(txt_clip)
+            
             print(f"Created text clip: [{start:.2f}s → {end:.2f}s] '{text[:50]}...'")
         except Exception as e:
             print(f"Warning: Could not create text clip for '{text}': {e}")

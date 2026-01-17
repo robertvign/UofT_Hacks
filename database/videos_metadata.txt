@@ -1,0 +1,11 @@
+
+============================================================
+Video ID: 2
+Song Name: The Weekend - Blinded By the Lights
+Translation Language: French
+Video Filename: The_Weekend_-_Blinded_By_the_Lights_French_20260117_141753.mp4
+Video Path: /Users/ryan/Developer/UofT_Hacks/database/The_Weekend_-_Blinded_By_the_Lights_French_20260117_141753.mp4
+Original File: /Users/ryan/Developer/UofT_Hacks/database/The_Weekend_-_Blinded_By_the_Lights/1768677319_lights.mp3
+File Size: 8.33 MB (8736796 bytes)
+Created: 2026-01-17T14:21:43.941419
+============================================================
