@@ -1,71 +1,53 @@
-258 Contributors
-Translations
-Türkçe
-Svenska
-Español
-Slovenčina
-Русский (Russian)
-Português
-Polski
-Norsk
-日本語 (Japanese)
-Italiano
-עברית (Hebrew)
-Deutsch
-Français
-فارسی
-Nederlands
-Dansk
-Shqip
-العربية
-srpski
-Blinding Lights Lyrics
-“Blinding Lights” serves as the second single for The Weeknd’s fourth studio album, After Hours. It follows the record’s lead single, “Heartless,” which was released two days prior.
-The track finds Abel in a…
-Read More
-[Intro]
-[38.00s → 40.00s] Yeah
-[Verse 1]
-[46.00s → 52.00s] I've been tryna call
-[52.00s → 56.00s] I've been on my own for long enough
-[56.00s → 61.00s] Maybe you can show me how to love, maybe
-[61.00s → 64.00s] I'm goin' through withdrawals
-[64.00s → 67.00s] You don't even have to do too much
-[67.00s → 72.00s] You can turn me on with just a touch, baby
-[Pre-Chorus]
-I look around and
-[127.00s → 132.00s] Sin City's cold and empty (Oh)
-[132.00s → 135.00s] No one's around to judge me (Oh)
-[79.00s → 82.00s] I can't see clearly when you're gone
-[Chorus]
-[175.00s → 181.00s] I said, ooh, I'm blinded by the lights
-[89.00s → 94.00s] No, I can't sleep until I feel your touch (Touch)
-[94.00s → 100.00s] I said, ooh, I'm drowning in the night
-Oh, when I'm like this, you're the one I trust
-[82.00s → 84.00s] Hey, hey, hey
-[Verse 2]
-[112.00s → 117.00s] I'm running out of time
-[117.00s → 122.00s] 'Cause I can see the sun light up the sky
-[122.00s → 127.00s] So I hit the road in overdrive, baby, oh
-[Pre-Chorus]
-The city's cold and empty (Oh)
-[76.00s → 79.00s] No one's around to judge me (Oh)
-I can't see clearly when you're gone
-[Chorus]
-[86.00s → 89.00s] And I said, ooh, I'm blinded by the lights
-[148.00s → 152.00s] No, I can't sleep until I feel your touch (Touch)
-I said, ooh, I'm drowning in the night
-Oh, when I'm like this, you're the one I trust
-[Bridge]
-I'm just coming back to let you know (Back to let you know)
-[167.00s → 170.00s] I could never say it on the phone (Say it on the phone)
-[170.00s → 175.00s] Will never let you go this time (Ooh)
-[Chorus]
-I said, ooh, I'm blinded by the lights
-No, I can't sleep until I feel your touch (Touch)
-Hey, hey, hey
-[Post-Chorus]
-Hey, hey, hey
-[Outro]
-I said, ooh, I'm blinded by the lights
-No, I can't sleep until I feel your touch
+[52.00s → 54.00s] I've been trying to cook.
+[54.00s → 56.00s] I've been on my own for long enough.
+[56.00s → 61.00s] You can show me how to love, maybe
+[61.00s → 64.00s] I'm going through a drought
+[64.00s → 67.00s] You don't even have to do to what you have
+[67.00s → 72.00s] You can tell me I'm just a Dutch baby
+[72.00s → 76.00s] I look around in cities called an empty
+[76.00s → 79.00s] No one's around to judge me
+[79.00s → 82.00s] I can see clearly when you're gone
+[82.00s → 84.00s] Oh, oh, oh, no
+[86.00s → 89.00s] I'm blinded by the lights
+[89.00s → 94.00s] No, I can't sleep in it till I feel your touch
+[94.00s → 98.00s] I said, ooh, ooh
+[98.00s → 100.00s] I'm drowning in the night
+[100.00s → 102.00s] Oh, but I'm like this
+[102.00s → 105.00s] Because of what I just...
+[105.00s → 107.00s] Ha, ha, ha
+[117.00s → 119.00s] I'm running out of time
+[119.00s → 122.00s] Because I can see the sun right up the sky
+[122.00s → 127.00s] So I'm throwing over dry, baby
+[127.00s → 130.00s] Oh, oh, oh, oh, oh, oh, oh
+[130.00s → 132.00s] The city's cold and empty
+[132.00s → 135.00s] No one's around to judge me
+[135.00s → 138.00s] I can see clearly when you're gone
+[138.00s → 140.00s] Oh, oh, oh, no
+[140.00s → 143.00s] I said, ooh, ooh
+[143.00s → 146.00s] I'm blinded by the lights
+[146.00s → 151.00s] No, I can't sleep in it till I feel your touch
+[151.00s → 157.00s] I said, ooh, ooh
+[157.00s → 160.00s] I'm drowning in the night
+[160.00s → 161.00s] Oh, but I'm like this
+[161.00s → 165.00s] Because of what I just...
+[165.00s → 168.00s] I'm just looking back to the original
+[168.00s → 171.00s] I can never say it on the phone
+[171.00s → 176.00s] I'll never let you go this time
+[176.00s → 179.00s] I said, ooh, ooh
+[179.00s → 182.00s] I'm blinded by the lights
+[182.00s → 186.00s] No, I can't sleep in it till I feel your touch
+[186.00s → 188.00s] I said, ooh, ooh
+[197.00s → 200.00s] I said, ooh, ooh
+[201.00s → 204.00s] I said, ooh, ooh
+[204.00s → 207.00s] I'm blinded by the lights
+[207.00s → 212.00s] No, I can't sleep in it till I feel your touch
+[231.00s → 233.00s] Oh
+[262.00s → 264.00s] I said, ooh, ooh
+[264.00s → 267.00s] I said, ooh, ooh
+[267.00s → 270.00s] I said, ooh, ooh
+[270.00s → 273.00s] I said, ooh, ooh
+[273.00s → 276.00s] I said, ooh, ooh
+[276.00s → 279.00s] I said, ooh, ooh
+[279.00s → 282.00s] I said, ooh, ooh
+[282.00s → 285.00s] I said, ooh, ooh
+[285.00s → 288.00s] I said, ooh, ooh
