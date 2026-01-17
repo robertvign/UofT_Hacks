@@ -4,6 +4,7 @@ Uses Backboard to generate personalized conversational lessons based on error wo
 from user profile. Prompts user to practice pronunciation by speaking responses.
 """
 
+from http import client
 import os
 import json
 import asyncio
@@ -11,6 +12,7 @@ import threading
 import time
 from pathlib import Path
 from typing import List, Dict, Optional
+from xmlrpc import client
 from backboard import BackboardClient
 
 # Try importing audio recording libraries
@@ -37,14 +39,16 @@ class LessonGenerator:
     Uses Backboard to create natural question-response pairs.
     """
     
-    def __init__(self, profile_path: str = "user_profile.json"):
+    def __init__(self, profile_path: str = "user_profile.json", language: str = "fr-fr"):
         """
         Initialize lesson generator with user profile.
         
         Args:
             profile_path: Path to user_profile.json file
+            language: Language code for the error words (e.g., 'fr-fr', 'en-us', 'es-es')
         """
         self.profile_path = Path(profile_path)
+        self.language = language
         self.error_words = []
         self.conversations = []
         
@@ -91,7 +95,8 @@ class LessonGenerator:
         self,
         client: BackboardClient,
         assistant_id: str,
-        num_conversations: int = 3
+        num_conversations: int = 3,
+        language: str = None
     ) -> List[Dict]:
         """
         Generate conversational Q&A pairs using Backboard.
@@ -101,10 +106,29 @@ class LessonGenerator:
             client: BackboardClient instance
             assistant_id: Backboard assistant ID
             num_conversations: Number of conversations to generate
+            language: Language code (e.g., 'fr-fr', 'en-us'). Uses self.language if not provided.
             
         Returns:
             List of conversation dictionaries with 'question' and 'response'
         """
+        # Use provided language or default to instance language
+        target_language = language or getattr(self, 'language', 'fr-fr')
+        
+        # Get language name for prompts (e.g., 'fr-fr' -> 'French')
+        lang_map = {
+            'fr-fr': 'French',
+            'en-us': 'English',
+            'es-es': 'Spanish',
+            'de-de': 'German',
+            'it-it': 'Italian',
+            'pt-pt': 'Portuguese',
+            'ja-jp': 'Japanese',
+            'zh-cn': 'Chinese',
+            'ko-kr': 'Korean'
+        }
+        lang_code = target_language.split('-')[0].lower() if '-' in target_language else target_language.lower()
+        language_name = lang_map.get(f'{lang_code}-{target_language.split("-")[1].lower()}' if '-' in target_language else target_language, target_language)
+        
         # Get top error words
         top_words = self.get_top_error_words(num_conversations)
         
@@ -118,30 +142,20 @@ class LessonGenerator:
             target_word = word_data['word']
             error_rate = word_data['error_rate']
             
-            # Generate question and response using Backboard
-            # First, generate the question
-            question_prompt = f"""You are a friendly pronunciation coach.
-
-Generate ONE short, natural conversational question that encourages someone to use the word "{target_word}" in their answer.
-
-Rules:
-- Question only (no explanations)
-- Casual, everyday language
-- Must naturally lead to using "{target_word}" in the response
-- Keep it simple and conversational"""
-
-            # Then generate the response that includes the target word
-            response_prompt = f"""You are helping someone practice pronunciation.
-
-Generate a natural conversational response that MUST include the word "{target_word}".
-
-The response should:
-- Be 1-2 sentences
-- Sound natural and conversational
-- Naturally include "{target_word}"
-- Answer a question someone might ask about {target_word}"""
-
             try:
+                # Generate question first
+                question_prompt = f"""You are a friendly pronunciation coach.
+
+Generate ONE short, natural conversational question in {language_name} that encourages someone to use the word "{target_word}" in their answer.
+
+CRITICAL REQUIREMENTS:
+- Write the question ONLY in {language_name} (language code: {target_language})
+- Question only (no explanations, no English, no translations)
+- Casual, everyday {language_name} language
+- Must naturally lead to using "{target_word}" in the response
+- Keep it simple and conversational
+- Output ONLY the question in {language_name}, nothing else"""
+
                 # Create a thread for generating the question
                 question_thread = await client.create_thread(assistant_id)
                 
@@ -154,12 +168,37 @@ The response should:
                     stream=False
                 )
                 question_text = question_response.content.strip()
-                # Clean up question (remove quotes, etc.)
+                # Clean up question (remove quotes, explanations, etc.)
                 question_text = question_text.strip(' "\'').strip()
+                # Remove any English explanations that might have been added
+                if '\n' in question_text:
+                    # Take the first line that looks like a question
+                    lines = question_text.split('\n')
+                    question_text = next((line.strip() for line in lines if '?' in line), question_text)
+                
                 if not question_text or not question_text.endswith('?'):
                     # Fallback if question generation fails
-                    question_text = f"Can you tell me about {target_word}?"
+                    if 'fr' in target_language.lower():
+                        question_text = f"Peux-tu me parler de {target_word}?"
+                    else:
+                        question_text = f"Can you tell me about {target_word}?"
                 
+                # Generate response that answers the question
+                response_prompt = f"""You are helping someone practice pronunciation in {language_name}.
+
+Here is a question in {language_name}: "{question_text}"
+
+Generate a natural conversational response in {language_name} that:
+1. DIRECTLY ANSWERS the question above: "{question_text}"
+2. MUST include the word "{target_word}" naturally in the answer
+3. Is written ONLY in {language_name} (language code: {target_language})
+4. Is 1-2 sentences, simple and conversational
+5. Sounds natural and makes sense as a direct answer to the question
+
+CRITICAL: The response must be a direct answer to the question "{question_text}". The response must make sense as an answer to that specific question.
+
+Output ONLY the response in {language_name}, nothing else."""
+
                 # Create a new thread for generating the response
                 response_thread = await client.create_thread(assistant_id)
                 response_obj = await client.add_message(
@@ -172,10 +211,17 @@ The response should:
                 response_text = response_obj.content.strip()
                 # Clean up response
                 response_text = response_text.strip(' "\'').strip()
+                # Remove any English explanations
+                if '\n' in response_text:
+                    lines = response_text.split('\n')
+                    response_text = lines[0].strip()  # Take first line
                 
                 # Ensure target word is in response
                 if target_word.lower() not in response_text.lower():
-                    response_text = f"Here's an example with {target_word}: {response_text}"
+                    if 'fr' in target_language.lower():
+                        response_text = f"Voici un exemple avec {target_word}: {response_text}"
+                    else:
+                        response_text = f"Here's an example with {target_word}: {response_text}"
                 
                 conversations.append({
                     "question": question_text,
@@ -190,13 +236,22 @@ The response should:
             except Exception as e:
                 print(f"✗ Error generating conversation for '{target_word}': {e}")
                 # Create a fallback conversation
-                conversations.append({
-                    "question": f"Can you use the word '{target_word}' in a sentence?",
-                    "response": f"Here's an example with '{target_word}' in it.",
-                    "target_word": target_word,
-                    "error_rate": error_rate,
-                    "count": word_data['count']
-                })
+                if 'fr' in target_language.lower():
+                    conversations.append({
+                        "question": f"Peux-tu utiliser le mot '{target_word}' dans une phrase?",
+                        "response": f"Voici un exemple avec '{target_word}' dedans.",
+                        "target_word": target_word,
+                        "error_rate": error_rate,
+                        "count": word_data['count']
+                    })
+                else:
+                    conversations.append({
+                        "question": f"Can you use the word '{target_word}' in a sentence?",
+                        "response": f"Here's an example with '{target_word}' in it.",
+                        "target_word": target_word,
+                        "error_rate": error_rate,
+                        "count": word_data['count']
+                    })
         
         self.conversations = conversations
         return conversations
@@ -512,19 +567,20 @@ async def main():
     # Initialize client
     client = BackboardClient(api_key=api_key)
     
-    # Create lesson generator
+    # Create lesson generator (default to French, change to match your song's language)
     print("Loading user profile...")
-    lesson_gen = LessonGenerator("user_profile.json")
+    lesson_gen = LessonGenerator("user_profile.json", language="fr-fr")  # Change language as needed
     
     print(f"Found {len(lesson_gen.error_words)} words with errors")
     print(f"Top words: {[w['word'] for w in lesson_gen.get_top_error_words(3)]}")
     
-    # Generate conversations
-    print("\nGenerating conversations with Backboard...")
+    # Generate conversations (language will be used from lesson_gen.language)
+    print("\nGenerating conversations ...")
     conversations = await lesson_gen.generate_conversations(
         client=client,
         assistant_id=assistant_id,
-        num_conversations=3
+        num_conversations=3,
+        language="fr-fr"  # Change to match your song's language (e.g., "fr-fr", "es-es", "en-us")
     )
     
     # Print lesson
