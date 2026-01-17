@@ -1,1 +1,10 @@
 demucs
+deep_translator
+ffmpeg
+openai-whisper
+phonemizer
+ffmpeg-python
+numpy
+torch
+librosa
+deep_translator
