@@ -41,18 +41,17 @@ def get_lyrics(song_url):
 
     return lyrics.strip()
 
-def save_lyrics_to_file(song, artist, lyrics):
-    filename = f"{song}_{artist}_lyrics.txt".replace(" ", "_")
+def save_lyrics_to_file(lyrics):
+    filename = f"genius_lyrics.txt"
 
     with open(filename, "w", encoding="utf-8") as file:
         file.write(lyrics)
 
     print(f"Lyrics saved to {filename}")
 
-def get_title(song):
-    return song
 
 if __name__ == "__main__":
+    global song
     song = input("Enter song title: ")
     artist = input("Enter artist name: ")
 
@@ -63,3 +62,5 @@ if __name__ == "__main__":
 
     save_lyrics_to_file(song, artist, lyrics)
 
+def get_title(song):
+    return song
