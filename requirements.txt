@@ -7,17 +7,13 @@ ffmpeg-python
 numpy
 torch
 librosa
-<<<<<<< Updated upstream
 torchaudio
 transformers
 python-Levenshtein
 backboard
 backboard-sdk
-=======
->>>>>>> Stashed changes
 elevenlabs
-backboard
-backboard-sdk
 requests
 moviepy
 Pillow
+flask
