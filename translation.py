@@ -6,12 +6,15 @@ import lyricgeneration as lyricsGeneration
 
 async def main():
     # Initialize the Backboard client
-    client = BackboardClient(api_key="espr_PvloS1GoOKc5snLiAyoB84OATVTEiBabkZO002VmnIg")
+
+    with open("genius_lyrics.txt", "r", encoding="utf-8") as file:
+        lyrics = file.read()
+
+    client = BackboardClient(api_key="espr_-E7xd5n6PKHueWcNykyoDWDE3hewLEWyduHKDXmhKSI")
 
     # Create an assistant
     assistant = await client.create_assistant(
-        name="Translator Assistant",
-        system_prompt="A helpful assistant"
+        name="Translator Assistant"
     )
 
     # Create a thread
@@ -20,14 +23,16 @@ async def main():
     # Send a message and get the complete response
     response = await client.add_message(
         thread_id=thread.thread_id,
-        content="Translate these lyrics, maintainging the line structure, tone, and approximate number of syllables, while still mostly keeping word-for-word accuracy because it is for translation practice purposes. \n" + "abc"
-        llm_provider="openai",
-        model_name="gpt-4o",
+        content="This is my own writing, and i need the whole file translated into spanish. output only the translated lines, maintaining a similar tone. it is for a game. if you need to stop, tell me why." + lyrics,
+        llm_provider="google",
+        model_name="gemini-2.5-flash",
         stream=False
     )
 
     # Print the AI's response
-    print(response.content)
+    with open("translated_genius_lyrics.txt", "w", encoding="utf-8") as file:
+        file.write(response.content)
+    print("file written")
 
 if __name__ == "__main__":
     asyncio.run(main())
