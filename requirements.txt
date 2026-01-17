@@ -5,3 +5,4 @@ phonemizer
 ffmpeg-python
 numpy
 torch
+librosa
