@@ -130,7 +130,9 @@ def upload_song():
         metadata_entry = {
             "id": len(list(DATABASE_DIR.glob("*/metadata.txt"))) + 1,
             "song_name": song_name,
+            "artist": artist if artist else None,
             "translation_language": translation_language if translation_language else "Not specified",
+            "genre": genre if genre else None,
             "original_filename": filename,
             "saved_filename": safe_filename,
             "file_path": str(file_path),
@@ -292,9 +294,13 @@ def list_songs():
                             if key == 'song_name':
                                 song_info['title'] = value
                                 song_info['song_name'] = value
+                            elif key == 'artist':
+                                song_info['artist'] = value
                             elif key == 'translation_language':
                                 song_info['language'] = value
                                 song_info['translation_language'] = value
+                            elif key == 'genre':
+                                song_info['genre'] = value
                             elif key == 'uploaded':
                                 song_info['uploaded_at'] = value
                             elif key == 'status':
