@@ -7,4 +7,5 @@ ffmpeg-python
 numpy
 torch
 librosa
-deep_translator
+beautifulsoup
+backboard-sdk

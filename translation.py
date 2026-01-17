@@ -1,24 +1,33 @@
-from deep_translator import GoogleTranslator
+# Install: pip install backboard-sdk
+import asyncio
+from backboard import BackboardClient
+import lyricgeneration as lyricsGeneration
 
-input_file = "lyricsTest.txt"
-output_file = "lyrics_translated.txt"
 
-source_lang = "en"
-target_lang = "es"  # Spanish
+async def main():
+    # Initialize the Backboard client
+    client = BackboardClient(api_key="espr_PvloS1GoOKc5snLiAyoB84OATVTEiBabkZO002VmnIg")
 
-translator = GoogleTranslator(source=source_lang, target=target_lang)
+    # Create an assistant
+    assistant = await client.create_assistant(
+        name="Translator Assistant",
+        system_prompt="A helpful assistant"
+    )
 
-with open(input_file, "r", encoding="utf-8") as infile, \
-     open(output_file, "w", encoding="utf-8") as outfile:
+    # Create a thread
+    thread = await client.create_thread(assistant.assistant_id)
 
-    for line in infile:
-        line = line.strip()
+    # Send a message and get the complete response
+    response = await client.add_message(
+        thread_id=thread.thread_id,
+        content="Translate these lyrics, maintainging the line structure, tone, and approximate number of syllables, while still mostly keeping word-for-word accuracy because it is for translation practice purposes. \n" + "abc"
+        llm_provider="openai",
+        model_name="gpt-4o",
+        stream=False
+    )
 
-        if not line:
-            outfile.write("\n")
-            continue
+    # Print the AI's response
+    print(response.content)
 
-        translated = translator.translate(line)
-        outfile.write(translated + "\n")
-
-print("Translation complete!")
+if __name__ == "__main__":
+    asyncio.run(main())
