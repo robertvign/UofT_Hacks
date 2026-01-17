@@ -10,3 +10,6 @@ librosa
 torchaudio
 transformers
 python-Levenshtein
+elevenlabs
+backboard
+backboard-sdk
