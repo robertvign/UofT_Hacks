@@ -51,6 +51,7 @@ def save_lyrics_to_file(song, artist, lyrics):
 
 
 if __name__ == "__main__":
+    global song
     song = input("Enter song title: ")
     artist = input("Enter artist name: ")
 
@@ -61,3 +62,5 @@ if __name__ == "__main__":
 
     save_lyrics_to_file(song, artist, lyrics)
 
+def get_title(song):
+    return song
