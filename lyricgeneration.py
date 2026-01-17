@@ -49,8 +49,8 @@ def save_lyrics_to_file(song, artist, lyrics):
 
     print(f"Lyrics saved to {filename}")
 
-def get_title(song_title):
-    return song_title
+def get_title(song):
+    return song
 
 if __name__ == "__main__":
     song = input("Enter song title: ")
