@@ -14,12 +14,16 @@ import sys
 import os
 import asyncio
 import re
+import shutil
+import json
 from pathlib import Path
+from datetime import datetime
 
 # Get the project root directory (parent of src/)
 PROJECT_ROOT = Path(__file__).parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 OUTPUT_DIR = PROJECT_ROOT / "output"
+DATABASE_DIR = PROJECT_ROOT / "database"
 
 # Import required modules
 try:
@@ -129,7 +133,7 @@ def transcribe_audio(audio_file, output_file=None):
     return output_file
 
 
-async def compare_lyrics_with_ai(genius_file, transcribed_file, output_file=None):
+async def compare_lyrics_with_ai(genius_file, transcribed_file, output_file=None, max_retries=3):
     if output_file is None:
         output_file = str(DATA_DIR / "genius_with_timestamps.txt")
     """
@@ -139,19 +143,15 @@ async def compare_lyrics_with_ai(genius_file, transcribed_file, output_file=None
         genius_file: Path to Genius lyrics file
         transcribed_file: Path to transcribed lyrics file
         output_file: Path to output file with timestamps
+        max_retries: Maximum number of retry attempts
     
     Returns:
         str: Path to output file
     """
     print(f"\n=== Step 5: Comparing lyrics with AI ===")
     
-    client = BackboardClient(api_key="espr_-E7xd5n6PKHueWcNykyoDWDE3hewLEWyduHKDXmhKSI", timeout=120)
-    
-    assistant = await client.create_assistant(
-        name="Lyrics Comparison Assistant"
-    )
-    
-    thread = await client.create_thread(assistant.assistant_id)
+    # Increase timeout to 180 seconds
+    client = BackboardClient(api_key="espr_-E7xd5n6PKHueWcNykyoDWDE3hewLEWyduHKDXmhKSI", timeout=180)
     
     with open(genius_file, "r", encoding="utf-8") as file:
         geniuslyrics = file.read()
@@ -159,23 +159,58 @@ async def compare_lyrics_with_ai(genius_file, transcribed_file, output_file=None
     with open(transcribed_file, "r", encoding="utf-8") as file:
         transcribedlyrics = file.read()
     
-    print("Sending lyrics to AI for comparison...")
-    response = await client.add_message(
-        thread_id=thread.thread_id,
-        content=f"Take {geniuslyrics} and {transcribedlyrics} and compare them. If two lines are similar enough, take the timestamp from the transcribed file and insert it in the relevant line in the genius file. Then output the genius file with the appropriate timestamps. Output only the lyrics with timestamps, one per line.",
-        llm_provider="google",
-        model_name="gemini-2.5-flash",
-        stream=False
-    )
+    # Retry logic with exponential backoff
+    for attempt in range(max_retries):
+        try:
+            print(f"Sending lyrics to AI for comparison... (Attempt {attempt + 1}/{max_retries})")
+            
+            assistant = await client.create_assistant(
+                name="Lyrics Comparison Assistant"
+            )
+            
+            thread = await client.create_thread(assistant.assistant_id)
+            
+            response = await client.add_message(
+                thread_id=thread.thread_id,
+                content=f"Take {geniuslyrics} and {transcribedlyrics} and compare them. If two lines are similar enough, take the timestamp from the transcribed file and insert it in the relevant line in the genius file. Then output the genius file with the appropriate timestamps. Output only the lyrics with timestamps, one per line.",
+                llm_provider="google",
+                model_name="gemini-2.5-flash",
+                stream=False
+            )
+            
+            with open(output_file, "w", encoding="utf-8") as file:
+                file.write(response.content)
+            
+            print(f"Aligned lyrics saved to: {output_file}")
+            return output_file
+            
+        except Exception as e:
+            error_msg = str(e)
+            print(f"Attempt {attempt + 1} failed: {error_msg}")
+            
+            # If it's a timeout or 504 error and we have retries left, wait and retry
+            if attempt < max_retries - 1 and ("504" in error_msg or "timeout" in error_msg.lower() or "Gateway" in error_msg):
+                wait_time = (attempt + 1) * 5  # Exponential backoff: 5s, 10s, 15s
+                print(f"Waiting {wait_time} seconds before retry...")
+                await asyncio.sleep(wait_time)
+                continue
+            else:
+                # If all retries failed or it's a different error, fallback to transcribed lyrics
+                print(f"\n⚠️  Warning: AI comparison failed after {attempt + 1} attempts.")
+                print(f"   Falling back to using transcribed lyrics with timestamps.")
+                print(f"   Error: {error_msg}")
+                
+                # Copy transcribed file as fallback
+                shutil.copy(transcribed_file, output_file)
+                print(f"   Using transcribed lyrics: {output_file}")
+                return output_file
     
-    with open(output_file, "w", encoding="utf-8") as file:
-        file.write(response.content)
-    
-    print(f"Aligned lyrics saved to: {output_file}")
+    # Should never reach here, but just in case
+    shutil.copy(transcribed_file, output_file)
     return output_file
 
 
-async def translate_lyrics(input_file, target_language, output_file=None):
+async def translate_lyrics(input_file, target_language, output_file=None, max_retries=3):
     if output_file is None:
         output_file = str(DATA_DIR / "translated_genius_lyrics.txt")
     """
@@ -185,6 +220,7 @@ async def translate_lyrics(input_file, target_language, output_file=None):
         input_file: Path to lyrics file with timestamps
         target_language: Target language name (e.g., "spanish", "french")
         output_file: Path to output translated file
+        max_retries: Maximum number of retry attempts
     
     Returns:
         str: Path to translated file
@@ -194,28 +230,49 @@ async def translate_lyrics(input_file, target_language, output_file=None):
     with open(input_file, "r", encoding="utf-8") as file:
         lyrics = file.read()
     
-    client = BackboardClient(api_key="espr_-E7xd5n6PKHueWcNykyoDWDE3hewLEWyduHKDXmhKSI")
+    # Increase timeout to 180 seconds
+    client = BackboardClient(api_key="espr_-E7xd5n6PKHueWcNykyoDWDE3hewLEWyduHKDXmhKSI", timeout=180)
     
-    assistant = await client.create_assistant(
-        name="Translator Assistant"
-    )
-    
-    thread = await client.create_thread(assistant.assistant_id)
-    
-    print(f"Translating to {target_language}...")
-    response = await client.add_message(
-        thread_id=thread.thread_id,
-        content=f"This is my own writing, and I need the whole file translated into {target_language}. Output only the translated lines, maintaining a similar tone. Preserve the timestamp format [start → end] if present. If you need to stop, tell me why. {lyrics}",
-        llm_provider="google",
-        model_name="gemini-2.5-flash",
-        stream=False
-    )
-    
-    with open(output_file, "w", encoding="utf-8") as file:
-        file.write(response.content)
-    
-    print(f"Translated lyrics saved to: {output_file}")
-    return output_file
+    # Retry logic with exponential backoff
+    for attempt in range(max_retries):
+        try:
+            print(f"Translating to {target_language}... (Attempt {attempt + 1}/{max_retries})")
+            
+            assistant = await client.create_assistant(
+                name="Translator Assistant"
+            )
+            
+            thread = await client.create_thread(assistant.assistant_id)
+            
+            response = await client.add_message(
+                thread_id=thread.thread_id,
+                content=f"This is my own writing, and I need the whole file translated into {target_language}. Output only the translated lines, maintaining a similar tone. Preserve the timestamp format [start → end] if present. If you need to stop, tell me why. {lyrics}",
+                llm_provider="google",
+                model_name="gemini-2.5-flash",
+                stream=False
+            )
+            
+            with open(output_file, "w", encoding="utf-8") as file:
+                file.write(response.content)
+            
+            print(f"Translated lyrics saved to: {output_file}")
+            return output_file
+            
+        except Exception as e:
+            error_msg = str(e)
+            print(f"Attempt {attempt + 1} failed: {error_msg}")
+            
+            # If it's a timeout or 504 error and we have retries left, wait and retry
+            if attempt < max_retries - 1 and ("504" in error_msg or "timeout" in error_msg.lower() or "Gateway" in error_msg):
+                wait_time = (attempt + 1) * 5  # Exponential backoff: 5s, 10s, 15s
+                print(f"Waiting {wait_time} seconds before retry...")
+                await asyncio.sleep(wait_time)
+                continue
+            else:
+                # If all retries failed, raise the error (translation is critical)
+                print(f"\n❌ Error: Translation failed after {attempt + 1} attempts.")
+                print(f"   Error: {error_msg}")
+                raise
 
 
 def parse_lyrics_with_timestamps(filename):
@@ -277,7 +334,77 @@ def create_timed_lyrics_file(translated_file, output_file=None):
     return output_file
 
 
-async def process_music_video(song_name, mp4_file, target_language):
+def save_video_metadata(video_path, song_name, target_language, original_file=None):
+    """
+    Save metadata about a processed video to the database.
+    
+    Args:
+        video_path: Path to the final video file
+        song_name: Name of the song
+        target_language: Target language for translation
+        original_file: Original input file path (optional)
+    """
+    DATABASE_DIR.mkdir(exist_ok=True)
+    
+    metadata_file = DATABASE_DIR / "videos_metadata.json"
+    
+    # Load existing metadata
+    if metadata_file.exists():
+        try:
+            with open(metadata_file, 'r', encoding='utf-8') as f:
+                metadata_list = json.load(f)
+        except:
+            metadata_list = []
+    else:
+        metadata_list = []
+    
+    # Get video file info
+    video_path_obj = Path(video_path)
+    file_size = video_path_obj.stat().st_size if video_path_obj.exists() else 0
+    file_size_mb = file_size / (1024 * 1024)
+    
+    # Create metadata entry
+    metadata_entry = {
+        "id": len(metadata_list) + 1,
+        "song_name": song_name,
+        "translation_language": target_language,
+        "video_filename": video_path_obj.name,
+        "video_path": str(video_path),
+        "original_file": original_file if original_file else None,
+        "file_size_bytes": file_size,
+        "file_size_mb": round(file_size_mb, 2),
+        "created_at": datetime.now().isoformat(),
+        "created_date": datetime.now().strftime("%Y-%m-%d"),
+        "created_time": datetime.now().strftime("%H:%M:%S")
+    }
+    
+    # Add to list
+    metadata_list.append(metadata_entry)
+    
+    # Save updated metadata
+    with open(metadata_file, 'w', encoding='utf-8') as f:
+        json.dump(metadata_list, f, indent=2, ensure_ascii=False)
+    
+    # Also save as human-readable text file
+    text_metadata_file = DATABASE_DIR / "videos_metadata.txt"
+    with open(text_metadata_file, 'a', encoding='utf-8') as f:
+        f.write(f"\n{'='*60}\n")
+        f.write(f"Video ID: {metadata_entry['id']}\n")
+        f.write(f"Song Name: {song_name}\n")
+        f.write(f"Translation Language: {target_language}\n")
+        f.write(f"Video Filename: {video_path_obj.name}\n")
+        f.write(f"Video Path: {video_path}\n")
+        if original_file:
+            f.write(f"Original File: {original_file}\n")
+        f.write(f"File Size: {file_size_mb:.2f} MB ({file_size} bytes)\n")
+        f.write(f"Created: {metadata_entry['created_at']}\n")
+        f.write(f"{'='*60}\n")
+    
+    print(f"\nMetadata saved to: {metadata_file}")
+    return metadata_entry
+
+
+async def process_music_video(song_name, mp4_file, target_language, save_to_database=True):
     """
     Main pipeline to process music video.
     
@@ -285,6 +412,7 @@ async def process_music_video(song_name, mp4_file, target_language):
         song_name: Name of the song (for Genius API lookup)
         mp4_file: Path to input MP4 file
         target_language: Target language for translation
+        save_to_database: Whether to save to database folder (default: True)
     """
     print(f"\n{'='*60}")
     print(f"Music Video Pipeline")
@@ -358,13 +486,31 @@ async def process_music_video(song_name, mp4_file, target_language):
     
     # Step 9: Create final video
     print(f"\n=== Step 9: Creating final video ===")
-    final_output = str(OUTPUT_DIR / "final.mp4")
+    
+    # Determine output location
+    if save_to_database:
+        DATABASE_DIR.mkdir(exist_ok=True)
+        # Create unique filename based on song name and language
+        safe_song_name = "".join(c for c in song_name if c.isalnum() or c in (' ', '-', '_')).strip()
+        safe_song_name = safe_song_name.replace(' ', '_')
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        video_filename = f"{safe_song_name}_{target_language}_{timestamp}.mp4"
+        final_output = str(DATABASE_DIR / video_filename)
+    else:
+        final_output = str(OUTPUT_DIR / "final.mp4")
+    
     time_music.create_lyrics_video(music_path, time_lyrics_file, final_output, background_image=background_image)
+    
+    # Save metadata if saving to database
+    if save_to_database:
+        save_video_metadata(final_output, song_name, target_language, mp4_file)
     
     print(f"\n{'='*60}")
     print(f"Pipeline complete!")
     print(f"Final video: {final_output}")
     print(f"{'='*60}\n")
+    
+    return final_output
 
 
 def main():
