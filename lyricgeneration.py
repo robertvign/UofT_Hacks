@@ -1,4 +1,5 @@
 import requests
+import io
 from bs4 import BeautifulSoup
 
 GENIUS_TOKEN = "puRi9AvrjaHDN5TtbcyThRgFPYBHvX8_XnMVJgVvaSnV9HnhNDRtjshJ3rh-Ej4w"
@@ -42,12 +43,27 @@ def get_lyrics(song_url):
     return lyrics.strip()
 
 def save_lyrics_to_file(lyrics):
-    filename = f"genius_lyrics.txt"
+    tempString = io.StringIO(lyrics)
+    line = tempString.readline()
+    while line and "[" not in line:
+        line = tempString.readline()
+    newText = line + tempString.read()
 
-    with open(filename, "w", encoding="utf-8") as file:
-        file.write(lyrics)
+    lines = []
+    for line in io.StringIO(newText):
+        if line.strip() and not (line[0] == "[" or line[-1] == "]"):
+            lines.append(line)
+            
+    
 
-    print(f"Lyrics saved to {filename}")
+
+    with open("genius_lyrics.txt", "w", encoding="utf-8") as file:
+        file.writelines(lines)
+
+
+
+
+    print(f"Lyrics saved to {"genius_lyrics"}")
 
 
 if __name__ == "__main__":
@@ -60,7 +76,4 @@ if __name__ == "__main__":
 
     lyrics = get_lyrics(url)
 
-    save_lyrics_to_file(song, artist, lyrics)
-
-def get_title(song):
-    return song
+    save_lyrics_to_file(lyrics)

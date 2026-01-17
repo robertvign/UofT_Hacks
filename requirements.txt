@@ -8,6 +8,10 @@ numpy
 torch
 librosa
 deep_translator
+<<<<<<< HEAD
 torchaudio 
 transformers 
 python-Levenshtein
+=======
+moviepy
+>>>>>>> 9f6d24ea2bc26e3aed15d485c029e345f142ce83
