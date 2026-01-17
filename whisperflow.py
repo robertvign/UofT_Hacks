@@ -117,7 +117,7 @@ for segment in unique_segments:
 final_lyrics = '\n'.join(lyrics_with_timestamps)
 
 # Save to text file
-output_file = "lights_lyrics.txt"
+output_file = "transcribed_lyrics.txt"
 with open(output_file, 'w', encoding='utf-8') as f:
     f.write(final_lyrics)
 
