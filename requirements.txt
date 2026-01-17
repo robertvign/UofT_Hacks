@@ -10,6 +10,8 @@ librosa
 torchaudio
 transformers
 python-Levenshtein
-mfa
-textgrid
-soundfile
+backboard
+backboard-sdk
+elevenlabs
+backboard
+backboard-sdk
