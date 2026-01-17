@@ -15,3 +15,6 @@ backboard-sdk
 elevenlabs
 backboard
 backboard-sdk
+requests
+moviepy
+Pillow
