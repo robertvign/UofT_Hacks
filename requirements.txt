@@ -1,1 +1,2 @@
 demucs
+deep_translator
