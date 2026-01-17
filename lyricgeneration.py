@@ -63,7 +63,7 @@ def save_lyrics_to_file(lyrics):
 
 
 
-    print("lyrics saved")
+    print(f"Lyrics saved to {"genius_lyrics"}")
 
 
 if __name__ == "__main__":
