@@ -42,7 +42,11 @@ class SingingLanguageTrainer:
         Returns:
             dict with results including accuracy, phonemes, profile update
         """
-        # Get reference phonemes from lyrics
+        # Read lyrics file to get original lines
+        with open(lyrics_path, 'r', encoding='utf-8') as f:
+            lyrics_lines = [line.strip() for line in f.readlines() if line.strip()]
+        
+        # Get reference phonemes from lyrics (full text)
         print(f"Processing reference lyrics from: {lyrics_path}")
         reference_phonemes = phonemize_lyrics(
             input_file=lyrics_path,
@@ -52,15 +56,84 @@ class SingingLanguageTrainer:
             silent=True  # Don't print to console
         )
         
-        # Get user phonemes from audio
-        print(f"Extracting phonemes from user audio: {audio_path}")
-        user_phonemes = audio_to_phonemes(audio_path)
+        # Get reference phonemes per line
+        ref_phoneme_lines = []
+        for line in lyrics_lines:
+            # Create temp file for this line
+            from tempfile import NamedTemporaryFile
+            with NamedTemporaryFile(mode='w', suffix='.txt', delete=False, encoding='utf-8') as tmp:
+                tmp.write(line)
+                tmp_path = tmp.name
+            
+            try:
+                line_phonemes = phonemize_lyrics(
+                    input_file=tmp_path,
+                    output_file=None,
+                    language=language,
+                    backend='espeak',
+                    silent=True
+                )
+                ref_phoneme_lines.append(line_phonemes.strip() if line_phonemes else "")
+            finally:
+                Path(tmp_path).unlink()
         
-        # Calculate accuracy
+        # Get user phonemes from audio using FORCED ALIGNMENT
+        # This extracts phonemes DIRECTLY from audio (no text transcription)
+        print(f"Extracting phonemes DIRECTLY from user audio: {audio_path}")
+        print(f"  Using forced alignment to capture your ACTUAL pronunciation...")
+        
+        # Read the full lyrics text for forced alignment
+        with open(lyrics_path, 'r', encoding='utf-8') as f:
+            full_lyrics_text = f.read().strip()
+        
+        # Extract phonemes directly from audio using forced alignment
+        user_phonemes = audio_to_phonemes(
+            audio_path, 
+            reference_text=full_lyrics_text,  # Required for forced alignment
+            language=language
+        )
+        
+        # Calculate overall accuracy
         accuracy = phoneme_accuracy(reference_phonemes, user_phonemes)
         
         # Update pronunciation profile
         self.profile.update(reference_phonemes, user_phonemes)
+        
+        # For line-by-line comparison, we'll do a simple split approach
+        # Since audio is continuous, we approximate line boundaries
+        user_phoneme_list = user_phonemes.split()
+        
+        # Approximate line-by-line by dividing phonemes proportionally
+        total_ref_phonemes = len(reference_phonemes.split())
+        line_accuracies = []
+        
+        if total_ref_phonemes > 0:
+            phonemes_per_ref = len(user_phoneme_list) / total_ref_phonemes if total_ref_phonemes > 0 else 0
+            current_idx = 0
+            
+            for i, ref_line_phonemes in enumerate(ref_phoneme_lines):
+                ref_line_list = ref_line_phonemes.split()
+                if not ref_line_list:
+                    line_accuracies.append({'line': i+1, 'text': lyrics_lines[i], 'accuracy': 1.0})
+                    continue
+                
+                # Approximate how many user phonemes correspond to this line
+                num_user_phonemes = int(len(ref_line_list) * phonemes_per_ref)
+                user_line_list = user_phoneme_list[current_idx:current_idx+num_user_phonemes] if current_idx < len(user_phoneme_list) else []
+                current_idx += num_user_phonemes
+                
+                # Compare this line
+                ref_line_str = ' '.join(ref_line_list)
+                user_line_str = ' '.join(user_line_list) if user_line_list else ""
+                line_acc = phoneme_accuracy(ref_line_str, user_line_str)
+                
+                line_accuracies.append({
+                    'line': i+1,
+                    'text': lyrics_lines[i],
+                    'accuracy': line_acc,
+                    'ref_phonemes': ref_line_str,
+                    'user_phonemes': user_line_str
+                })
         
         # Prepare results
         results = {
@@ -68,7 +141,9 @@ class SingingLanguageTrainer:
             'reference_phonemes': reference_phonemes,
             'user_phonemes': user_phonemes,
             'weak_phonemes': self.profile.weak_phonemes(),
-            'weighted_score': self.profile.weighted_score(reference_phonemes, user_phonemes)
+            'weighted_score': self.profile.weighted_score(reference_phonemes, user_phonemes),
+            'line_accuracies': line_accuracies,
+            'lyrics_lines': lyrics_lines
         }
         
         # Save phonemes if requested
@@ -101,18 +176,45 @@ class SingingLanguageTrainer:
         print("PRONUNCIATION ANALYSIS")
         print("="*60)
         
-        print(f"\nOverall Accuracy: {results['accuracy']:.2%}")
-        print(f"Weighted Score: {results['weighted_score']:.2%}")
+        print(f"\n📊 OVERALL ACCURACY: {results['accuracy']:.2%}")
+        print(f"📊 Weighted Score: {results['weighted_score']:.2%}")
+        
+        # Show line-by-line accuracy
+        if 'line_accuracies' in results and results['line_accuracies']:
+            print("\n" + "="*60)
+            print("LINE-BY-LINE ANALYSIS")
+            print("="*60)
+            
+            # Sort by accuracy (worst first)
+            sorted_lines = sorted(results['line_accuracies'], key=lambda x: x['accuracy'])
+            
+            print("\n⚠️  LINES WITH LOW ACCURACY (struggled on):")
+            print("-" * 60)
+            for item in sorted_lines:
+                if item['accuracy'] < 0.8:  # Threshold for "struggled"
+                    accuracy_bar = "█" * int(item['accuracy'] * 20) + "░" * (20 - int(item['accuracy'] * 20))
+                    print(f"\nLine {item['line']}: {item['accuracy']:.1%} {accuracy_bar}")
+                    print(f"  Text: {item['text']}")
+                    if item.get('ref_phonemes') and item.get('user_phonemes'):
+                        print(f"  Ref:  {item['ref_phonemes'][:60]}")
+                        print(f"  You:  {item['user_phonemes'][:60]}")
+            
+            print("\n✅ LINES WITH GOOD ACCURACY:")
+            print("-" * 60)
+            for item in sorted_lines:
+                if item['accuracy'] >= 0.8:
+                    accuracy_bar = "█" * int(item['accuracy'] * 20) + "░" * (20 - int(item['accuracy'] * 20))
+                    print(f"Line {item['line']}: {item['accuracy']:.1%} {accuracy_bar} - {item['text']}")
         
         if results['weak_phonemes']:
             print(f"\n⚠️  Weak Phonemes (need practice): {', '.join(results['weak_phonemes'])}")
         else:
             print("\n✓ All phonemes are within acceptable error rates!")
         
-        print("\nReference Phonemes:")
-        print(f"  {results['reference_phonemes']}")
-        print("\nYour Phonemes:")
-        print(f"  {results['user_phonemes']}")
+        print("\n📝 Full Reference Phonemes:")
+        print(f"  {results['reference_phonemes'][:200]}...")
+        print("\n🎤 Your Phonemes:")
+        print(f"  {results['user_phonemes'][:200]}...")
         
         # Compare phoneme by phoneme
         ref_list = results['reference_phonemes'].split()
