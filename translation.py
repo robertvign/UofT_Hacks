@@ -7,7 +7,7 @@ import lyricgeneration as lyricsGeneration
 async def main():
     # Initialize the Backboard client
 
-    with open("transcribed_lyrics.txt", "r", encoding="utf-8") as file:
+    with open("genius_lyrics.txt", "r", encoding="utf-8") as file:
         lyrics = file.read()
 
     language = input("select a language: ")
