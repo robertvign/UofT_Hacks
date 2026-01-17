@@ -141,15 +141,16 @@ def phonemize_with_espeak_direct(text, language='en-us'):
         return None
 
 
-def phonemize_lyrics(input_file, output_file=None, language='en-us', backend='espeak'):
+def phonemize_lyrics(input_file, output_file=None, language='en-us', backend='espeak', silent=False):
     """
     Converts song lyrics from a text file to phonemes.
     
     Args:
         input_file: Path to the input text file containing lyrics
-        output_file: Optional path to save the phoneme output (if None, prints to console)
+        output_file: Optional path to save the phoneme output (if None, prints to console unless silent=True)
         language: Language code for phonemization (default: 'en-us')
         backend: Backend to use for phonemization (default: 'espeak')
+        silent: If True, don't print to console (default: False)
     """
     try:
         # Read the input file first
@@ -231,8 +232,9 @@ def phonemize_lyrics(input_file, output_file=None, language='en-us', backend='es
         if output_file:
             with open(output_file, 'w', encoding='utf-8') as f:
                 f.write(phoneme_output)
-            print(f"Phonemes saved to '{output_file}'")
-        else:
+            if not silent:
+                print(f"Phonemes saved to '{output_file}'")
+        elif not silent:
             print("Phonemes:")
             print(phoneme_output)
             print()

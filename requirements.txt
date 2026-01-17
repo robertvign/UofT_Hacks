@@ -8,3 +8,6 @@ numpy
 torch
 librosa
 deep_translator
+torchaudio 
+transformers 
+python-Levenshtein
