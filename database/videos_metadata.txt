@@ -9,3 +9,26 @@ Original File: /Users/ryan/Developer/UofT_Hacks/database/The_Weekend_-_Blinded_B
 File Size: 8.33 MB (8736796 bytes)
 Created: 2026-01-17T14:21:43.941419
 ============================================================
+
+
+============================================================
+Video ID: 4
+Song Name: Beautiful Things
+Translation Language: Romanian
+Video Filename: Beautiful_Things_Romanian_20260117_175908.mp4
+Video Path: /Users/ryan/Developer/UofT_Hacks/database/Beautiful_Things_Romanian_20260117_175908.mp4
+Original File: /Users/ryan/Developer/UofT_Hacks/database/Beautiful_Things/1768690606_1768690606_Benson_Boone_-_Beautiful_Things_Official_Music_Video.mp3
+File Size: 10.00 MB (10490321 bytes)
+Created: 2026-01-17T18:02:09.398835
+============================================================
+
+============================================================
+Video ID: 6
+Song Name: Butter
+Translation Language: French
+Video Filename: Butter_French_20260117_181352.mp4
+Video Path: /Users/ryan/Developer/UofT_Hacks/database/Butter_French_20260117_181352.mp4
+Original File: /Users/ryan/Developer/UofT_Hacks/database/Butter/1768691344_1768691344_BTS__Butter_Official_MV.mp3
+File Size: 6.33 MB (6642094 bytes)
+Created: 2026-01-17T18:16:36.842279
+============================================================

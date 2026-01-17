@@ -8,21 +8,35 @@ import os
 import asyncio
 import time
 import json
+import re
+import subprocess
+import shutil
 from pathlib import Path
 from datetime import datetime
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, session
 from werkzeug.utils import secure_filename
+from werkzeug.security import check_password_hash
+import hashlib
 
 # Import the main processing function
 from music_video import process_music_video
 
 # Initialize Flask app
 app = Flask("Duosingo")
+app.secret_key = "duosingo-secret-key-change-in-production"  # Change this in production
 
 # Enable CORS manually
 @app.after_request
 def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')
+    # Get the origin from the request
+    origin = request.headers.get('Origin', '*')
+    # Allow credentials, so we need to set a specific origin (not *)
+    if origin in ['http://localhost:1234', 'http://localhost:3000', 'http://127.0.0.1:1234', 'http://127.0.0.1:3000']:
+        response.headers.add('Access-Control-Allow-Origin', origin)
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+    else:
+        # Fallback for other origins (less secure but more flexible)
+        response.headers.add('Access-Control-Allow-Origin', origin if origin != '*' else '*')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     return response
@@ -32,6 +46,8 @@ PROJECT_ROOT = Path(__file__).parent.parent
 OUTPUT_DIR = PROJECT_ROOT / "output"
 DATABASE_DIR = PROJECT_ROOT / "database"
 UPLOAD_FOLDER = PROJECT_ROOT / "uploads"
+USERS_FILE = PROJECT_ROOT / "src" / "users.txt"
+USER_PREFERENCES_FILE = PROJECT_ROOT / "src" / "user_preferences.json"
 ALLOWED_EXTENSIONS = {'mp3', 'wav', 'm4a', 'flac', 'ogg', 'mp4', 'mov', 'avi'}
 
 # Create necessary directories
@@ -50,6 +66,293 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+def is_youtube_url(url):
+    """Check if URL is a YouTube URL."""
+    if not url:
+        return False
+    youtube_patterns = [
+        r'(?:https?://)?(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/)([a-zA-Z0-9_-]{11})',
+        r'(?:https?://)?(?:www\.)?youtube\.com/embed/([a-zA-Z0-9_-]{11})',
+        r'(?:https?://)?(?:www\.)?youtube\.com/watch\?.*v=([a-zA-Z0-9_-]{11})',
+        r'(?:https?://)?(?:m\.)?youtube\.com/watch\?v=([a-zA-Z0-9_-]{11})',
+    ]
+    for pattern in youtube_patterns:
+        if re.search(pattern, url):
+            return True
+    return False
+
+
+def download_youtube_audio(url, output_path):
+    """
+    Download audio from YouTube URL and convert to MP3.
+    Uses yt-dlp Python module if available, otherwise falls back to command line.
+    
+    Args:
+        url: YouTube URL
+        output_path: Path where MP3 file should be saved
+    
+    Returns:
+        Path to downloaded MP3 file
+    """
+    try:
+        print(f"Downloading YouTube audio from: {url}")
+        
+        # Try using yt_dlp Python module first (installed via: pip install yt-dlp)
+        try:
+            import yt_dlp  # Note: package is 'yt-dlp' but import is 'yt_dlp'
+            
+            output_path_obj = Path(output_path)
+            output_dir = output_path_obj.parent
+            output_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Remove .mp3 extension if present, yt-dlp will add it
+            output_template = str(output_path).replace('.mp3', '') + '.%(ext)s'
+            
+            # Try multiple format strategies
+            format_strategies = [
+                'bestaudio[ext=m4a]/bestaudio/best',
+                'bestaudio/best',
+                'worstaudio/worst',  # Sometimes lower quality works better
+                'best[height<=480]',  # Try video with audio if audio-only fails
+            ]
+            
+            last_error = None
+            for attempt, format_str in enumerate(format_strategies, 1):
+                try:
+                    print(f"Attempt {attempt}/{len(format_strategies)}: Trying format '{format_str}'...")
+                    
+                    ydl_opts = {
+                        'format': format_str,
+                        'outtmpl': output_template,
+                        'postprocessors': [{
+                            'key': 'FFmpegExtractAudio',
+                            'preferredcodec': 'mp3',
+                            'preferredquality': '192',
+                        }],
+                        'quiet': False,
+                        'no_warnings': False,
+                        'retries': 5,
+                        'fragment_retries': 5,
+                        'file_access_retries': 3,
+                        'ignoreerrors': False,
+                        'no_check_certificate': False,
+                        'extract_flat': False,
+                        'writesubtitles': False,
+                        'writeautomaticsub': False,
+                        'noplaylist': True,
+                        'extractaudio': True,
+                        'audioformat': 'mp3',
+                        'audioquality': '192K',
+                    }
+                    
+                    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                        ydl.download([url])
+                    
+                    # Wait a moment for file to be written
+                    time.sleep(1)
+                    
+                    # Find the downloaded file
+                    mp3_files = sorted(
+                        output_dir.glob("*.mp3"),
+                        key=lambda p: p.stat().st_mtime if p.exists() else 0,
+                        reverse=True
+                    )
+                    
+                    # Also check for other audio formats that might have been downloaded
+                    audio_files = sorted(
+                        [f for f in output_dir.glob("*") if f.is_file() and f.suffix in ['.mp3', '.m4a', '.webm', '.opus']],
+                        key=lambda p: p.stat().st_mtime if p.exists() else 0,
+                        reverse=True
+                    )
+                    
+                    # Check if file exists and is not empty
+                    for file_path in (mp3_files + audio_files):
+                        if file_path.exists() and file_path.stat().st_size > 0:
+                            # If it's not MP3, we need to convert it
+                            if file_path.suffix != '.mp3':
+                                print(f"Converting {file_path.suffix} to MP3...")
+                                # The postprocessor should have handled this, but if not, try manual conversion
+                                final_mp3 = file_path.with_suffix('.mp3')
+                                if not final_mp3.exists() or final_mp3.stat().st_size == 0:
+                                    # Use ffmpeg to convert
+                                    convert_cmd = [
+                                        'ffmpeg', '-i', str(file_path),
+                                        '-acodec', 'libmp3lame', '-ab', '192k',
+                                        '-y', str(final_mp3)
+                                    ]
+                                    result = subprocess.run(convert_cmd, capture_output=True, text=True)
+                                    if result.returncode == 0 and final_mp3.exists() and final_mp3.stat().st_size > 0:
+                                        file_path.unlink()  # Remove original
+                                        file_path = final_mp3
+                                    else:
+                                        continue
+                                else:
+                                    file_path = final_mp3
+                            
+                            print(f"YouTube audio downloaded successfully to: {file_path}")
+                            print(f"  File size: {file_path.stat().st_size / (1024*1024):.2f} MB")
+                            return str(file_path)
+                    
+                    # Check expected file location
+                    expected_file = output_path_obj.with_suffix('.mp3')
+                    if expected_file.exists() and expected_file.stat().st_size > 0:
+                        print(f"YouTube audio downloaded to: {expected_file}")
+                        return str(expected_file)
+                    
+                    # If we got here, the file is empty or doesn't exist
+                    raise Exception(f"Downloaded file is empty or not found (attempt {attempt})")
+                    
+                except Exception as e:
+                    last_error = e
+                    error_msg = str(e)
+                    print(f"Attempt {attempt} failed: {error_msg}")
+                    
+                    # Clean up any empty files from this attempt
+                    for file_path in output_dir.glob("*"):
+                        if file_path.is_file() and file_path.stat().st_size == 0:
+                            try:
+                                file_path.unlink()
+                            except:
+                                pass
+                    
+                    # If it's not a format/empty file error, don't retry
+                    if "empty" not in error_msg.lower() and "format" not in error_msg.lower():
+                        if attempt < len(format_strategies):
+                            print(f"Retrying with different format...")
+                            time.sleep(2)  # Wait before retry
+                            continue
+                        else:
+                            raise
+                    
+                    # Continue to next format strategy
+                    if attempt < len(format_strategies):
+                        time.sleep(2)  # Wait before retry
+                        continue
+            
+            # If all attempts failed
+            if last_error:
+                raise last_error
+            raise Exception("Downloaded file not found after all attempts")
+            
+        except ImportError:
+            # Fall back to command line yt-dlp
+            print("yt_dlp module not found, trying command line yt-dlp...")
+            
+            output_path_obj = Path(output_path)
+            output_template = str(output_path).replace('.mp3', '') + '.%(ext)s'
+            
+            cmd = [
+                'yt-dlp',
+                '-x',  # Extract audio only
+                '--audio-format', 'mp3',
+                '--audio-quality', '192K',
+                '-o', output_template,
+                '--no-playlist',
+                url
+            ]
+            
+            print(f"Running command: {' '.join(cmd)}")
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=600
+            )
+            
+            if result.returncode != 0:
+                error_msg = result.stderr or result.stdout
+                print(f"yt-dlp error: {error_msg}")
+                raise Exception(f"Failed to download YouTube video: {error_msg}")
+            
+            # Find downloaded file
+            output_dir = output_path_obj.parent
+            mp3_files = sorted(
+                output_dir.glob("*.mp3"),
+                key=lambda p: p.stat().st_mtime if p.exists() else 0,
+                reverse=True
+            )
+            
+            if mp3_files:
+                downloaded_file = mp3_files[0]
+                print(f"YouTube audio downloaded to: {downloaded_file}")
+                return str(downloaded_file)
+            
+            expected_file = output_path_obj.with_suffix('.mp3')
+            if expected_file.exists():
+                return str(expected_file)
+            
+            raise Exception("Downloaded file not found")
+        
+    except subprocess.TimeoutExpired:
+        raise Exception("YouTube download timed out (10 minutes)")
+    except FileNotFoundError:
+        raise Exception("yt-dlp not found. Please install it: pip install yt-dlp")
+    except Exception as e:
+        print(f"Error downloading YouTube video: {e}")
+        import traceback
+        traceback.print_exc()
+        raise
+
+
+# ============================================
+# Authentication Helpers
+# ============================================
+
+def hash_password(password):
+    """Simple password hashing (for demo purposes)."""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+
+def verify_user(username, password):
+    """Verify user credentials from users.txt file."""
+    if not USERS_FILE.exists():
+        print(f"ERROR: Users file not found at {USERS_FILE}")
+        return False
+    
+    try:
+        with open(USERS_FILE, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if not line or not ':' in line:  # Skip empty lines
+                    continue
+                user, pwd = line.split(':', 1)
+                user = user.strip()
+                pwd = pwd.strip()
+                if user == username and pwd == password:
+                    return True
+    except Exception as e:
+        print(f"ERROR reading users file: {e}")
+        return False
+    return False
+
+
+def load_user_preferences(username):
+    """Load user preferences (likes and mastery)."""
+    if not USER_PREFERENCES_FILE.exists():
+        return {"likes": [], "mastery": {}}
+    
+    try:
+        with open(USER_PREFERENCES_FILE, 'r', encoding='utf-8') as f:
+            all_prefs = json.load(f)
+            return all_prefs.get(username, {"likes": [], "mastery": {}})
+    except:
+        return {"likes": [], "mastery": {}}
+
+
+def save_user_preferences(username, preferences):
+    """Save user preferences."""
+    if USER_PREFERENCES_FILE.exists():
+        with open(USER_PREFERENCES_FILE, 'r', encoding='utf-8') as f:
+            all_prefs = json.load(f)
+    else:
+        all_prefs = {}
+    
+    all_prefs[username] = preferences
+    
+    with open(USER_PREFERENCES_FILE, 'w', encoding='utf-8') as f:
+        json.dump(all_prefs, f, indent=2, ensure_ascii=False)
+
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint."""
@@ -59,13 +362,199 @@ def health_check():
     }), 200
 
 
+# ============================================
+# Authentication Endpoints
+# ============================================
+
+@app.route('/api/auth/login', methods=['POST', 'OPTIONS'])
+def login():
+    """Login endpoint."""
+    if request.method == 'OPTIONS':
+        return '', 204
+    try:
+        data = request.get_json() or {}
+        username = data.get('username', '').strip()
+        password = data.get('password', '').strip()
+        
+        print(f"Login attempt: username='{username}', password length={len(password)}")
+        
+        if not username or not password:
+            return jsonify({
+                'error': 'Missing credentials',
+                'message': 'Please provide both username and password'
+            }), 400
+        
+        if verify_user(username, password):
+            session['username'] = username
+            prefs = load_user_preferences(username)
+            print(f"Login successful for user: {username}")
+            return jsonify({
+                'status': 'success',
+                'message': 'Login successful',
+                'user': {
+                    'username': username,
+                    'likes': prefs.get('likes', []),
+                    'mastery': prefs.get('mastery', {})
+                }
+            }), 200
+        else:
+            print(f"Login failed for user: {username} (invalid credentials)")
+            return jsonify({
+                'error': 'Invalid credentials',
+                'message': 'Username or password is incorrect'
+            }), 401
+    except Exception as e:
+        import traceback
+        error_trace = traceback.format_exc()
+        print(f"Login error: {e}\n{error_trace}")
+        return jsonify({
+            'error': 'Login error',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/auth/logout', methods=['POST'])
+def logout():
+    """Logout endpoint."""
+    session.pop('username', None)
+    return jsonify({
+        'status': 'success',
+        'message': 'Logged out successfully'
+    }), 200
+
+
+@app.route('/api/auth/me', methods=['GET'])
+def get_current_user():
+    """Get current logged-in user."""
+    username = session.get('username')
+    if not username:
+        return jsonify({
+            'error': 'Not authenticated',
+            'message': 'Please log in first'
+        }), 401
+    
+    prefs = load_user_preferences(username)
+    return jsonify({
+        'status': 'success',
+        'user': {
+            'username': username,
+            'likes': prefs.get('likes', []),
+            'mastery': prefs.get('mastery', {})
+        }
+    }), 200
+
+
+@app.route('/api/auth/preferences', methods=['GET'])
+def get_preferences():
+    """Get user preferences."""
+    username = session.get('username')
+    if not username:
+        return jsonify({
+            'error': 'Not authenticated',
+            'message': 'Please log in first'
+        }), 401
+    
+    prefs = load_user_preferences(username)
+    return jsonify({
+        'status': 'success',
+        'preferences': prefs
+    }), 200
+
+
+@app.route('/api/auth/preferences/likes', methods=['POST'])
+def update_likes():
+    """Update user's liked songs."""
+    username = session.get('username')
+    if not username:
+        return jsonify({
+            'error': 'Not authenticated',
+            'message': 'Please log in first'
+        }), 401
+    
+    try:
+        data = request.get_json()
+        song_id = data.get('song_id')
+        is_liked = data.get('is_liked', True)
+        
+        if song_id is None:
+            return jsonify({
+                'error': 'Missing song_id',
+                'message': 'Please provide song_id'
+            }), 400
+        
+        prefs = load_user_preferences(username)
+        likes = prefs.get('likes', [])
+        song_id = int(song_id)
+        
+        if is_liked:
+            if song_id not in likes:
+                likes.append(song_id)
+        else:
+            if song_id in likes:
+                likes.remove(song_id)
+        
+        prefs['likes'] = likes
+        save_user_preferences(username, prefs)
+        
+        return jsonify({
+            'status': 'success',
+            'likes': likes
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'error': 'Update error',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/auth/preferences/mastery', methods=['POST'])
+def update_mastery():
+    """Update user's mastery progress for a song."""
+    username = session.get('username')
+    if not username:
+        return jsonify({
+            'error': 'Not authenticated',
+            'message': 'Please log in first'
+        }), 401
+    
+    try:
+        data = request.get_json()
+        song_id = data.get('song_id')
+        progress = data.get('progress', 0)
+        
+        if song_id is None:
+            return jsonify({
+                'error': 'Missing song_id',
+                'message': 'Please provide song_id'
+            }), 400
+        
+        progress = max(0, min(100, int(progress)))  # Clamp between 0-100
+        
+        prefs = load_user_preferences(username)
+        mastery = prefs.get('mastery', {})
+        mastery[str(song_id)] = progress
+        prefs['mastery'] = mastery
+        save_user_preferences(username, prefs)
+        
+        return jsonify({
+            'status': 'success',
+            'mastery': mastery
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'error': 'Update error',
+            'message': str(e)
+        }), 500
+
+
 @app.route('/api/upload', methods=['POST', 'OPTIONS'])
 def upload_song():
     """
-    Upload a song file, run the full music-video pipeline, and save to the database.
+    Upload a song file or YouTube URL, run the full music-video pipeline, and save to the database.
     
     Expected form data:
-    - file: Audio file (MP3, WAV, etc.)
+    - file: Audio file (MP3, WAV, etc.) OR
+    - youtube_url: YouTube URL to download and convert
     - song_name: Name of the song
     - translation_language: Target language for translation (defaults to "English" if empty)
     
@@ -75,18 +564,11 @@ def upload_song():
     if request.method == 'OPTIONS':
         return '', 204
     try:
-        # Check if file is present
-        if 'file' not in request.files:
-            return jsonify({
-                'error': 'No file provided',
-                'message': 'Please provide an audio file in the "file" field'
-            }), 400
-        
-        file = request.files['file']
         song_name = request.form.get('song_name', '').strip()
         artist = request.form.get('artist', '').strip()
         translation_language = request.form.get('translation_language', '').strip()
         genre = request.form.get('genre', '').strip()
+        youtube_url = request.form.get('youtube_url', '').strip()
         
         # Parse song name if format is "Artist - Song" and artist not provided separately
         if not artist and ' - ' in song_name:
@@ -95,23 +577,91 @@ def upload_song():
             song_name = parts[1].strip() if len(parts) > 1 else song_name
         
         # Validate inputs
-        if file.filename == '':
-            return jsonify({
-                'error': 'No file selected',
-                'message': 'Please select a file to upload'
-            }), 400
-        
         if not song_name:
             return jsonify({
                 'error': 'Missing song name',
                 'message': 'Please provide a song_name in the form data'
             }), 400
         
-        # Validate file extension
-        if not allowed_file(file.filename):
+        file_path = None
+        filename = None
+        
+        # Check if YouTube URL is provided
+        if youtube_url:
+            if not is_youtube_url(youtube_url):
+                return jsonify({
+                    'error': 'Invalid YouTube URL',
+                    'message': 'Please provide a valid YouTube URL'
+                }), 400
+            
+            # Download YouTube audio
+            timestamp = int(time.time())
+            output_filename = f"{timestamp}_youtube_audio.mp3"
+            file_path = UPLOAD_FOLDER / output_filename
+            
+            try:
+                print(f"\n{'='*60}")
+                print(f"Starting YouTube download...")
+                print(f"  URL: {youtube_url}")
+                print(f"  Output: {file_path}")
+                print(f"{'='*60}\n")
+                
+                downloaded_path = download_youtube_audio(youtube_url, str(file_path))
+                file_path = Path(downloaded_path)
+                filename = file_path.name
+                
+                if not file_path.exists():
+                    raise Exception(f"Downloaded file not found at: {file_path}")
+                
+                print(f"\n{'='*60}")
+                print(f"YouTube audio downloaded successfully!")
+                print(f"  File: {file_path}")
+                print(f"  Size: {file_path.stat().st_size / (1024*1024):.2f} MB")
+                print(f"{'='*60}\n")
+            except Exception as e:
+                import traceback
+                error_trace = traceback.format_exc()
+                print(f"\n{'='*60}")
+                print(f"YouTube download failed!")
+                print(f"  Error: {str(e)}")
+                if "yt-dlp" in str(e).lower() or "yt_dlp" in str(e).lower():
+                    print(f"  Hint: Install yt-dlp with: pip install yt-dlp")
+                print(f"  Traceback: {error_trace}")
+                print(f"{'='*60}\n")
+                return jsonify({
+                    'error': 'YouTube download failed',
+                    'message': str(e),
+                    'hint': 'Make sure yt-dlp is installed: pip install yt-dlp' if 'yt' in str(e).lower() else None
+                }), 500
+        
+        # Otherwise, check for file upload
+        elif 'file' in request.files:
+            file = request.files['file']
+            
+            if file.filename == '':
+                return jsonify({
+                    'error': 'No file selected',
+                    'message': 'Please select a file to upload or provide a YouTube URL'
+                }), 400
+            
+            # Validate file extension
+            if not allowed_file(file.filename):
+                return jsonify({
+                    'error': 'Invalid file type',
+                    'message': f'Allowed file types: {", ".join(ALLOWED_EXTENSIONS)}'
+                }), 400
+            
+            # Save the uploaded file
+            filename = secure_filename(file.filename)
+            timestamp = int(time.time())
+            safe_filename = f"{timestamp}_{filename}"
+            file_path = UPLOAD_FOLDER / safe_filename
+            file.save(str(file_path))
+            filename = safe_filename
+        else:
             return jsonify({
-                'error': 'Invalid file type',
-                'message': f'Allowed file types: {", ".join(ALLOWED_EXTENSIONS)}'
+                'error': 'No file or URL provided',
+                'message': 'Please provide either an audio file or a YouTube URL'
             }), 400
         
         # Create database directory structure
@@ -123,12 +673,23 @@ def upload_song():
         song_folder = DATABASE_DIR / safe_song_name
         song_folder.mkdir(exist_ok=True)
         
-        # Save the uploaded file
-        filename = secure_filename(file.filename)
-        timestamp = int(time.time())
-        safe_filename = f"{timestamp}_{filename}"
-        file_path = song_folder / safe_filename
-        file.save(str(file_path))
+        # Move file to song folder (if it's not already there)
+        safe_filename = secure_filename(filename or file_path.name) if file_path else None
+        if file_path and file_path.parent != song_folder:
+            timestamp = int(time.time())
+            final_filename = f"{timestamp}_{safe_filename}"
+            final_file_path = song_folder / final_filename
+            # Move the file
+            shutil.move(str(file_path), str(final_file_path))
+            file_path = final_file_path
+            filename = final_filename
+            safe_filename = final_filename
+        
+        if not file_path or not file_path.exists():
+            return jsonify({
+                'error': 'File processing error',
+                'message': 'Failed to process file or URL'
+            }), 500
         
         # Get file info
         file_size = file_path.stat().st_size
@@ -142,7 +703,7 @@ def upload_song():
             "translation_language": translation_language if translation_language else "Not specified",
             "genre": genre if genre else None,
             "original_filename": filename,
-            "saved_filename": safe_filename,
+            "saved_filename": safe_filename or filename,
             "file_path": str(file_path),
             "folder_path": str(song_folder),
             "file_size_bytes": file_size,
@@ -150,6 +711,8 @@ def upload_song():
             "uploaded_at": datetime.now().isoformat(),
             "uploaded_date": datetime.now().strftime("%Y-%m-%d"),
             "uploaded_time": datetime.now().strftime("%H:%M:%S"),
+            "source": "youtube" if youtube_url else "file_upload",
+            "youtube_url": youtube_url if youtube_url else None,
             "processed_video": None,  # Will be set when video is processed
             "status": "uploaded"
         }
@@ -166,8 +729,11 @@ def upload_song():
             f.write(f"Translation Language: {metadata_entry['translation_language']}\n")
             if genre:
                 f.write(f"Genre: {genre}\n")
+            if youtube_url:
+                f.write(f"Source: YouTube\n")
+                f.write(f"YouTube URL: {youtube_url}\n")
             f.write(f"Original Filename: {filename}\n")
-            f.write(f"Saved Filename: {safe_filename}\n")
+            f.write(f"Saved Filename: {safe_filename or filename}\n")
             f.write(f"File Path: {file_path}\n")
             f.write(f"File Size: {file_size_mb:.2f} MB ({file_size} bytes)\n")
             f.write(f"Uploaded: {metadata_entry['uploaded_at']}\n")
@@ -187,6 +753,14 @@ def upload_song():
             json.dump(all_metadata, f, indent=2, ensure_ascii=False)
         
         # Run the full music-video pipeline (transcription, translation, video creation)
+        # This runs for both file uploads and YouTube downloads
+        print(f"\n{'='*60}")
+        print(f"Starting full processing pipeline...")
+        print(f"  Source: {'YouTube' if youtube_url else 'File Upload'}")
+        print(f"  Song: {song_name}")
+        print(f"  File: {file_path}")
+        print(f"{'='*60}\n")
+        
         translation_lang = (translation_language or '').strip() or "English"
         try:
             loop = asyncio.new_event_loop()
@@ -195,12 +769,18 @@ def upload_song():
                 final_video_path = loop.run_until_complete(
                     process_music_video(song_name, str(file_path), translation_lang, save_to_database=True)
                 )
+                print(f"\n{'='*60}")
+                print(f"Pipeline completed successfully!")
+                print(f"  Final video: {final_video_path}")
+                print(f"{'='*60}\n")
             finally:
                 loop.close()
         except Exception as proc_err:
             import traceback
             proc_trace = traceback.format_exc()
+            print(f"\n{'='*60}")
             print(f"Processing failed: {proc_err}\n{proc_trace}")
+            print(f"{'='*60}\n")
             return jsonify({
                 'error': 'Processing error',
                 'message': str(proc_err),
@@ -369,8 +949,22 @@ def list_songs():
                 
                 # Set defaults for frontend compatibility
                 song_info['coverUrl'] = "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&q=80"
-                song_info['progress'] = 100 if song_info.get('has_video') else 0
-                song_info['isFavorite'] = False
+                
+                # Get user preferences for likes and mastery
+                username = session.get('username')
+                if username:
+                    prefs = load_user_preferences(username)
+                    likes = prefs.get('likes', [])
+                    mastery = prefs.get('mastery', {})
+                    song_info['isFavorite'] = song_info['id'] in likes
+                    song_info['progress'] = mastery.get(str(song_info['id']), 0)
+                else:
+                    song_info['isFavorite'] = False
+                    song_info['progress'] = 0
+                
+                # If no user mastery, default to 0% (or 100% if video exists, but let's use 0%)
+                if song_info.get('progress') == 0 and song_info.get('has_video'):
+                    song_info['progress'] = 0  # Start at 0% mastery for all users
                 
                 songs.append(song_info)
         

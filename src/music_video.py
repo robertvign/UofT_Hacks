@@ -59,7 +59,8 @@ def extract_audio_from_mp4(mp4_file, output_audio_file):
     """
     print(f"\n=== Step 1: Extracting audio from {mp4_file} ===")
     video = VideoFileClip(mp4_file)
-    video.audio.write_audiofile(output_audio_file, verbose=False, logger=None)
+    # Remove verbose parameter as it's not supported in newer moviepy versions
+    video.audio.write_audiofile(output_audio_file, logger=None)
     video.close()
     print(f"Audio extracted to: {output_audio_file}")
     return output_audio_file
@@ -172,7 +173,7 @@ async def compare_lyrics_with_ai(genius_file, transcribed_file, output_file=None
             
             response = await client.add_message(
                 thread_id=thread.thread_id,
-                content=f"Take {geniuslyrics} and {transcribedlyrics} and compare them. If two lines are similar enough, take the timestamp from the transcribed file and insert it in the relevant line in the genius file. Then output the genius file with the appropriate timestamps. Output only the lyrics with timestamps, one per line.",
+                content=f"This is my own writing for a school project, Take {geniuslyrics} and {transcribedlyrics} and compare them. If two lines are similar enough, take the timestamp from the transcribed file and insert it in the relevant line in the genius file. Then output the genius file with the appropriate timestamps. Output only the lyrics with timestamps, one per line.",
                 llm_provider="google",
                 model_name="gemini-2.5-flash",
                 stream=False
@@ -214,97 +215,228 @@ async def translate_lyrics(input_file, target_language, output_file=None, max_re
     if output_file is None:
         output_file = str(DATA_DIR / "translated_genius_lyrics.txt")
     """
-    Translate lyrics to target language using AI.
+    Translate lyrics to target language using deep_translator library.
     
     Args:
         input_file: Path to lyrics file with timestamps
-        target_language: Target language name (e.g., "spanish", "french")
+        target_language: Target language name (e.g., "spanish", "french", "romanian")
         output_file: Path to output translated file
-        max_retries: Maximum number of retry attempts
+        max_retries: Maximum number of retry attempts (for individual lines)
     
     Returns:
         str: Path to translated file
     """
     print(f"\n=== Step 6: Translating lyrics to {target_language} ===")
     
+    try:
+        from deep_translator import GoogleTranslator
+    except ImportError:
+        raise ImportError("deep_translator not installed. Please install it: pip install deep-translator")
+    
+    # Map common language names to language codes
+    language_map = {
+        'english': 'en',
+        'spanish': 'es',
+        'french': 'fr',
+        'german': 'de',
+        'italian': 'it',
+        'portuguese': 'pt',
+        'russian': 'ru',
+        'chinese': 'zh',
+        'japanese': 'ja',
+        'korean': 'ko',
+        'arabic': 'ar',
+        'hindi': 'hi',
+        'romanian': 'ro',
+        'polish': 'pl',
+        'dutch': 'nl',
+        'greek': 'el',
+        'turkish': 'tr',
+        'swedish': 'sv',
+        'norwegian': 'no',
+        'danish': 'da',
+        'finnish': 'fi',
+        'czech': 'cs',
+        'hungarian': 'hu',
+        'ukrainian': 'uk',
+        'vietnamese': 'vi',
+        'thai': 'th',
+        'indonesian': 'id',
+        'malay': 'ms',
+        'tagalog': 'tl',
+        'hebrew': 'he',
+        'cherokee': 'chr',  # Note: may not be supported by all translators
+    }
+    
+    # Normalize target language
+    target_lang_lower = target_language.lower().strip()
+    target_code = language_map.get(target_lang_lower, target_lang_lower[:2] if len(target_lang_lower) >= 2 else 'en')
+    
+    # If it's already a 2-letter code, use it directly
+    if len(target_lang_lower) == 2:
+        target_code = target_lang_lower
+    
+    print(f"Translating from English to {target_language} (code: {target_code})...")
+    
+    # Parse the input file to extract timestamps and text
+    lines_with_timestamps = []
+    pattern_full = r'\[(\d+\.?\d*)s → (\d+\.?\d*)s\] (.+)'
+    pattern_start_only = r'\[(\d+\.?\d*)s\] (.+)'
+    
     with open(input_file, "r", encoding="utf-8") as file:
-        lyrics = file.read()
-    
-    # Increase timeout to 180 seconds
-    client = BackboardClient(api_key="espr_-E7xd5n6PKHueWcNykyoDWDE3hewLEWyduHKDXmhKSI", timeout=180)
-    
-    # Retry logic with exponential backoff
-    for attempt in range(max_retries):
-        try:
-            print(f"Translating to {target_language}... (Attempt {attempt + 1}/{max_retries})")
-            
-            assistant = await client.create_assistant(
-                name="Translator Assistant"
-            )
-            
-            thread = await client.create_thread(assistant.assistant_id)
-            
-            response = await client.add_message(
-                thread_id=thread.thread_id,
-                content=f"This is my own writing, and I need the whole file translated into {target_language}. Output only the translated lines, maintaining a similar tone. Preserve the timestamp format [start → end] if present. If you need to stop, tell me why. {lyrics}",
-                llm_provider="google",
-                model_name="gemini-2.5-flash",
-                stream=False
-            )
-            
-            with open(output_file, "w", encoding="utf-8") as file:
-                file.write(response.content)
-            
-            print(f"Translated lyrics saved to: {output_file}")
-            return output_file
-            
-        except Exception as e:
-            error_msg = str(e)
-            print(f"Attempt {attempt + 1} failed: {error_msg}")
-            
-            # If it's a timeout or 504 error and we have retries left, wait and retry
-            if attempt < max_retries - 1 and ("504" in error_msg or "timeout" in error_msg.lower() or "Gateway" in error_msg):
-                wait_time = (attempt + 1) * 5  # Exponential backoff: 5s, 10s, 15s
-                print(f"Waiting {wait_time} seconds before retry...")
-                await asyncio.sleep(wait_time)
+        for line in file:
+            line = line.strip()
+            if not line:
                 continue
+            
+            # Try full format [start → end] text
+            match_full = re.match(pattern_full, line)
+            if match_full:
+                start = match_full.group(1)
+                end = match_full.group(2)
+                text = match_full.group(3).strip()
+                lines_with_timestamps.append((start, end, text, True))  # True = has end time
+                continue
+            
+            # Try start-only format [start] text
+            match_start = re.match(pattern_start_only, line)
+            if match_start:
+                start = match_start.group(1)
+                text = match_start.group(2).strip()
+                lines_with_timestamps.append((start, None, text, False))  # False = no end time
+                continue
+            
+            # Plain text without timestamp
+            lines_with_timestamps.append((None, None, line, False))
+    
+    # Initialize translator
+    translator = GoogleTranslator(source='en', target=target_code)
+    
+    # Translate each line
+    translated_lines = []
+    for i, (start, end, text, has_end) in enumerate(lines_with_timestamps):
+        if not text or not text.strip():
+            # Empty line, preserve it
+            if start:
+                if has_end and end:
+                    translated_lines.append(f"[{start}s → {end}s] ")
+                else:
+                    translated_lines.append(f"[{start}s] ")
             else:
-                # If all retries failed, raise the error (translation is critical)
-                print(f"\n❌ Error: Translation failed after {attempt + 1} attempts.")
-                print(f"   Error: {error_msg}")
-                raise
+                translated_lines.append("")
+            continue
+        
+        # Translate the text
+        translated_text = None
+        for attempt in range(max_retries):
+            try:
+                translated_text = translator.translate(text)
+                break
+            except Exception as e:
+                error_msg = str(e)
+                print(f"  Translation attempt {attempt + 1} failed for line {i+1}: {error_msg}")
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(1)  # Wait 1 second before retry
+                else:
+                    # If all retries failed, use original text
+                    print(f"  Warning: Using original text for line {i+1}")
+                    translated_text = text
+        
+        if translated_text is None:
+            translated_text = text  # Fallback to original
+        
+        # Reconstruct the line with timestamp
+        if start:
+            if has_end and end:
+                translated_lines.append(f"[{start}s → {end}s] {translated_text}")
+            else:
+                translated_lines.append(f"[{start}s] {translated_text}")
+        else:
+            translated_lines.append(translated_text)
+        
+        # Progress indicator
+        if (i + 1) % 10 == 0:
+            print(f"  Translated {i + 1}/{len(lines_with_timestamps)} lines...")
+    
+    # Write translated lyrics to output file
+    with open(output_file, "w", encoding="utf-8") as file:
+        file.write("\n".join(translated_lines))
+    
+    print(f"Translated {len(lines_with_timestamps)} lines")
+    print(f"Translated lyrics saved to: {output_file}")
+    return output_file
 
 
 def parse_lyrics_with_timestamps(filename):
     """
     Parse lyrics file with timestamps and return list of (start, end, text) tuples.
-    Handles both formats: [start → end] text and plain text.
+    Handles multiple formats:
+    - [start → end] text
+    - [start] text (end time calculated from next line)
+    - plain text (estimated timestamps)
     """
     lyrics = []
-    pattern = r'\[(\d+\.?\d*)s → (\d+\.?\d*)s\] (.+)'
     
+    # Pattern 1: [start → end] text
+    pattern_full = r'\[(\d+\.?\d*)s → (\d+\.?\d*)s\] (.+)'
+    # Pattern 2: [start] text
+    pattern_start_only = r'\[(\d+\.?\d*)s\] (.+)'
+    
+    # First pass: read all lines and parse timestamps
+    lines_with_times = []
     with open(filename, 'r', encoding='utf-8') as f:
         for line in f:
             line = line.strip()
             if not line:
                 continue
             
-            match = re.match(pattern, line)
-            if match:
-                start = float(match.group(1))
-                end = float(match.group(2))
-                text = match.group(3).strip()
-                lyrics.append((start, end, text))
+            # Try full format first
+            match_full = re.match(pattern_full, line)
+            if match_full:
+                start = float(match_full.group(1))
+                end = float(match_full.group(2))
+                text = match_full.group(3).strip()
+                lines_with_times.append((start, end, text))
+                continue
+            
+            # Try start-only format
+            match_start = re.match(pattern_start_only, line)
+            if match_start:
+                start = float(match_start.group(1))
+                text = match_start.group(2).strip()
+                lines_with_times.append((start, None, text))  # end will be calculated
+                continue
+            
+            # No timestamp - plain text
+            if line and not line.startswith('[') and len(line) > 2:
+                lines_with_times.append((None, None, line))
+    
+    # Second pass: calculate end times for lines that only have start times
+    for i, (start, end, text) in enumerate(lines_with_times):
+        if end is None:
+            # Calculate end time from next line's start time
+            if i + 1 < len(lines_with_times):
+                next_start = lines_with_times[i + 1][0]
+                if next_start is not None:
+                    end = next_start
+                else:
+                    # Next line has no timestamp, estimate 3 seconds
+                    end = start + 3.0 if start is not None else 3.0
             else:
-                # If no timestamp, try to extract just text
-                # Skip lines that are clearly not lyrics
-                if line and not line.startswith('[') and len(line) > 2:
-                    # Use previous end time or estimate
-                    if lyrics:
-                        prev_end = lyrics[-1][1]
-                        lyrics.append((prev_end, prev_end + 3.0, line))
-                    else:
-                        lyrics.append((0.0, 3.0, line))
+                # Last line, estimate 3 seconds duration
+                end = start + 3.0 if start is not None else 3.0
+        
+        if start is None:
+            # No start time, estimate from previous line
+            if i > 0:
+                prev_end = lyrics[-1][1] if lyrics else 0.0
+                start = prev_end
+                end = start + 3.0
+            else:
+                start = 0.0
+                end = 3.0
+        
+        lyrics.append((start, end, text))
     
     return lyrics
 
