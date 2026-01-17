@@ -7,7 +7,7 @@ with open("genius_lyrics.txt", "r", encoding="utf-8") as f:
 
 # --- Step 2: Read audio transcription with timestamps ---
 audio_lines = []
-with open("transcribed_audio.txt", "r", encoding="utf-8") as f:
+with open("transcribed_lyrics.txt", "r", encoding="utf-8") as f:
     for line in f:
         m = re.match(r"\[(\d+\.?\d*)s → (\d+\.?\d*)s\] (.+)", line)
         if m:
@@ -17,6 +17,7 @@ with open("transcribed_audio.txt", "r", encoding="utf-8") as f:
 # --- Step 3: Fuzzy match Genius lines to audio lines ---
 aligned_lines = []
 used_indices = set()  # To avoid duplicate matches
+last_end_time = 0.0
 
 for g_line in genius_lines:
     best_ratio = 0
@@ -26,8 +27,11 @@ for g_line in genius_lines:
     for i, (start, end, a_line) in enumerate(audio_lines):
         if i in used_indices:
             continue
+        if start < last_end_time:
+            continue
         ratio = difflib.SequenceMatcher(None, g_line.lower(), a_line.lower()).ratio()
         if ratio > best_ratio:
+            #
             best_ratio = ratio
             best_match = (start, end, a_line)
             best_idx = i
@@ -35,6 +39,7 @@ for g_line in genius_lines:
     if best_ratio > 0.6:  # You can adjust the threshold
         aligned_lines.append((best_match[0], best_match[1], g_line))
         used_indices.add(best_idx)
+        #last_end_time = best_match[1]
     else:
         # If no good match, leave timestamps empty
         aligned_lines.append((None, None, g_line))
@@ -45,4 +50,4 @@ with open("genius_with_timestamps.txt", "w", encoding="utf-8") as f:
         if start is not None:
             f.write(f"[{start:.2f}s → {end:.2f}s] {line}\n")
         else:
-            f.write(f"[No timestamp] {line}\n")
+            f.write(f"{line}\n")
