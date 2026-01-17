@@ -1,0 +1,1459 @@
+{
+  "error_counts": {
+    "l@v'e": 2,
+    "m'E~z2": 2,
+    "W~": 2,
+    "mw'a": 4,
+    "p'Y": 4,
+    "pa": 2,
+    "e": 2,
+    "v'i": 2,
+    "Z'yst": 2,
+    "t'urn": 2,
+    "dA~": 2,
+    "m@-": 2,
+    "sA~t'ir": 2,
+    "r'Est": 4,
+    "kO~bl'e": 2,
+    "sE": 4,
+    "tw,a": 2,
+    "E": 2,
+    "parsk,@": 2,
+    "la-": 2,
+    "d'yr": 2,
+    "tr'E~": 2,
+    "d@-": 4,
+    "pA~s'e": 2,
+    "buZ'e": 2,
+    "Z@-": 2,
+    "mA~p'Ort": 2,
+    "Zysko": 2,
+    "b'u": 2,
+    "d@py,i": 0,
+    "l@-": 0,
+    "deb'y": 0,
+    "set'E": 0,
+    "kOm": 0,
+    "yn": 0,
+    "fj'Evr": 0,
+    "sy'Wr": 0,
+    "frw'ad": 0,
+    "t'Et": 0,
+    "bryl'e": 0,
+    "pl'En": 0,
+    "fw'a": 0,
+    "Ze": 0,
+    "le-": 0,
+    "A~": 0,
+    "l'Er": 0,
+    "d'i": 0,
+    "_:_:": 0,
+    "m'O~tr": 0,
+    "mw,a": 0,
+    "s'in^": 0,
+    "il": 0,
+    "a": 0,
+    "s'i": 0,
+    "t'oz": 0,
+    "apr'OS": 0,
+    "pY": 0,
+    "O~": 0,
+    "r'O~": 0,
+    "A~k,Or": 0,
+    "A~k'Or": 0,
+    "'O": 0,
+    "k@": 0,
+    "ty": 0,
+    "s'E": 0,
+    "vrEm'A~": 0,
+    "kw,a": 0,
+    "i;": 0,
+    "k,Elk@": 0,
+    "S'oz": 0,
+    "ta-": 0,
+    "fas'O~": 0,
+    "ki": 0,
+    "f'E": 0,
+    "v'ivr": 0,
+    "sA~": 0,
+    "tw'a": 0,
+    "sa": 0,
+    "A~v'i": 0,
+    "paz2": 0,
+    "gr'A~d": 0,
+    "m'En": 0,
+    "kO~": 0,
+    "pr'A~": 0,
+    "s@-": 0,
+    "r@sw'a": 0,
+    "'u:": 0,
+    "vwal,a": 0,
+    "purkw,a": 0,
+    "makr'OS": 0,
+    "b@zw'E~": 0,
+    "v'id": 0,
+    "dr'ol": 0,
+    "ki;": 0,
+    "briz'e": 0,
+    "mE": 0,
+    "s'Wl": 0,
+    "av'E": 0,
+    "d'Etr": 0,
+    "sov'e": 0,
+    "kA~": 0,
+    "n@-": 0,
+    "vw'a": 0,
+    "Zam,E": 0,
+    "lymj'Er": 0,
+    "savw'ar": 0,
+    "l@k'El": 0,
+    "nu": 0,
+    "d'Yz2": 0,
+    "Et2": 0,
+    "krak'e": 0
+  },
+  "total_counts": {
+    "d@py,i": 2,
+    "l@-": 2,
+    "deb'y": 2,
+    "set'E": 2,
+    "kOm": 2,
+    "yn": 4,
+    "fj'Evr": 2,
+    "sy'Wr": 2,
+    "frw'ad": 2,
+    "t'Et": 2,
+    "bryl'e": 2,
+    "pl'En": 2,
+    "d@-": 16,
+    "fw'a": 2,
+    "Ze": 14,
+    "l@v'e": 2,
+    "le-": 2,
+    "m'E~z2": 2,
+    "A~": 14,
+    "l'Er": 2,
+    "e": 10,
+    "d'i": 16,
+    "_:_:": 4,
+    "m'O~tr": 2,
+    "mw,a": 8,
+    "W~": 4,
+    "s'in^": 2,
+    "il": 8,
+    "a": 8,
+    "s'i": 2,
+    "t'oz": 2,
+    "apr'OS": 2,
+    "pY": 2,
+    "O~": 4,
+    "t'urn": 4,
+    "r'O~": 4,
+    "A~k,Or": 4,
+    "A~k'Or": 4,
+    "'O": 4,
+    "mw'a": 8,
+    "k@": 20,
+    "ty": 16,
+    "s'E": 10,
+    "Z@-": 14,
+    "pa": 14,
+    "vrEm'A~": 6,
+    "kw,a": 6,
+    "pA~s'e": 6,
+    "i;": 6,
+    "k,Elk@": 8,
+    "S'oz": 8,
+    "dA~": 6,
+    "ta-": 6,
+    "fas'O~": 6,
+    "buZ'e": 6,
+    "ki": 6,
+    "m@-": 6,
+    "f'E": 6,
+    "sA~t'ir": 6,
+    "p'Y": 6,
+    "v'ivr": 6,
+    "sA~": 6,
+    "tw'a": 6,
+    "sa": 8,
+    "mA~p'Ort": 6,
+    "Zysko": 6,
+    "b'u": 6,
+    "A~v'i": 8,
+    "r'Est": 10,
+    "sE": 12,
+    "paz2": 2,
+    "gr'A~d": 2,
+    "v'i": 2,
+    "m'En": 2,
+    "Z'yst": 2,
+    "kO~": 2,
+    "pr'A~": 2,
+    "s@-": 4,
+    "r@sw'a": 2,
+    "'u:": 6,
+    "vwal,a": 2,
+    "purkw,a": 2,
+    "makr'OS": 2,
+    "parsk,@": 4,
+    "b@zw'E~": 4,
+    "kO~bl'e": 2,
+    "v'id": 2,
+    "dr'ol": 2,
+    "tw,a": 2,
+    "ki;": 4,
+    "E": 2,
+    "briz'e": 2,
+    "mE": 2,
+    "la-": 4,
+    "s'Wl": 2,
+    "av'E": 2,
+    "d'Etr": 2,
+    "sov'e": 2,
+    "kA~": 2,
+    "n@-": 2,
+    "vw'a": 2,
+    "Zam,E": 2,
+    "lymj'Er": 2,
+    "d'yr": 2,
+    "savw'ar": 2,
+    "l@k'El": 2,
+    "nu": 2,
+    "d'Yz2": 2,
+    "Et2": 2,
+    "tr'E~": 2,
+    "krak'e": 2
+  },
+  "word_errors": {
+    "depuis": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "d@py,i",
+      "user_phonemes_list": [
+        "d@py,i"
+      ],
+      "error_rate": 0.0
+    },
+    "le": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "l@-",
+      "user_phonemes_list": [
+        "l@-"
+      ],
+      "error_rate": 0.0
+    },
+    "début": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "deb'y",
+      "user_phonemes_list": [
+        "deb'y"
+      ],
+      "error_rate": 0.0
+    },
+    "c’était": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "set'E",
+      "user_phonemes_list": [
+        "set'E"
+      ],
+      "error_rate": 0.0
+    },
+    "comme": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "kOm",
+      "user_phonemes_list": [
+        "kOm"
+      ],
+      "error_rate": 0.0
+    },
+    "une": {
+      "count": 2,
+      "errors": 0,
+      "ref_phonemes": "yn",
+      "user_phonemes_list": [
+        "yn",
+        "yn"
+      ],
+      "error_rate": 0.0
+    },
+    "fièvre": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "fj'Evr",
+      "user_phonemes_list": [
+        "fj'Evr"
+      ],
+      "error_rate": 0.0
+    },
+    "sueur": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "sy'Wr",
+      "user_phonemes_list": [
+        "sy'Wr"
+      ],
+      "error_rate": 0.0
+    },
+    "froide": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "frw'ad",
+      "user_phonemes_list": [
+        "frw'ad"
+      ],
+      "error_rate": 0.0
+    },
+    "tête": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "t'Et",
+      "user_phonemes_list": [
+        "t'Et"
+      ],
+      "error_rate": 0.0
+    },
+    "brûlée": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "bryl'e",
+      "user_phonemes_list": [
+        "bryl'e"
+      ],
+      "error_rate": 0.0
+    },
+    "pleine": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "pl'En",
+      "user_phonemes_list": [
+        "pl'En"
+      ],
+      "error_rate": 0.0
+    },
+    "de": {
+      "count": 8,
+      "errors": 2,
+      "ref_phonemes": "d@-",
+      "user_phonemes_list": [
+        "d@-",
+        "d@-",
+        "d@-",
+        "d@-",
+        "d@-",
+        "d@-",
+        "_!'Em",
+        "list'A~"
+      ],
+      "error_rate": 0.25
+    },
+    "foi": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "fw'a",
+      "user_phonemes_list": [
+        "fw'a"
+      ],
+      "error_rate": 0.0
+    },
+    "j’ai": {
+      "count": 7,
+      "errors": 0,
+      "ref_phonemes": "Ze",
+      "user_phonemes_list": [
+        "",
+        "e",
+        "Ze",
+        "Ze",
+        "Ze",
+        "Ze",
+        "Ze"
+      ],
+      "error_rate": 0.0
+    },
+    "levé": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "Ze",
+      "user_phonemes_list": [
+        "Ze"
+      ],
+      "error_rate": 0.0
+    },
+    "les": {
+      "count": 1,
+      "errors": 1,
+      "ref_phonemes": "l@v'e",
+      "user_phonemes_list": [
+        "_!'i"
+      ],
+      "error_rate": 1.0
+    },
+    "mains": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "le-",
+      "user_phonemes_list": [
+        "le-"
+      ],
+      "error_rate": 0.0
+    },
+    "en": {
+      "count": 7,
+      "errors": 1,
+      "ref_phonemes": "A~",
+      "user_phonemes_list": [
+        "'av",
+        "A~",
+        "A~",
+        "A~",
+        "A~",
+        "A~",
+        "A~"
+      ],
+      "error_rate": 0.14285714285714285
+    },
+    "l’air": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "A~",
+      "user_phonemes_list": [
+        "A~"
+      ],
+      "error_rate": 0.0
+    },
+    "et": {
+      "count": 5,
+      "errors": 1,
+      "ref_phonemes": "e",
+      "user_phonemes_list": [
+        "l'Er",
+        "e",
+        "Z'@t",
+        "e",
+        "e"
+      ],
+      "error_rate": 0.2
+    },
+    "dit": {
+      "count": 2,
+      "errors": 0,
+      "ref_phonemes": "a",
+      "user_phonemes_list": [
+        "Ze",
+        "a"
+      ],
+      "error_rate": 0.0
+    },
+    "«": {
+      "count": 2,
+      "errors": 0,
+      "ref_phonemes": "_:_:",
+      "user_phonemes_list": [
+        "_:_:",
+        "_:_:"
+      ],
+      "error_rate": 0.0
+    },
+    "montre‑moi": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "m'O~tr",
+      "user_phonemes_list": [
+        "m'O~tr"
+      ],
+      "error_rate": 0.0
+    },
+    "un": {
+      "count": 2,
+      "errors": 0,
+      "ref_phonemes": "apr'OS",
+      "user_phonemes_list": [
+        "mw,a",
+        "apr'OS"
+      ],
+      "error_rate": 0.0
+    },
+    "signe": {
+      "count": 1,
+      "errors": 1,
+      "ref_phonemes": "W~",
+      "user_phonemes_list": [
+        "mw'a"
+      ],
+      "error_rate": 1.0
+    },
+    "»": {
+      "count": 2,
+      "errors": 0,
+      "ref_phonemes": "pY",
+      "user_phonemes_list": [
+        "s'in^",
+        "pY"
+      ],
+      "error_rate": 0.0
+    },
+    "il": {
+      "count": 4,
+      "errors": 0,
+      "ref_phonemes": "il",
+      "user_phonemes_list": [
+        "",
+        "il",
+        "il",
+        "il"
+      ],
+      "error_rate": 0.0
+    },
+    "a": {
+      "count": 4,
+      "errors": 0,
+      "ref_phonemes": "a",
+      "user_phonemes_list": [
+        "il",
+        "a",
+        "a",
+        "a"
+      ],
+      "error_rate": 0.0
+    },
+    "si": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "",
+      "user_phonemes_list": [
+        ""
+      ],
+      "error_rate": 0.0
+    },
+    "t’oses": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "s'i",
+      "user_phonemes_list": [
+        "s'i"
+      ],
+      "error_rate": 0.0
+    },
+    "approche": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "t'oz",
+      "user_phonemes_list": [
+        "t'oz"
+      ],
+      "error_rate": 0.0
+    },
+    "peu": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "W~",
+      "user_phonemes_list": [
+        "W~"
+      ],
+      "error_rate": 0.0
+    },
+    "on": {
+      "count": 2,
+      "errors": 0,
+      "ref_phonemes": "O~",
+      "user_phonemes_list": [
+        "O~",
+        "O~"
+      ],
+      "error_rate": 0.0
+    },
+    "tourne": {
+      "count": 2,
+      "errors": 1,
+      "ref_phonemes": "t'urn",
+      "user_phonemes_list": [
+        "t'urn",
+        "_!'y"
+      ],
+      "error_rate": 0.5
+    },
+    "rond": {
+      "count": 2,
+      "errors": 0,
+      "ref_phonemes": "r'O~",
+      "user_phonemes_list": [
+        "r'O~",
+        "r'O~"
+      ],
+      "error_rate": 0.0
+    },
+    "encore": {
+      "count": 4,
+      "errors": 0,
+      "ref_phonemes": "A~k'Or",
+      "user_phonemes_list": [
+        "A~k,Or",
+        "A~k'Or",
+        "A~k,Or",
+        "A~k'Or"
+      ],
+      "error_rate": 0.0
+    },
+    "oh": {
+      "count": 2,
+      "errors": 0,
+      "ref_phonemes": "'O",
+      "user_phonemes_list": [
+        "'O",
+        "'O"
+      ],
+      "error_rate": 0.0
+    },
+    "dis‑moi": {
+      "count": 6,
+      "errors": 2,
+      "ref_phonemes": "mw'a",
+      "user_phonemes_list": [
+        "d'i",
+        "e d'i",
+        "mw'a",
+        "d'i",
+        "s'e d'i",
+        "mw'a"
+      ],
+      "error_rate": 0.3333333333333333
+    },
+    "que": {
+      "count": 12,
+      "errors": 1,
+      "ref_phonemes": "k@",
+      "user_phonemes_list": [
+        "k@",
+        "k@",
+        "d'i mw,a",
+        "k@",
+        "k@",
+        "parsk,@",
+        "s'Es",
+        "k@",
+        "k@",
+        "k@"
+      ],
+      "error_rate": 0.08333333333333333
+    },
+    "tu": {
+      "count": 8,
+      "errors": 0,
+      "ref_phonemes": "ty",
+      "user_phonemes_list": [
+        "k@",
+        "ty",
+        "ty",
+        "k@",
+        "ty",
+        "ty",
+        "ty",
+        "ty"
+      ],
+      "error_rate": 0.0
+    },
+    "sais": {
+      "count": 5,
+      "errors": 0,
+      "ref_phonemes": "s'E",
+      "user_phonemes_list": [
+        "ty s'E",
+        "s'E",
+        "ty s'E",
+        "s'E",
+        "s'E"
+      ],
+      "error_rate": 0.0
+    },
+    "je": {
+      "count": 7,
+      "errors": 1,
+      "ref_phonemes": "Z@-",
+      "user_phonemes_list": [
+        "Z@-",
+        "Z@-",
+        "Z@-",
+        "Z@-",
+        "Z@-",
+        "Z@-",
+        "k'@-"
+      ],
+      "error_rate": 0.14285714285714285
+    },
+    "pas": {
+      "count": 8,
+      "errors": 1,
+      "ref_phonemes": "pa",
+      "user_phonemes_list": [
+        "pa",
+        "A~n",
+        "paz2",
+        "pa",
+        "pa",
+        "pa",
+        "pa",
+        "pa"
+      ],
+      "error_rate": 0.125
+    },
+    "vraiment": {
+      "count": 3,
+      "errors": 0,
+      "ref_phonemes": "vrEm'A~",
+      "user_phonemes_list": [
+        "vrEm'A~",
+        "vrEm'A~",
+        "vrEm'A~"
+      ],
+      "error_rate": 0.0
+    },
+    "quoi": {
+      "count": 3,
+      "errors": 0,
+      "ref_phonemes": "kw,a",
+      "user_phonemes_list": [
+        "kw,a",
+        "kw,a",
+        "kw,a"
+      ],
+      "error_rate": 0.0
+    },
+    "penser": {
+      "count": 3,
+      "errors": 1,
+      "ref_phonemes": "pA~s'e",
+      "user_phonemes_list": [
+        "pA~s'e",
+        "pA~s'e",
+        "t'al"
+      ],
+      "error_rate": 0.3333333333333333
+    },
+    "y": {
+      "count": 3,
+      "errors": 0,
+      "ref_phonemes": "i;",
+      "user_phonemes_list": [
+        "i;",
+        "i;",
+        "i;"
+      ],
+      "error_rate": 0.0
+    },
+    "quelque": {
+      "count": 4,
+      "errors": 0,
+      "ref_phonemes": "k,Elk@",
+      "user_phonemes_list": [
+        "k,Elk@",
+        "k,Elk@",
+        "k,Elk@",
+        "k,Elk@"
+      ],
+      "error_rate": 0.0
+    },
+    "chose": {
+      "count": 4,
+      "errors": 0,
+      "ref_phonemes": "S'oz",
+      "user_phonemes_list": [
+        "S'oz",
+        "S'oz",
+        "S'oz",
+        "S'oz"
+      ],
+      "error_rate": 0.0
+    },
+    "dans": {
+      "count": 3,
+      "errors": 1,
+      "ref_phonemes": "dA~",
+      "user_phonemes_list": [
+        "dA~",
+        "pa",
+        "dA~"
+      ],
+      "error_rate": 0.3333333333333333
+    },
+    "ta": {
+      "count": 3,
+      "errors": 0,
+      "ref_phonemes": "ta-",
+      "user_phonemes_list": [
+        "ta-",
+        "ta-",
+        "ta-"
+      ],
+      "error_rate": 0.0
+    },
+    "façon": {
+      "count": 3,
+      "errors": 0,
+      "ref_phonemes": "fas'O~",
+      "user_phonemes_list": [
+        "fas'O~",
+        "fas'O~",
+        "fas'O~"
+      ],
+      "error_rate": 0.0
+    },
+    "bouger": {
+      "count": 3,
+      "errors": 1,
+      "ref_phonemes": "buZ'e",
+      "user_phonemes_list": [
+        "buZ'e",
+        "buZ'e",
+        "p'e"
+      ],
+      "error_rate": 0.3333333333333333
+    },
+    "qui": {
+      "count": 5,
+      "errors": 0,
+      "ref_phonemes": "ki",
+      "user_phonemes_list": [
+        "ki",
+        "ki",
+        "ki;",
+        "ki;",
+        "ki"
+      ],
+      "error_rate": 0.0
+    },
+    "me": {
+      "count": 3,
+      "errors": 1,
+      "ref_phonemes": "m@-",
+      "user_phonemes_list": [
+        "m@-",
+        "_!'Es",
+        "m@-"
+      ],
+      "error_rate": 0.3333333333333333
+    },
+    "fait": {
+      "count": 3,
+      "errors": 0,
+      "ref_phonemes": "f'E",
+      "user_phonemes_list": [
+        "f'E",
+        "f'E",
+        "f'E"
+      ],
+      "error_rate": 0.0
+    },
+    "sentir": {
+      "count": 3,
+      "errors": 1,
+      "ref_phonemes": "sA~t'ir",
+      "user_phonemes_list": [
+        "sA~t'ir",
+        "_!'y",
+        "sA~t'ir"
+      ],
+      "error_rate": 0.3333333333333333
+    },
+    "peux": {
+      "count": 3,
+      "errors": 2,
+      "ref_phonemes": "p'Y",
+      "user_phonemes_list": [
+        "_!'y",
+        "p'Y",
+        "p'i"
+      ],
+      "error_rate": 0.6666666666666666
+    },
+    "vivre": {
+      "count": 3,
+      "errors": 0,
+      "ref_phonemes": "v'ivr",
+      "user_phonemes_list": [
+        "v'ivr",
+        "v'ivr",
+        "v'ivr"
+      ],
+      "error_rate": 0.0
+    },
+    "sans": {
+      "count": 3,
+      "errors": 0,
+      "ref_phonemes": "sA~",
+      "user_phonemes_list": [
+        "sA~",
+        "sA~",
+        "sA~"
+      ],
+      "error_rate": 0.0
+    },
+    "toi": {
+      "count": 4,
+      "errors": 1,
+      "ref_phonemes": "tw'a",
+      "user_phonemes_list": [
+        "tw'a",
+        "tw'a",
+        "'a",
+        "tw'a"
+      ],
+      "error_rate": 0.25
+    },
+    "ça": {
+      "count": 4,
+      "errors": 0,
+      "ref_phonemes": "sa",
+      "user_phonemes_list": [
+        "sa",
+        "sa",
+        "sa",
+        "sa"
+      ],
+      "error_rate": 0.0
+    },
+    "m’emporte": {
+      "count": 3,
+      "errors": 1,
+      "ref_phonemes": "mA~p'Ort",
+      "user_phonemes_list": [
+        "mA~p'Ort",
+        "mA~p'Ort",
+        "as@'u"
+      ],
+      "error_rate": 0.3333333333333333
+    },
+    "jusqu’au": {
+      "count": 3,
+      "errors": 1,
+      "ref_phonemes": "Zysko",
+      "user_phonemes_list": [
+        "Zysko",
+        "Zysko",
+        "'a"
+      ],
+      "error_rate": 0.3333333333333333
+    },
+    "bout": {
+      "count": 3,
+      "errors": 1,
+      "ref_phonemes": "b'u",
+      "user_phonemes_list": [
+        "b'u",
+        "b'u",
+        "E"
+      ],
+      "error_rate": 0.3333333333333333
+    },
+    "envie": {
+      "count": 4,
+      "errors": 0,
+      "ref_phonemes": "A~v'i",
+      "user_phonemes_list": [
+        "A~v'i",
+        "A~v'i",
+        "A~v'i",
+        "A~v'i"
+      ],
+      "error_rate": 0.0
+    },
+    "restes": {
+      "count": 4,
+      "errors": 1,
+      "ref_phonemes": "r'Est",
+      "user_phonemes_list": [
+        "r'Est",
+        "Omf'e",
+        "r'Est",
+        "r'Est"
+      ],
+      "error_rate": 0.25
+    },
+    "c’est": {
+      "count": 6,
+      "errors": 2,
+      "ref_phonemes": "sE",
+      "user_phonemes_list": [
+        "sE",
+        "sE",
+        "_!'i",
+        "sE",
+        "_!'@",
+        "sE"
+      ],
+      "error_rate": 0.3333333333333333
+    },
+    "grande": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "gr'A~d",
+      "user_phonemes_list": [
+        "gr'A~d"
+      ],
+      "error_rate": 0.0
+    },
+    "vie": {
+      "count": 1,
+      "errors": 1,
+      "ref_phonemes": "v'i",
+      "user_phonemes_list": [
+        "Ze"
+      ],
+      "error_rate": 1.0
+    },
+    "mènes": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "m'En",
+      "user_phonemes_list": [
+        "m'En"
+      ],
+      "error_rate": 0.0
+    },
+    "juste": {
+      "count": 1,
+      "errors": 1,
+      "ref_phonemes": "Z'yst",
+      "user_phonemes_list": [
+        "'ys"
+      ],
+      "error_rate": 1.0
+    },
+    "qu’on": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "kO~",
+      "user_phonemes_list": [
+        "kO~"
+      ],
+      "error_rate": 0.0
+    },
+    "prend": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "pr'A~",
+      "user_phonemes_list": [
+        "pr'A~"
+      ],
+      "error_rate": 0.0
+    },
+    "se": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "s@-",
+      "user_phonemes_list": [
+        "s@-"
+      ],
+      "error_rate": 0.0
+    },
+    "reçoit": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "r@sw'a",
+      "user_phonemes_list": [
+        "r@sw'a"
+      ],
+      "error_rate": 0.0
+    },
+    "ooh": {
+      "count": 3,
+      "errors": 0,
+      "ref_phonemes": "'u:",
+      "user_phonemes_list": [
+        "'u:",
+        "",
+        "'u:"
+      ],
+      "error_rate": 0.0
+    },
+    "voilà": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "vwal,a",
+      "user_phonemes_list": [
+        "vwal,a"
+      ],
+      "error_rate": 0.0
+    },
+    "pourquoi": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "purkw,a",
+      "user_phonemes_list": [
+        "purkw,a"
+      ],
+      "error_rate": 0.0
+    },
+    "m’accroche": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "makr'OS",
+      "user_phonemes_list": [
+        "makr'OS"
+      ],
+      "error_rate": 0.0
+    },
+    "parce": {
+      "count": 2,
+      "errors": 0,
+      "ref_phonemes": "",
+      "user_phonemes_list": [
+        "'u:",
+        ""
+      ],
+      "error_rate": 0.0
+    },
+    "besoin": {
+      "count": 2,
+      "errors": 0,
+      "ref_phonemes": "b@zw'E~",
+      "user_phonemes_list": [
+        "b@zw'E~",
+        "b@zw'E~"
+      ],
+      "error_rate": 0.0
+    },
+    "combler": {
+      "count": 1,
+      "errors": 1,
+      "ref_phonemes": "kO~bl'e",
+      "user_phonemes_list": [
+        "n@-"
+      ],
+      "error_rate": 1.0
+    },
+    "ce": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "s@-",
+      "user_phonemes_list": [
+        "s@-"
+      ],
+      "error_rate": 0.0
+    },
+    "vide": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "v'id",
+      "user_phonemes_list": [
+        "v'id"
+      ],
+      "error_rate": 0.0
+    },
+    "drôle": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "dr'ol",
+      "user_phonemes_list": [
+        "dr'ol"
+      ],
+      "error_rate": 0.0
+    },
+    "es": {
+      "count": 1,
+      "errors": 1,
+      "ref_phonemes": "E",
+      "user_phonemes_list": [
+        "k'az"
+      ],
+      "error_rate": 1.0
+    },
+    "brisé": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "briz'e",
+      "user_phonemes_list": [
+        "briz'e"
+      ],
+      "error_rate": 0.0
+    },
+    "mais": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "mE",
+      "user_phonemes_list": [
+        "mE"
+      ],
+      "error_rate": 0.0
+    },
+    "moi": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "mw,a",
+      "user_phonemes_list": [
+        "mw,a"
+      ],
+      "error_rate": 0.0
+    },
+    "la": {
+      "count": 2,
+      "errors": 1,
+      "ref_phonemes": "la-",
+      "user_phonemes_list": [
+        "la-",
+        "k'y"
+      ],
+      "error_rate": 0.5
+    },
+    "seule": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "s'Wl",
+      "user_phonemes_list": [
+        "s'Wl"
+      ],
+      "error_rate": 0.0
+    },
+    "avait": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "av'E",
+      "user_phonemes_list": [
+        "av'E"
+      ],
+      "error_rate": 0.0
+    },
+    "d’être": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "d'Etr",
+      "user_phonemes_list": [
+        "d'Etr"
+      ],
+      "error_rate": 0.0
+    },
+    "sauvée": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "sov'e",
+      "user_phonemes_list": [
+        "sov'e"
+      ],
+      "error_rate": 0.0
+    },
+    "quand": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "kA~",
+      "user_phonemes_list": [
+        "kA~"
+      ],
+      "error_rate": 0.0
+    },
+    "ne": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "n@-",
+      "user_phonemes_list": [
+        "n@-"
+      ],
+      "error_rate": 0.0
+    },
+    "vois": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "vw'a",
+      "user_phonemes_list": [
+        "vw'a"
+      ],
+      "error_rate": 0.0
+    },
+    "jamais": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "Zam,E",
+      "user_phonemes_list": [
+        "Zam,E"
+      ],
+      "error_rate": 0.0
+    },
+    "lumière": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "lymj'Er",
+      "user_phonemes_list": [
+        "lymj'Er"
+      ],
+      "error_rate": 0.0
+    },
+    "dur": {
+      "count": 1,
+      "errors": 1,
+      "ref_phonemes": "d'yr",
+      "user_phonemes_list": [
+        "_!'El"
+      ],
+      "error_rate": 1.0
+    },
+    "savoir": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "savw'ar",
+      "user_phonemes_list": [
+        "savw'ar"
+      ],
+      "error_rate": 0.0
+    },
+    "lequel": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "l@k'El",
+      "user_phonemes_list": [
+        "l@k'El"
+      ],
+      "error_rate": 0.0
+    },
+    "nous": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "nu",
+      "user_phonemes_list": [
+        "nu"
+      ],
+      "error_rate": 0.0
+    },
+    "deux": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "d'Yz2",
+      "user_phonemes_list": [
+        "d'Yz2"
+      ],
+      "error_rate": 0.0
+    },
+    "est": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "Et2",
+      "user_phonemes_list": [
+        "Et2"
+      ],
+      "error_rate": 0.0
+    },
+    "train": {
+      "count": 1,
+      "errors": 1,
+      "ref_phonemes": "tr'E~",
+      "user_phonemes_list": [
+        "_!'i"
+      ],
+      "error_rate": 1.0
+    },
+    "craquer": {
+      "count": 1,
+      "errors": 0,
+      "ref_phonemes": "krak'e",
+      "user_phonemes_list": [
+        "krak'e"
+      ],
+      "error_rate": 0.0
+    },
+    "reste": {
+      "count": 1,
+      "errors": 1,
+      "ref_phonemes": "r'Est",
+      "user_phonemes_list": [
+        "kj'e"
+      ],
+      "error_rate": 1.0
+    }
+  },
+  "phoneme_substitutions": {
+    "l@v'e": {
+      "_!'i": 2
+    },
+    "m'E~z2": {
+      "'av": 2
+    },
+    "W~": {
+      "mw'a": 2
+    },
+    "mw'a": {
+      "e": 2,
+      "s'e": 2
+    },
+    "p'Y": {
+      "_!'y": 2,
+      "p'i": 2
+    },
+    "pa": {
+      "A~n": 2
+    },
+    "e": {
+      "Z'@t": 2
+    },
+    "v'i": {
+      "Ze": 2
+    },
+    "Z'yst": {
+      "'ys": 2
+    },
+    "t'urn": {
+      "_!'y": 2
+    },
+    "dA~": {
+      "pa": 2
+    },
+    "m@-": {
+      "_!'Es": 2
+    },
+    "sA~t'ir": {
+      "_!'y": 2
+    },
+    "r'Est": {
+      "Omf'e": 2,
+      "kj'e": 2
+    },
+    "kO~bl'e": {
+      "n@-": 2
+    },
+    "sE": {
+      "_!'i": 2,
+      "_!'@": 2
+    },
+    "tw,a": {
+      "'a": 2
+    },
+    "E": {
+      "k'az": 2
+    },
+    "parsk,@": {
+      "s'Es": 2
+    },
+    "la-": {
+      "k'y": 2
+    },
+    "d'yr": {
+      "_!'El": 2
+    },
+    "tr'E~": {
+      "_!'i": 2
+    },
+    "d@-": {
+      "_!'Em": 2,
+      "list'A~": 2
+    },
+    "pA~s'e": {
+      "t'al": 2
+    },
+    "buZ'e": {
+      "p'e": 2
+    },
+    "Z@-": {
+      "k'@-": 2
+    },
+    "mA~p'Ort": {
+      "as@'u": 2
+    },
+    "Zysko": {
+      "'a": 2
+    },
+    "b'u": {
+      "E": 2
+    }
+  }
+}
