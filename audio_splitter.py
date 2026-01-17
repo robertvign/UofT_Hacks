@@ -5,14 +5,17 @@ Separates audio files into music (instrumental) and voice (vocals) tracks.
 
 import sys
 from pathlib import Path
+import numpy as np
 
 try:
     import torch
+    import librosa
     from demucs.pretrained import get_model
     from demucs.apply import apply_model
-    from demucs.audio import AudioFile, save_audio
-except ImportError:
-    print("Error: demucs is not installed. Please run: pip install demucs")
+    from demucs.audio import save_audio
+except ImportError as e:
+    print(f"Error: Required package not installed. Please run: pip install demucs librosa")
+    print(f"Missing: {e}")
     sys.exit(1)
 
 
@@ -45,12 +48,19 @@ def separate_audio(filename):
     
     print(f"Processing audio file: {filename}...")
     
-    # Load audio file
-    wav = AudioFile(filename).read(
-        streams=0,
-        samplerate=model.samplerate,
-        channels=model.audio_channels
-    )
+    # Load audio file using librosa
+    # Load as mono if model expects 1 channel, otherwise stereo
+    mono = model.audio_channels == 1
+    wav, sr = librosa.load(filename, sr=model.samplerate, mono=mono)
+    
+    # Convert to the format demucs expects (channels, samples)
+    if wav.ndim == 1:
+        wav = wav[None]  # Add channel dimension for mono audio: (samples,) -> (1, samples)
+    
+    # Ensure correct shape: (channels, samples)
+    wav = torch.from_numpy(wav).float()
+    
+    # Normalize audio
     ref = wav.mean(0)
     wav = (wav - ref.mean()) / ref.std()
     
@@ -79,3 +89,6 @@ def separate_audio(filename):
     
     return str(vocals_path), str(music_path)
 
+
+if __name__ == "__main__":
+    separate_audio("lights.mp3")
