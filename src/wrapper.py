@@ -40,7 +40,7 @@ Your task:
 1. For each line in the Genius lyrics, find a matching line in the transcription.
 2. If a match is found, insert the timestamp from the transcribed text before that line in the format [start → end].
 3. If the line begins with '[', DO NOT add a timestamp — just output the line as is.
-4. If a Genius line has no match, generate a reasonable timestamp using nearby lines.
+4. If a Genius line has no match, generate a reasonable timestamp using the previous end time and the next lines start time.
 5. Output the full Genius lyrics with timestamps exactly as text.
 """
 
