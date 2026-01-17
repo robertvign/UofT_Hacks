@@ -84,7 +84,15 @@ def upload_song():
         
         file = request.files['file']
         song_name = request.form.get('song_name', '').strip()
+        artist = request.form.get('artist', '').strip()
         translation_language = request.form.get('translation_language', '').strip()
+        genre = request.form.get('genre', '').strip()
+        
+        # Parse song name if format is "Artist - Song" and artist not provided separately
+        if not artist and ' - ' in song_name:
+            parts = song_name.split(' - ', 1)
+            artist = parts[0].strip()
+            song_name = parts[1].strip() if len(parts) > 1 else song_name
         
         # Validate inputs
         if file.filename == '':
@@ -153,7 +161,11 @@ def upload_song():
             f.write(f"Song Information\n")
             f.write(f"{'='*60}\n")
             f.write(f"Song Name: {song_name}\n")
+            if artist:
+                f.write(f"Artist: {artist}\n")
             f.write(f"Translation Language: {metadata_entry['translation_language']}\n")
+            if genre:
+                f.write(f"Genre: {genre}\n")
             f.write(f"Original Filename: {filename}\n")
             f.write(f"Saved Filename: {safe_filename}\n")
             f.write(f"File Path: {file_path}\n")
@@ -203,7 +215,11 @@ def upload_song():
             f.write(f"Song Information\n")
             f.write(f"{'='*60}\n")
             f.write(f"Song Name: {song_name}\n")
+            if metadata_entry.get('artist'):
+                f.write(f"Artist: {metadata_entry['artist']}\n")
             f.write(f"Translation Language: {metadata_entry['translation_language']}\n")
+            if metadata_entry.get('genre'):
+                f.write(f"Genre: {metadata_entry['genre']}\n")
             f.write(f"Original Filename: {filename}\n")
             f.write(f"Saved Filename: {safe_filename}\n")
             f.write(f"File Path: {file_path}\n")
@@ -225,7 +241,9 @@ def upload_song():
         song_response = {
             'id': metadata_entry['id'],
             'song_name': song_name,
+            'artist': metadata_entry.get('artist'),
             'translation_language': metadata_entry['translation_language'],
+            'genre': metadata_entry.get('genre'),
             'filename': safe_filename,
             'file_path': str(file_path),
             'folder_path': str(song_folder),
@@ -350,7 +368,6 @@ def list_songs():
                 song_info['id'] = hash(song_folder.name) % 1000000
                 
                 # Set defaults for frontend compatibility
-                song_info['region'] = song_info.get('translation_language', 'Unknown')
                 song_info['coverUrl'] = "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&q=80"
                 song_info['progress'] = 100 if song_info.get('has_video') else 0
                 song_info['isFavorite'] = False
