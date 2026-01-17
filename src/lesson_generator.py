@@ -13,6 +13,7 @@ from backboard import BackboardClient
 import asyncio
 
 client = BackboardClient(api_key=os.getenv("BACKBOARD_API_KEY"))
+ASSISTANT_ID = os.getenv("BACKBOARD_ASSISTANT_ID")
 
 # Try importing text-to-speech
 try:
@@ -322,91 +323,6 @@ class LessonGenerator:
         
         self.lessons.append(lesson)
         return lesson
-    
-    def print_conversation_lesson(self, lesson: Optional[Dict] = None):
-        """
-        Print conversation lesson content to screen.
-        
-        Args:
-            lesson: Optional lesson dict (uses last generated if None)
-        """
-        if lesson is None:
-            if not self.lessons:
-                print("No lesson generated yet. Call generate_conversation_lesson_with_backboard() first.")
-                return
-            lesson = self.lessons[-1]
-        
-        if 'conversations' not in lesson:
-            print("This lesson does not contain conversations.")
-            return
-        
-        print("\n" + "="*70)
-        print("💬 CONVERSATION PRONUNCIATION LESSON")
-        print("="*70)
-        print("\nPractice these conversational questions with words you struggled with!")
-        
-        conversations = lesson.get('conversations', [])
-        if conversations:
-            print("\n" + "-"*70)
-            print(f"📝 CONVERSATIONS TO PRACTICE ({len(conversations)} conversations):")
-            print("-"*70)
-            for i, conv in enumerate(conversations, 1):
-                target_word = conv.get('target_word', 'N/A')
-                question = conv.get('question', 'N/A')
-                error_rate = conv.get('error_rate', 0)
-                instruction = conv.get('instruction', '')
-                
-                print(f"\n{i}. Target Word: {target_word} (Error Rate: {error_rate:.1%})")
-                print(f"   Question: {question}")
-                if instruction:
-                    print(f"   {instruction}")
-        
-        print("\n" + "="*70)
-    
-    def play_conversation_lesson(self, lesson: Optional[Dict] = None, slow=False):
-        """
-        Play conversation lesson audio - questions for practice.
-        
-        Args:
-            lesson: Optional lesson dict (uses last generated if None)
-            slow: Whether to speak slowly (default: False)
-        """
-        if lesson is None:
-            if not self.lessons:
-                print("No lesson generated yet. Call generate_conversation_lesson_with_backboard() first.")
-                return
-            lesson = self.lessons[-1]
-        
-        if 'conversations' not in lesson:
-            print("This lesson does not contain conversations.")
-            return
-        
-        conversations = lesson.get('conversations', [])
-        if not conversations:
-            print("No conversations in lesson to play.")
-            return
-        
-        print("\n" + "="*70)
-        print("🎧 PLAYING CONVERSATION LESSON")
-        print("="*70)
-        print("\nListen carefully to the questions...\n")
-        
-        for i, conv in enumerate(conversations, 1):
-            target_word = conv.get('target_word', 'N/A')
-            question = conv.get('question', 'N/A')
-            
-            print(f"\n[{i}/{len(conversations)}] Target Word: {target_word}")
-            print(f"Question: {question}")
-            
-            # Play the question
-            self.play_word_audio(question, slow=slow)
-            
-            # Small pause between conversations
-            import time
-            time.sleep(1.0)
-        
-        print("\n✅ Conversation lesson complete!")
-        print("="*70)
 
     async def generate_conversation_lesson_with_backboard(
         self,
@@ -442,6 +358,10 @@ class LessonGenerator:
 
         self.lessons.append(lesson)
         return lesson
+    
+    def get_error_dictionary(self) -> Dict:
+        """Return the error dictionary used to create lessons."""
+        return self.error_dict
 
 class BackboardConversationGenerator:
     def __init__(self, client, assistant_id: str):
@@ -497,17 +417,17 @@ def create_lesson_from_results(trainer, num_words=10, num_lines=5):
         LessonGenerator instance
     """
     # Get error dictionary
-    error_dict = trainer.get_error_dictionary()
+    error_dictionary = trainer.get_error_dictionary()
     
     # Create lesson generator
-    lesson_gen = LessonGenerator(error_dict, language='en-us')  # Could extract from trainer
+    lesson_gen = LessonGenerator(error_dictionary, language='en-us')  # Could extract from trainer
     
     # Generate lesson
     lesson = lesson_gen.generate_lesson(num_words=num_words, num_lines=num_lines)
     
     return lesson_gen, lesson
 
-
+'''
 def create_line_lesson_from_results(results: Dict, num_lines=5):
     """
     Create lesson for struggling lines from results.
@@ -532,31 +452,21 @@ def create_line_lesson_from_results(results: Dict, num_lines=5):
     line_lesson = lesson_gen.generate_line_lesson(struggling_lines, num_lines=num_lines)
     
     return lesson_gen, line_lesson
+'''
+backboard_gen = BackboardConversationGenerator(
+    client=client,
+    assistant_id=ASSISTANT_ID
+)
 
+lesson_gen = LessonGenerator(error_dict)
 
-# Example usage (uncomment and provide required values to use):
-# if __name__ == "__main__":
-#     # Example: Create a conversation lesson
-#     error_dict = {
-#         'weak_words': [
-#             {'word': 'example', 'error_rate': 0.3, 'count': 5}
-#         ]
-#     }
-#     
-#     lesson_gen = LessonGenerator(error_dict)
-#     
-#     backboard_gen = BackboardConversationGenerator(
-#         client=client,
-#         assistant_id="your_assistant_id_here"  # Replace with actual assistant ID
-#     )
-#     
-#     async def run():
-#         convo_lesson = await lesson_gen.generate_conversation_lesson_with_backboard(
-#             backboard_generator=backboard_gen,
-#             num_conversations=3
-#         )
-#         
-#         lesson_gen.print_conversation_lesson(convo_lesson)
-#         lesson_gen.play_conversation_lesson(convo_lesson)
-#     
-#     asyncio.run(run())
+async def run():
+    convo_lesson = await lesson_gen.generate_conversation_lesson_with_backboard(
+        backboard_generator=backboard_gen,
+        num_conversations=3
+    )
+
+    lesson_gen.print_conversation_lesson(convo_lesson)
+    lesson_gen.play_conversation_lesson(convo_lesson)
+
+asyncio.run(run())
