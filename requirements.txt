@@ -1,1 +1,7 @@
 demucs
+ffmpeg
+openai-whisper
+phonemizer
+ffmpeg-python
+numpy
+torch
