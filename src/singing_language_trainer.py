@@ -7,25 +7,40 @@ to help users improve their singing/pronunciation.
 import argparse
 import sys
 from pathlib import Path
+from typing import Dict, Optional
 
 # Import our modules
-from phonemes import phonemize_lyrics
-from user_phonemes import audio_to_phonemes
-from aligner import phoneme_accuracy
-from pronunciation_profile import UserPronunciationProfile
+try:
+    # Try absolute imports first (if running from src/)
+    from phonemes import phonemize_lyrics
+    from user_phonemes import audio_to_phonemes
+    from aligner import phoneme_accuracy
+    from pronunciation_profile import UserPronunciationProfile
+except ImportError:
+    # Fallback to relative imports
+    from .phonemes import phonemize_lyrics
+    from .user_phonemes import audio_to_phonemes
+    from .aligner import phoneme_accuracy
+    from .pronunciation_profile import UserPronunciationProfile
 
 
 class SingingLanguageTrainer:
     """Main trainer class that coordinates all components."""
     
-    def __init__(self, profile=None):
+    def __init__(self, profile=None, profile_file=None):
         """
         Initialize the trainer.
         
         Args:
             profile: Optional UserPronunciationProfile instance (creates new if None)
+            profile_file: Optional path to save/load profile (for persistence)
         """
-        self.profile = profile if profile is not None else UserPronunciationProfile()
+        if profile is not None:
+            self.profile = profile
+        else:
+            self.profile = UserPronunciationProfile(profile_file=profile_file)
+            if profile_file and Path(profile_file).exists():
+                self.profile.load(profile_file)
     
     def process_audio_and_lyrics(self, audio_path, lyrics_path, language='en-us', 
                                  save_phonemes=False, output_dir=None):
@@ -96,19 +111,47 @@ class SingingLanguageTrainer:
         # Calculate overall accuracy
         accuracy = phoneme_accuracy(reference_phonemes, user_phonemes)
         
-        # Update pronunciation profile
-        self.profile.update(reference_phonemes, user_phonemes)
-        
         # For line-by-line comparison, we'll do a simple split approach
         # Since audio is continuous, we approximate line boundaries
         user_phoneme_list = user_phonemes.split()
+        total_ref_phonemes = len(reference_phonemes.split())
+        
+        # Extract word-level errors for each line
+        word_errors_by_line = []
+        for i, line_text in enumerate(lyrics_lines):
+            line_words = line_text.split()
+            if i < len(ref_phoneme_lines):
+                ref_line_phonemes = ref_phoneme_lines[i]
+                # Get user phonemes for this line
+                ref_line_list = ref_line_phonemes.split()
+                if ref_line_list and total_ref_phonemes > 0:
+                    phonemes_per_ref = len(user_phoneme_list) / total_ref_phonemes
+                    num_user_phonemes = int(len(ref_line_list) * phonemes_per_ref)
+                    start_idx = int(sum(len(ref_phoneme_lines[j].split()) for j in range(i)) * phonemes_per_ref)
+                    user_line_list = user_phoneme_list[start_idx:start_idx+num_user_phonemes] if start_idx < len(user_phoneme_list) else []
+                    user_line_phonemes = ' '.join(user_line_list)
+                else:
+                    user_line_phonemes = ""
+                
+                # Update profile with word-level tracking
+                self.profile.update(ref_line_phonemes, user_line_phonemes, words=line_words, line_text=line_text)
+                
+                # Analyze word-level errors for this line
+                word_errors = self._analyze_word_errors(line_words, ref_line_phonemes, user_line_phonemes)
+                word_errors_by_line.append({
+                    'line': i+1,
+                    'text': line_text,
+                    'word_errors': word_errors
+                })
+        
+        # Update pronunciation profile (phoneme-level)
+        self.profile.update(reference_phonemes, user_phonemes)
         
         # Approximate line-by-line by dividing phonemes proportionally
-        total_ref_phonemes = len(reference_phonemes.split())
         line_accuracies = []
         
         if total_ref_phonemes > 0:
-            phonemes_per_ref = len(user_phoneme_list) / total_ref_phonemes if total_ref_phonemes > 0 else 0
+            phonemes_per_ref = len(user_phoneme_list) / total_ref_phonemes
             current_idx = 0
             
             for i, ref_line_phonemes in enumerate(ref_phoneme_lines):
@@ -143,7 +186,8 @@ class SingingLanguageTrainer:
             'weak_phonemes': self.profile.weak_phonemes(),
             'weighted_score': self.profile.weighted_score(reference_phonemes, user_phonemes),
             'line_accuracies': line_accuracies,
-            'lyrics_lines': lyrics_lines
+            'lyrics_lines': lyrics_lines,
+            'word_errors_by_line': word_errors_by_line
         }
         
         # Save phonemes if requested
@@ -165,79 +209,260 @@ class SingingLanguageTrainer:
         
         return results
     
+    def _analyze_word_errors(self, words, ref_phonemes, user_phonemes):
+        """
+        Analyze which words in a line have pronunciation errors.
+        
+        Args:
+            words: List of words in the line
+            ref_phonemes: Reference phonemes for the line
+            user_phonemes: User phonemes for the line
+        
+        Returns:
+            List of word error dictionaries
+        """
+        ref_phoneme_list = ref_phonemes.split()
+        user_phoneme_list = user_phonemes.split()
+        
+        if not words or not ref_phoneme_list:
+            return []
+        
+        word_errors = []
+        phonemes_per_word = len(ref_phoneme_list) / len(words) if words else 0
+        
+        for i, word in enumerate(words):
+            # Get phonemes for this word
+            start_idx = int(i * phonemes_per_word)
+            end_idx = int((i + 1) * phonemes_per_word) if i < len(words) - 1 else len(ref_phoneme_list)
+            
+            ref_word_phonemes = ' '.join(ref_phoneme_list[start_idx:end_idx])
+            user_word_phonemes = ' '.join(user_phoneme_list[start_idx:end_idx]) if start_idx < len(user_phoneme_list) else ""
+            
+            # Calculate accuracy for this word
+            try:
+                from aligner import phoneme_accuracy
+            except ImportError:
+                from .aligner import phoneme_accuracy
+            word_accuracy = phoneme_accuracy(ref_word_phonemes, user_word_phonemes)
+            
+            word_errors.append({
+                'word': word,
+                'accuracy': word_accuracy,
+                'ref_phonemes': ref_word_phonemes,
+                'user_phonemes': user_word_phonemes,
+                'has_error': ref_word_phonemes != user_word_phonemes
+            })
+        
+        return word_errors
+    
     def print_feedback(self, results):
         """
-        Print user-friendly feedback based on results.
+        Enhanced feedback function that prints:
+        1. User's overall accuracy
+        2. Lines/words they struggled with (including %)
+        3. Successful words/lines (including %)
         
         Args:
             results: Results dictionary from process_audio_and_lyrics
         """
-        print("\n" + "="*60)
+        print("\n" + "="*70)
         print("PRONUNCIATION ANALYSIS")
-        print("="*60)
+        print("="*70)
         
-        print(f"\n📊 OVERALL ACCURACY: {results['accuracy']:.2%}")
-        print(f"📊 Weighted Score: {results['weighted_score']:.2%}")
+        # Overall accuracy
+        print(f"\nOVERALL ACCURACY: {results['accuracy']:.2%}")
+        print(f"Weighted Score: {results['weighted_score']:.2%}")
         
-        # Show line-by-line accuracy
-        if 'line_accuracies' in results and results['line_accuracies']:
-            print("\n" + "="*60)
-            print("LINE-BY-LINE ANALYSIS")
-            print("="*60)
-            
+        # Word-level analysis
+        print("\n" + "="*70)
+        print("WORD-LEVEL ANALYSIS")
+        print("="*70)
+        
+        struggling_words = []
+        successful_words = []
+        
+        if 'word_errors_by_line' in results:
+            for line_data in results['word_errors_by_line']:
+                for word_error in line_data['word_errors']:
+                    if word_error['has_error']:
+                        struggling_words.append({
+                            'word': word_error['word'],
+                            'accuracy': word_error['accuracy'],
+                            'line': line_data['line'],
+                            'line_text': line_data['text'],
+                            'ref_phonemes': word_error['ref_phonemes'],
+                            'user_phonemes': word_error['user_phonemes']
+                        })
+                    else:
+                        successful_words.append({
+                            'word': word_error['word'],
+                            'accuracy': word_error['accuracy'],
+                            'line': line_data['line']
+                        })
+        
+        # Show struggling words
+        if struggling_words:
+            print("\nWORDS YOU STRUGGLED WITH (low accuracy):")
+            print("-" * 70)
             # Sort by accuracy (worst first)
+            struggling_words.sort(key=lambda x: x['accuracy'])
+            
+            for word_data in struggling_words[:20]:  # Top 20 worst
+                accuracy_bar = "█" * int(word_data['accuracy'] * 15) + "░" * (15 - int(word_data['accuracy'] * 15))
+                print(f"\n  • {word_data['word']}: {word_data['accuracy']:.1%} {accuracy_bar}")
+                print(f"    Line {word_data['line']}: {word_data['line_text']}")
+                print(f"    Expected: {word_data['ref_phonemes'][:50]}")
+                print(f"    You said: {word_data['user_phonemes'][:50]}")
+        else:
+            print("\nNo struggling words found!")
+        
+        # Show successful words
+        if successful_words:
+            print(f"\nWORDS YOU PRONOUNCED CORRECTLY:")
+            print("-" * 70)
+            # Group by word
+            from collections import defaultdict
+            word_success = defaultdict(list)
+            for word_data in successful_words:
+                word_success[word_data['word']].append(word_data)
+            
+            # Show successful words
+            for word, occurrences in list(word_success.items())[:15]:  # Top 15
+                avg_accuracy = sum(w['accuracy'] for w in occurrences) / len(occurrences)
+                print(f"  ✓ {word}: {avg_accuracy:.1%} (appears {len(occurrences)} time(s))")
+        
+        # Line-level analysis
+        print("\n" + "="*70)
+        print("LINE-BY-LINE ANALYSIS")
+        print("="*70)
+        
+        if 'line_accuracies' in results and results['line_accuracies']:
             sorted_lines = sorted(results['line_accuracies'], key=lambda x: x['accuracy'])
             
-            print("\n⚠️  LINES WITH LOW ACCURACY (struggled on):")
-            print("-" * 60)
-            for item in sorted_lines:
-                if item['accuracy'] < 0.8:  # Threshold for "struggled"
-                    accuracy_bar = "█" * int(item['accuracy'] * 20) + "░" * (20 - int(item['accuracy'] * 20))
-                    print(f"\nLine {item['line']}: {item['accuracy']:.1%} {accuracy_bar}")
-                    print(f"  Text: {item['text']}")
-                    if item.get('ref_phonemes') and item.get('user_phonemes'):
-                        print(f"  Ref:  {item['ref_phonemes'][:60]}")
-                        print(f"  You:  {item['user_phonemes'][:60]}")
+            struggling_lines = [item for item in sorted_lines if item['accuracy'] < 0.8]
+            successful_lines = [item for item in sorted_lines if item['accuracy'] >= 0.8]
             
-            print("\n✅ LINES WITH GOOD ACCURACY:")
-            print("-" * 60)
-            for item in sorted_lines:
-                if item['accuracy'] >= 0.8:
-                    accuracy_bar = "█" * int(item['accuracy'] * 20) + "░" * (20 - int(item['accuracy'] * 20))
-                    print(f"Line {item['line']}: {item['accuracy']:.1%} {accuracy_bar} - {item['text']}")
+            print(f"\nLINES YOU STRUGGLED WITH ({len(struggling_lines)} lines, < 80% accuracy):")
+            print("-" * 70)
+            for item in struggling_lines:
+                accuracy_bar = "█" * int(item['accuracy'] * 20) + "░" * (20 - int(item['accuracy'] * 20))
+                print(f"\n  Line {item['line']}: {item['accuracy']:.1%} {accuracy_bar}")
+                print(f"    {item['text']}")
+            
+            print(f"\nLINES YOU DID WELL ON ({len(successful_lines)} lines, ≥ 80% accuracy):")
+            print("-" * 70)
+            for item in successful_lines[:10]:  # Show top 10
+                accuracy_bar = "█" * int(item['accuracy'] * 20) + "░" * (20 - int(item['accuracy'] * 20))
+                print(f"  Line {item['line']}: {item['accuracy']:.1%} {accuracy_bar} - {item['text']}")
         
+        # Weak phonemes summary
         if results['weak_phonemes']:
-            print(f"\n⚠️  Weak Phonemes (need practice): {', '.join(results['weak_phonemes'])}")
+            print(f"\nWeak Phonemes (need practice): {', '.join(results['weak_phonemes'][:15])}")
+        
+        print("\n" + "="*70)
+    
+    def get_error_dictionary(self):
+        """
+        Extract error dictionary for relearning algorithm.
+        Returns dictionary of user mistakes that accumulates over time.
+        
+        Returns:
+            Dictionary with error patterns including:
+            - weak_phonemes: Phonemes user struggles with
+            - weak_words: Words user struggles with (sorted by error rate)
+            - phoneme_substitutions: Which phonemes user substitutes
+        """
+        return self.profile.get_error_dictionary()
+    
+    def save_profile(self, profile_file='user_pronunciation_profile.json'):
+        """Save pronunciation profile to file."""
+        self.profile.profile_file = profile_file
+        self.profile.save(profile_file)
+        print(f"✓ Pronunciation profile saved to: {profile_file}")
+    
+    def load_profile(self, profile_file='user_pronunciation_profile.json'):
+        """Load pronunciation profile from file."""
+        if Path(profile_file).exists():
+            self.profile.load(profile_file)
+            print(f"✓ Pronunciation profile loaded from: {profile_file}")
         else:
-            print("\n✓ All phonemes are within acceptable error rates!")
+            print(f"  No existing profile found, starting fresh profile")
+    
+    def generate_lesson(self, num_words=10, num_lines=5, slow=False, play=True):
+        """
+        Generate and play a personalized lesson based on user's error dictionary.
         
-        print("\n📝 Full Reference Phonemes:")
-        print(f"  {results['reference_phonemes'][:200]}...")
-        print("\n🎤 Your Phonemes:")
-        print(f"  {results['user_phonemes'][:200]}...")
+        Args:
+            num_words: Number of struggling words to include (default: 10)
+            num_lines: Number of struggling lines to include (default: 5)
+            slow: Whether to speak slowly (default: False)
+            play: Whether to play audio (default: True)
         
-        # Compare phoneme by phoneme
-        ref_list = results['reference_phonemes'].split()
-        user_list = results['user_phonemes'].split()
+        Returns:
+            Lesson generator and lesson dictionary
+        """
+        try:
+            from lesson_generator import LessonGenerator, create_lesson_from_results
+        except ImportError:
+            from .lesson_generator import LessonGenerator, create_lesson_from_results
         
-        if ref_list and user_list:
-            print("\nPhoneme-by-Phoneme Comparison:")
-            print("  (✓ = correct, ✗ = incorrect)")
-            max_len = max(len(ref_list), len(user_list))
-            
-            for i in range(min(len(ref_list), len(user_list))):
-                status = "✓" if ref_list[i] == user_list[i] else "✗"
-                print(f"  [{i+1}] {status} Reference: {ref_list[i]:<10} Your: {user_list[i]}")
-            
-            if len(ref_list) != len(user_list):
-                print(f"\n  Note: Different number of phonemes (ref: {len(ref_list)}, user: {len(user_list)})")
+        # Create lesson from error dictionary
+        lesson_gen, lesson = create_lesson_from_results(self, num_words=num_words, num_lines=num_lines)
         
-        if 'saved_files' in results:
-            print(f"\nPhonemes saved to:")
-            print(f"  Reference: {results['saved_files']['reference']}")
-            print(f"  User: {results['saved_files']['user']}")
+        # Print lesson
+        lesson_gen.print_lesson(lesson)
         
-        print("\n" + "="*60)
+        # Play lesson if requested
+        if play:
+            try:
+                lesson_gen.play_lesson(lesson, practice_words=True, practice_phonemes=False, slow=slow)
+            except Exception as e:
+                print(f"\nCould not play lesson audio: {e}")
+                print("  Install TTS: pip install gtts pygame OR pip install pyttsx3")
+        
+        return lesson_gen, lesson
+    
+    def generate_line_lesson(self, results: Dict, num_lines=5, slow=False, play=True):
+        """
+        Generate and play a lesson for struggling lines.
+        
+        Args:
+            results: Results dictionary from process_audio_and_lyrics
+            num_lines: Number of lines to include (default: 5)
+            slow: Whether to speak slowly (default: False)
+            play: Whether to play audio (default: True)
+        
+        Returns:
+            Lesson generator and line lesson dictionary
+        """
+        try:
+            from lesson_generator import create_line_lesson_from_results
+        except ImportError:
+            from .lesson_generator import create_line_lesson_from_results
+        
+        # Create line lesson
+        lesson_gen, line_lesson = create_line_lesson_from_results(results, num_lines=num_lines)
+        
+        # Print lesson
+        print("\n" + "="*70)
+        print("LINE PRONUNCIATION LESSON")
+        print("="*70)
+        print(f"\nThis lesson focuses on {len(line_lesson['lines'])} lines you struggled with:\n")
+        
+        for i, line_data in enumerate(line_lesson['lines'], 1):
+            accuracy = line_data.get('accuracy', 0)
+            print(f"{i}. Line {line_data.get('line', i)} ({accuracy:.1%} accuracy):")
+            print(f"   {line_data.get('text', '')}")
+        
+        # Play lesson if requested
+        if play:
+            try:
+                lesson_gen.play_line_lesson(line_lesson, slow=slow)
+            except Exception as e:
+                print(f"\nCould not play lesson audio: {e}")
+                print("  Install TTS: pip install gtts pygame OR pip install pyttsx3")
+        
+        return lesson_gen, line_lesson
     
     def get_profile_summary(self):
         """Get a summary of the user's pronunciation profile."""
