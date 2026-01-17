@@ -8,3 +8,5 @@ numpy
 torch
 librosa
 deep_translator
+requests
+torch
