@@ -7,6 +7,7 @@ ffmpeg-python
 numpy
 torch
 librosa
+<<<<<<< HEAD
 deep_translator
 <<<<<<< HEAD
 torchaudio 
@@ -15,3 +16,5 @@ python-Levenshtein
 =======
 moviepy
 >>>>>>> 9f6d24ea2bc26e3aed15d485c029e345f142ce83
+=======
+>>>>>>> 80c885bc10c7171e4f64d45f35619aa4aeecb805
