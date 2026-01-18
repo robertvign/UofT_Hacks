@@ -538,5 +538,113 @@
       }
     ],
     "analyzed_at": "2026-01-17T23:27:43.527421"
+  },
+  {
+    "song_id": "266938",
+    "song_title": "Stay",
+    "recording_path": "/Users/ryan/Developer/UofT_Hacks/uploads/recording_266938_1768717083_song_266938_recording_1768717083259.webm",
+    "filename": "recording_266938_1768717083_song_266938_recording_1768717083259.webm",
+    "accuracy": 0.6836734693877551,
+    "weighted_score": 0.007766990291262136,
+    "avg_line_accuracy": 0.31444911297852474,
+    "worst_lines": [
+      {
+        "line": 2,
+        "text": "Sueur froide, tête brûlée, pleine de foi",
+        "accuracy": 0.0
+      },
+      {
+        "line": 8,
+        "text": "Il y a quelque chose dans ta façon de bouger",
+        "accuracy": 0.0
+      },
+      {
+        "line": 9,
+        "text": "Qui me fait sentir que je peux pas vivre sans toi",
+        "accuracy": 0.0
+      }
+    ],
+    "analyzed_at": "2026-01-18T01:18:21.100160"
+  },
+  {
+    "song_id": "266938",
+    "song_title": "Stay",
+    "recording_path": "/Users/ryan/Developer/UofT_Hacks/uploads/recording_266938_1768718010_song_266938_recording_1768718010267.webm",
+    "filename": "recording_266938_1768718010_song_266938_recording_1768718010267.webm",
+    "accuracy": 0.04979811574697168,
+    "weighted_score": 0.0,
+    "avg_line_accuracy": 0.001470588235294119,
+    "worst_lines": [
+      {
+        "line": 1,
+        "text": "Depuis le début, c’était comme une fièvre",
+        "accuracy": 0.0
+      },
+      {
+        "line": 2,
+        "text": "Sueur froide, tête brûlée, pleine de foi",
+        "accuracy": 0.0
+      },
+      {
+        "line": 4,
+        "text": "Il a dit : « Si t’oses, approche un peu »",
+        "accuracy": 0.0
+      }
+    ],
+    "analyzed_at": "2026-01-18T01:33:45.282226"
+  },
+  {
+    "song_id": "266938",
+    "song_title": "Stay",
+    "recording_path": "/Users/ryan/Developer/UofT_Hacks/uploads/recording_266938_1768718238_song_266938_recording_1768718238913.webm",
+    "filename": "recording_266938_1768718238_song_266938_recording_1768718238913.webm",
+    "accuracy": 0.4538461538461539,
+    "weighted_score": 0.008281573498964804,
+    "avg_line_accuracy": 0.04288505612035024,
+    "worst_lines": [
+      {
+        "line": 1,
+        "text": "Depuis le début, c’était comme une fièvre",
+        "accuracy": 0.0
+      },
+      {
+        "line": 2,
+        "text": "Sueur froide, tête brûlée, pleine de foi",
+        "accuracy": 0.0
+      },
+      {
+        "line": 4,
+        "text": "Il a dit : « Si t’oses, approche un peu »",
+        "accuracy": 0.0
+      }
+    ],
+    "analyzed_at": "2026-01-18T01:37:33.946825"
+  },
+  {
+    "song_id": "266938",
+    "song_title": "Stay",
+    "recording_path": "/Users/ryan/Developer/UofT_Hacks/uploads/recording_266938_1768718817_song_266938_recording_1768718817259.webm",
+    "filename": "recording_266938_1768718817_song_266938_recording_1768718817259.webm",
+    "accuracy": 0.6576923076923077,
+    "weighted_score": 0.004761904761904762,
+    "avg_line_accuracy": 0.0799521556874498,
+    "worst_lines": [
+      {
+        "line": 1,
+        "text": "Depuis le début, c’était comme une fièvre",
+        "accuracy": 0.0
+      },
+      {
+        "line": 2,
+        "text": "Sueur froide, tête brûlée, pleine de foi",
+        "accuracy": 0.0
+      },
+      {
+        "line": 3,
+        "text": "J’ai levé les mains en l’air et j’ai dit : « Montre‑moi un signe »",
+        "accuracy": 0.0
+      }
+    ],
+    "analyzed_at": "2026-01-18T01:47:09.527213"
   }
 ]

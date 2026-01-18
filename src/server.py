@@ -1798,7 +1798,7 @@ def compare_song_recording():
                     # Fallback: look for lyrics file in database directory matching song name AND language
                     if not lyrics_path:
                     # Try database directory first for translated lyrics
-                    db_translated_files = list(DATABASE_DIR.glob("translated_lyrics*no_timestamps*.txt"))
+                        db_translated_files = list(DATABASE_DIR.glob("*translated*no_timestamps*.txt"))
                     if db_translated_files:
                         # Try to match by song name AND translation language
                         song_name_lower = song_data.get('song_name', '').lower().replace(' ', '_')
@@ -1875,57 +1875,78 @@ def compare_song_recording():
             metadata_file = DATABASE_DIR / "videos_metadata.json"
             if metadata_file.exists():
                 try:
-                with open(metadata_file, 'r', encoding='utf-8') as f:
-                    all_metadata = json.load(f)
-                
-                # Filter to only entries with uploaded_at timestamp and sort by most recent
-                songs_with_timestamps = [
-                    s for s in all_metadata 
-                    if s.get('uploaded_at') and s.get('folder_path')
-                ]
-                
-                if songs_with_timestamps:
-                    # Sort by uploaded_at (most recent first)
-                    songs_with_timestamps.sort(
-                        key=lambda x: x.get('uploaded_at', ''),
-                        reverse=True
-                    )
-                    
-                    # Try each song from most recent to oldest
-                    for recent_song in songs_with_timestamps:
-                            # First, try to get translated lyrics from metadata
-                            recent_translated_path = recent_song.get('translated_lyrics_no_timestamps_path')
+                    with open(metadata_file, 'r', encoding='utf-8') as f:
+                        all_metadata = json.load(f)
+
+                    # Filter to only entries with uploaded_at timestamp and folder_path
+                    songs_with_timestamps = [
+                        s for s in all_metadata
+                        if s.get('uploaded_at') and s.get('folder_path')
+                    ]
+
+                    lyrics_path = None
+
+                    if songs_with_timestamps:
+                        # Sort by uploaded_at (most recent first)
+                        songs_with_timestamps.sort(
+                            key=lambda x: x.get('uploaded_at', ''),
+                            reverse=True
+                        )
+
+                        # Try each song from most recent to oldest
+                        for recent_song in songs_with_timestamps:
+                            # First, try metadata path
+                            recent_translated_path = recent_song.get(
+                                'translated_lyrics_no_timestamps_path'
+                            )
                             if recent_translated_path and Path(recent_translated_path).exists():
                                 lyrics_path = Path(recent_translated_path)
-                                print(f"✓ Using translated lyrics from most recent upload: {recent_song.get('song_name')} - {lyrics_path}")
+                                print(
+                                    f"✓ Using translated lyrics from most recent upload: "
+                                    f"{recent_song.get('song_name')} - {lyrics_path}"
+                                )
                                 break
-                            
-                            # Try database directory for translated lyrics files
-                            recent_song_name = recent_song.get('song_name', '').lower().replace(' ', '_')
+
+                            # Try database directory
+                            recent_song_name = (
+                                recent_song.get('song_name', '')
+                                .lower()
+                                .replace(' ', '_')
+                            )
                             recent_lang = recent_song.get('translation_language', '').lower()
+
                             if recent_song_name and recent_lang:
-                                db_translated = list(DATABASE_DIR.glob(f"*translated*{recent_song_name}*{recent_lang}*no_timestamps*.txt"))
+                                db_translated = list(
+                                    DATABASE_DIR.glob(
+                                        f"*translated*{recent_song_name}*{recent_lang}*no_timestamps*.txt"
+                                    )
+                                )
                                 if db_translated:
                                     lyrics_path = db_translated[0]
-                                    print(f"✓ Found translated lyrics for most recent upload: {lyrics_path}")
+                                    print(
+                                        f"✓ Found translated lyrics for most recent upload: {lyrics_path}"
+                                    )
                                     break
-                            
-                            # Last resort: look in song folder for translated lyrics (not transcribed)
+
+                            # Last resort: search song folder
                             recent_folder_path = Path(recent_song.get('folder_path'))
                             if recent_folder_path.exists():
                                 for lyrics_file in recent_folder_path.glob('*.txt'):
-                                    # Prefer translated lyrics, avoid transcribed (English) files
                                     file_lower = lyrics_file.name.lower()
                                     if 'translated' in file_lower and 'no_timestamps' in file_lower:
                                         lyrics_path = lyrics_file
-                                        print(f"✓ Using translated lyrics from song folder: {lyrics_path}")
+                                        print(
+                                            f"✓ Using translated lyrics from song folder: {lyrics_path}"
+                                        )
                                         break
-                            
+
                             if lyrics_path:
                                 break
+
                 except Exception as e:
                     print(f"Error finding most recent upload lyrics: {e}")
-        
+
+                    
         # Final fallback: try database directory for any translated lyrics (NOT transcribed_lyrics.txt) (skip if Stay)
         if not lyrics_path and not is_stay_song:
             # Look for translated lyrics files in database directory

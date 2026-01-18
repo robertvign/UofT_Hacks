@@ -251,25 +251,5 @@
     "youtube_url": null,
     "processed_video": null,
     "status": "uploaded"
-  },
-  {
-    "id": 8,
-    "song_name": "Shape of You",
-    "artist": "Ed Sheeran",
-    "translation_language": "French",
-    "genre": "Pop",
-    "original_filename": "1768715405_1768715405_Ed_Sheeran_-_Shape_of_You_Official_Music_Video.mp3",
-    "saved_filename": "1768715405_1768715405_Ed_Sheeran_-_Shape_of_You_Official_Music_Video.mp3",
-    "file_path": "/Users/ryan/Developer/UofT_Hacks/database/Shape_of_You/1768715405_1768715405_Ed_Sheeran_-_Shape_of_You_Official_Music_Video.mp3",
-    "folder_path": "/Users/ryan/Developer/UofT_Hacks/database/Shape_of_You",
-    "file_size_bytes": 4213583,
-    "file_size_mb": 4.02,
-    "uploaded_at": "2026-01-18T00:50:05.268239",
-    "uploaded_date": "2026-01-18",
-    "uploaded_time": "00:50:05",
-    "source": "file_upload",
-    "youtube_url": null,
-    "processed_video": null,
-    "status": "uploaded"
   }
 ]
