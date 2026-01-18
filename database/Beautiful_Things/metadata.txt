@@ -1,0 +1,15 @@
+============================================================
+Song Information
+============================================================
+Song Name: Beautiful Things
+Artist: Benson Boone
+Translation Language: Romanian
+Genre: Pop
+Original Filename: 1768690606_1768690606_Benson_Boone_-_Beautiful_Things_Official_Music_Video.mp3
+Saved Filename: 1768690606_1768690606_Benson_Boone_-_Beautiful_Things_Official_Music_Video.mp3
+File Path: /Users/ryan/Developer/UofT_Hacks/database/Beautiful_Things/1768690606_1768690606_Benson_Boone_-_Beautiful_Things_Official_Music_Video.mp3
+File Size: 2.94 MB (3083839 bytes)
+Uploaded: 2026-01-17T17:56:46.917474
+Processed Video: /Users/ryan/Developer/UofT_Hacks/database/Beautiful_Things_Romanian_20260117_175908.mp4
+Status: processed
+============================================================

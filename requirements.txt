@@ -17,4 +17,4 @@ requests
 moviepy
 Pillow
 flask
-torchcodec
+yt-dlp

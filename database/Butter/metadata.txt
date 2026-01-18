@@ -1,0 +1,15 @@
+============================================================
+Song Information
+============================================================
+Song Name: Butter
+Artist: BTS
+Translation Language: French
+Genre: Pop
+Original Filename: 1768691344_1768691344_BTS__Butter_Official_MV.mp3
+Saved Filename: 1768691344_1768691344_BTS__Butter_Official_MV.mp3
+File Path: /Users/ryan/Developer/UofT_Hacks/database/Butter/1768691344_1768691344_BTS__Butter_Official_MV.mp3
+File Size: 2.79 MB (2924597 bytes)
+Uploaded: 2026-01-17T18:09:04.028599
+Processed Video: /Users/ryan/Developer/UofT_Hacks/database/Butter_French_20260117_181352.mp4
+Status: processed
+============================================================
