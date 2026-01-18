@@ -1,36 +1,4 @@
-```
-[0.00s → 20.00s] Tout au long, c'était de la fièvre.
-[20.00s → 30.00s] Une sueur froide que j'avais eu chez le croyant.
-[30.00s → 40.00s] J'ai levé les mains en l'air et j'ai dit : montre-moi quelque chose.
-[41.00s → 50.00s] Il a dit, si vous osez vous rapprocher un peu.
-[50.00s → 58.00s] Nous tournons et tournons et tournons et tournons.
-[58.00s → 68.00s] Oh maintenant, maintenant, maintenant, maintenant, maintenant, maintenant, maintenant, maintenant, tu sais.
-[69.00s → 73.00s] Je ne sais pas vraiment ce que je pense de cela.
-[73.00s → 77.00s] Quelque chose dans la façon dont tu bouges.
-[77.00s → 82.00s] Ça me donne l'impression que je ne peux pas vivre sans toi.
-[82.00s → 85.00s] Cela m'emmène jusqu'au bout.
-[85.00s → 94.00s] Je veux que vous restiez.
-[94.00s → 102.00s] Ce n'est pas vraiment une vie que vous vivez.
-[102.00s → 111.00s] Ce n'est pas seulement quelque chose que l'on prend, c'est donné.
-[111.00s → 119.00s] Nous tournons et tournons et tournons et tournons.
-[119.00s → 129.00s] Oh maintenant, maintenant, maintenant, maintenant, maintenant, maintenant, maintenant, maintenant, maintenant, maintenant, tu sais.
-[129.00s → 133.00s] Je ne sais pas vraiment ce que je pense de cela.
-[133.00s → 137.00s] Quelque chose dans la façon dont tu bouges.
-[137.00s → 141.00s] Ça me donne l'impression que je ne peux pas vivre sans toi.
-[141.00s → 144.00s] Cela m'emmène jusqu'au bout.
-[144.00s → 151.00s] Je veux que vous restiez.
-[154.00s → 160.00s] Oh, la raison pour laquelle je tiens le coup.
-[160.00s → 170.00s] Oh, c'est le soleil qui a fait tout ce gong.
-[170.00s → 179.00s] Les plus drôles sont ceux qui sont cassés mais je suis le seul à avoir besoin d'être sauvé.
-[179.00s → 189.00s] Parce que quand on ne voit jamais la lumière, il est difficile de savoir lequel d'entre nous est une grotte.
-[189.00s → 193.00s] Je ne sais pas vraiment ce que je pense de cela.
-[193.00s → 197.00s] Quelque chose dans la façon dont tu bouges.
-[197.00s → 201.00s] Ça me donne l'impression que je ne peux pas vivre sans toi.
-[201.00s → 205.00s] Cela m'emmène jusqu'au bout.
-[205.00s → 213.00s] Je veux que vous restiez.
-[213.00s → 221.00s] Rester.
-[221.00s → 226.00s] Je veux que vous restiez.
-[235.00s → 245.00s] Rester.
-[245.00s → 253.00s] Rester.
-[253.00s → 261.00s] Rester.
-```
+[30.00s → 40.00s] Acum pământul este alb
+[30.00s → 40.00s] Du-te cât ești tânăr
+[30.00s → 40.00s] Luați fetele în seara asta
+[30.00s → 40.00s] Și cântă acest cântec cu sania

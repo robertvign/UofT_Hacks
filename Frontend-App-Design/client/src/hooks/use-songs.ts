@@ -108,6 +108,8 @@ export function useSongs() {
             isFavorite: song.isFavorite || false,
             videoUrl: song.video_url || null,
             hasVideo: song.has_video || false,
+            previewUrl: song.preview_url || null,
+            hasPreview: song.has_preview || false,
           };
         });
       } catch (error) {

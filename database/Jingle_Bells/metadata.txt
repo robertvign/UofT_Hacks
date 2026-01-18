@@ -1,0 +1,15 @@
+============================================================
+Song Information
+============================================================
+Song Name: Jingle Bells
+Artist: Santa
+Translation Language: Romanian
+Genre: Christmas
+Original Filename: 1768701844_1768701844_Jingle_Bells_with_Lyrics___Christmas_Songs_HD___Christmas_Songs_and_Carols.mp3
+Saved Filename: 1768701844_1768701844_Jingle_Bells_with_Lyrics___Christmas_Songs_HD___Christmas_Songs_and_Carols.mp3
+File Path: /Users/ryan/Developer/UofT_Hacks/database/Jingle_Bells/1768701844_1768701844_Jingle_Bells_with_Lyrics___Christmas_Songs_HD___Christmas_Songs_and_Carols.mp3
+File Size: 1.61 MB (1692453 bytes)
+Uploaded: 2026-01-17T21:04:04.930923
+Processed Video: /Users/ryan/Developer/UofT_Hacks/database/Jingle_Bells_Romanian_20260117_210523.mp4
+Status: processed
+============================================================

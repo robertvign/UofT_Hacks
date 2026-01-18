@@ -160,5 +160,329 @@
       }
     ],
     "analyzed_at": "2026-01-17T20:50:50.579660"
+  },
+  {
+    "song_id": "553562",
+    "song_title": "Jingle Bells",
+    "recording_path": "/Users/ryan/Developer/UofT_Hacks/uploads/recording_553562_1768702175_song_553562_recording_1768702175395.webm",
+    "filename": "recording_553562_1768702175_song_553562_recording_1768702175395.webm",
+    "accuracy": 0.0,
+    "weighted_score": 0.0,
+    "avg_line_accuracy": 0.0,
+    "worst_lines": [
+      {
+        "line": 1,
+        "text": "[30.00s → 40.00s] Now the ground is wide, go as well young, take the girls tonight, sing this song,",
+        "accuracy": 0.0
+      },
+      {
+        "line": 2,
+        "text": "[40.00s → 50.00s] sing this song, sing this song, sing this song, sing this song, sing this song, sing this song,",
+        "accuracy": 0.0
+      },
+      {
+        "line": 3,
+        "text": "[50.00s → 56.00s] sing this song, sing this song, sing this song, sing this song, sing this song, sing this song,",
+        "accuracy": 0.0
+      }
+    ],
+    "analyzed_at": "2026-01-17T21:09:48.551184"
+  },
+  {
+    "song_id": "551278",
+    "song_title": "Shake It Off",
+    "recording_path": "/Users/ryan/Developer/UofT_Hacks/uploads/recording_551278_1768704088_song_551278_recording_1768704088172.webm",
+    "filename": "recording_551278_1768704088_song_551278_recording_1768704088172.webm",
+    "accuracy": 0.0016891891891891442,
+    "weighted_score": 0.0,
+    "avg_line_accuracy": 0.0,
+    "worst_lines": [
+      {
+        "line": 1,
+        "text": "[0.00s → 7.00s] I say I'm too late.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 2,
+        "text": "[7.00s → 11.00s] Got nothing in my brain.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 3,
+        "text": "[11.00s → 14.00s] That's what people say.",
+        "accuracy": 0.0
+      }
+    ],
+    "analyzed_at": "2026-01-17T21:41:36.535033"
+  },
+  {
+    "song_id": "348164",
+    "song_title": "Shake It Off",
+    "recording_path": "/Users/ryan/Developer/UofT_Hacks/uploads/recording_348164_1768704733_song_348164_recording_1768704733217.webm",
+    "filename": "recording_348164_1768704733_song_348164_recording_1768704733217.webm",
+    "accuracy": 0.0,
+    "weighted_score": 0.0,
+    "avg_line_accuracy": 0.0,
+    "worst_lines": [
+      {
+        "line": 1,
+        "text": "[0.00s → 7.00s] I say I'm too late.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 2,
+        "text": "[7.00s → 11.00s] Got nothing in my brain.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 3,
+        "text": "[11.00s → 14.00s] That's what people say.",
+        "accuracy": 0.0
+      }
+    ],
+    "analyzed_at": "2026-01-17T21:52:22.826193"
+  },
+  {
+    "song_id": "161538",
+    "song_title": "Shake It Off",
+    "recording_path": "/Users/ryan/Developer/UofT_Hacks/uploads/recording_161538_1768706244_song_161538_recording_1768706244954.webm",
+    "filename": "recording_161538_1768706244_song_161538_recording_1768706244954.webm",
+    "accuracy": 0.006802721088435382,
+    "weighted_score": 0.0,
+    "avg_line_accuracy": 0.0,
+    "worst_lines": [
+      {
+        "line": 1,
+        "text": "Je dis que j'arrive trop tard.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 2,
+        "text": "Je n'ai rien dans la tête.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 3,
+        "text": "C'est ce que disent les gens.",
+        "accuracy": 0.0
+      }
+    ],
+    "analyzed_at": "2026-01-17T22:18:03.451614"
+  },
+  {
+    "song_id": "761316",
+    "song_title": "Shake It Off",
+    "recording_path": "/Users/ryan/Developer/UofT_Hacks/uploads/recording_761316_1768706303_song_761316_recording_1768706303004.webm",
+    "filename": "recording_761316_1768706303_song_761316_recording_1768706303004.webm",
+    "accuracy": 0.0,
+    "weighted_score": 0.0,
+    "avg_line_accuracy": 0.0,
+    "worst_lines": [
+      {
+        "line": 1,
+        "text": "Je dis que j'arrive trop tard.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 2,
+        "text": "Je n'ai rien dans la tête.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 3,
+        "text": "C'est ce que disent les gens.",
+        "accuracy": 0.0
+      }
+    ],
+    "analyzed_at": "2026-01-17T22:18:30.198070"
+  },
+  {
+    "song_id": "697011",
+    "song_title": "Shake It Off",
+    "recording_path": "/Users/ryan/Developer/UofT_Hacks/uploads/recording_697011_1768707007_song_697011_recording_1768707007407.webm",
+    "filename": "recording_697011_1768707007_song_697011_recording_1768707007407.webm",
+    "accuracy": 0.34467120181405897,
+    "weighted_score": 0.15922107674684993,
+    "avg_line_accuracy": 0.0557110682110682,
+    "worst_lines": [
+      {
+        "line": 5,
+        "text": "Je ne veux pas trop de rendez-vous.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 6,
+        "text": "Mais je ne peux pas les faire rester.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 7,
+        "text": "C'est du moins ce que disent les gens.",
+        "accuracy": 0.0
+      }
+    ],
+    "analyzed_at": "2026-01-17T22:30:26.156108"
+  },
+  {
+    "song_id": "803113",
+    "song_title": "Meant for You",
+    "recording_path": "/Users/ryan/Developer/UofT_Hacks/uploads/recording_803113_1768707671_song_803113_recording_1768707671559.webm",
+    "filename": "recording_803113_1768707671_song_803113_recording_1768707671559.webm",
+    "accuracy": 1.0,
+    "weighted_score": 0.035483870967741936,
+    "avg_line_accuracy": 0.6476190476190476,
+    "worst_lines": [
+      {
+        "line": 3,
+        "text": "Et pour toi.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 2,
+        "text": "Et ces sentiments dans mon cœur, je sais qu'ils te sont destinés.",
+        "accuracy": 0.942857142857143
+      },
+      {
+        "line": 1,
+        "text": "Quand je m'assieds et ferme les yeux, mon esprit est en paix et j'espère que tu le trouveras aussi.",
+        "accuracy": 1.0
+      }
+    ],
+    "analyzed_at": "2026-01-17T22:41:20.681671"
+  },
+  {
+    "song_id": "803113",
+    "song_title": "Meant for You",
+    "recording_path": "/Users/ryan/Developer/UofT_Hacks/uploads/recording_803113_1768707818_song_803113_recording_1768707818439.webm",
+    "filename": "recording_803113_1768707818_song_803113_recording_1768707818439.webm",
+    "accuracy": 0.0,
+    "weighted_score": 0.0,
+    "avg_line_accuracy": 0.0,
+    "worst_lines": [
+      {
+        "line": 1,
+        "text": "Quand je m'assieds et ferme les yeux, mon esprit est en paix et j'espère que tu le trouveras aussi.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 2,
+        "text": "Et ces sentiments dans mon cœur, je sais qu'ils te sont destinés.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 3,
+        "text": "Et pour toi.",
+        "accuracy": 0.0
+      }
+    ],
+    "analyzed_at": "2026-01-17T22:43:46.257782"
+  },
+  {
+    "song_id": "999859",
+    "song_title": "Meant for You",
+    "recording_path": "/Users/ryan/Developer/UofT_Hacks/uploads/recording_999859_1768708394_song_999859_recording_1768708394308.webm",
+    "filename": "recording_999859_1768708394_song_999859_recording_1768708394308.webm",
+    "accuracy": 0.0625,
+    "weighted_score": 0.0,
+    "avg_line_accuracy": 0.019607843137254905,
+    "worst_lines": [
+      {
+        "line": 2,
+        "text": "Et ces sentiments dans mon cœur, je sais qu'ils te sont destinés.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 3,
+        "text": "Et pour toi.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 1,
+        "text": "Quand je m'assieds et ferme les yeux, mon esprit est en paix et j'espère que tu le trouveras aussi.",
+        "accuracy": 0.05882352941176472
+      }
+    ],
+    "analyzed_at": "2026-01-17T22:53:22.015482"
+  },
+  {
+    "song_id": "999859",
+    "song_title": "Meant for You",
+    "recording_path": "/Users/ryan/Developer/UofT_Hacks/uploads/recording_999859_1768708461_song_999859_recording_1768708461460.webm",
+    "filename": "recording_999859_1768708461_song_999859_recording_1768708461460.webm",
+    "accuracy": 1.0,
+    "weighted_score": 0.03333333333333333,
+    "avg_line_accuracy": 0.5185185185185185,
+    "worst_lines": [
+      {
+        "line": 3,
+        "text": "Et pour toi.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 2,
+        "text": "Et ces sentiments dans mon cœur, je sais qu'ils te sont destinés.",
+        "accuracy": 0.6666666666666667
+      },
+      {
+        "line": 1,
+        "text": "Quand je m'assieds et ferme les yeux, mon esprit est en paix et j'espère que tu le trouveras aussi.",
+        "accuracy": 0.8888888888888888
+      }
+    ],
+    "analyzed_at": "2026-01-17T22:54:25.187858"
+  },
+  {
+    "song_id": "999859",
+    "song_title": "Meant for You",
+    "recording_path": "/Users/ryan/Developer/UofT_Hacks/uploads/recording_999859_1768708666_song_999859_recording_1768708666864.webm",
+    "filename": "recording_999859_1768708666_song_999859_recording_1768708666864.webm",
+    "accuracy": 1.0,
+    "weighted_score": 0.03076923076923077,
+    "avg_line_accuracy": 0.611111111111111,
+    "worst_lines": [
+      {
+        "line": 3,
+        "text": "Et pour toi.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 2,
+        "text": "Et ces sentiments dans mon cœur, je sais qu'ils te sont destinés.",
+        "accuracy": 0.8333333333333333
+      },
+      {
+        "line": 1,
+        "text": "Quand je m'assieds et ferme les yeux, mon esprit est en paix et j'espère que tu le trouveras aussi.",
+        "accuracy": 1.0
+      }
+    ],
+    "analyzed_at": "2026-01-17T22:57:50.082779"
+  },
+  {
+    "song_id": "213419",
+    "song_title": "Meant for You",
+    "recording_path": "/Users/ryan/Developer/UofT_Hacks/uploads/recording_213419_1768708912_song_213419_recording_1768708912963.webm",
+    "filename": "recording_213419_1768708912_song_213419_recording_1768708912963.webm",
+    "accuracy": 0.0,
+    "weighted_score": 0.0,
+    "avg_line_accuracy": 0.0,
+    "worst_lines": [
+      {
+        "line": 1,
+        "text": "Quand je m'assieds et ferme les yeux, mon esprit est en paix et j'espère que tu le trouveras aussi.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 2,
+        "text": "Et ces sentiments dans mon cœur, je sais qu'ils te sont destinés.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 3,
+        "text": "Et pour toi.",
+        "accuracy": 0.0
+      }
+    ],
+    "analyzed_at": "2026-01-17T23:01:58.953697"
   }
 ]

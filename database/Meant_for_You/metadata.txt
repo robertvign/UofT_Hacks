@@ -1,0 +1,14 @@
+============================================================
+Song Information
+============================================================
+Song Name: Meant for You
+Artist: The Beach Boys
+Translation Language: French
+Genre: Folk
+Original Filename: 1768707387_1768707387_Meant_For_You_Remastered_2001.mp3
+Saved Filename: 1768707387_1768707387_Meant_For_You_Remastered_2001.mp3
+File Path: /Users/ryan/Developer/UofT_Hacks/database/Meant_for_You/1768707387_1768707387_Meant_For_You_Remastered_2001.mp3
+File Size: 0.72 MB (758450 bytes)
+Uploaded: 2026-01-17T22:36:27.252151
+Status: uploaded
+============================================================

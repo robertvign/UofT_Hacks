@@ -358,13 +358,43 @@ async def translate_lyrics(input_file, target_language, output_file=None, max_re
         if (i + 1) % 10 == 0:
             print(f"  Translated {i + 1}/{len(lines_with_timestamps)} lines...")
     
-    # Write translated lyrics to output file
+    # Write translated lyrics to output file (with timestamps)
     with open(output_file, "w", encoding="utf-8") as file:
         file.write("\n".join(translated_lines))
     
+    # Also save translated lyrics without timestamps for voice comparison
+    # Extract text from translated_lines (remove timestamps)
+    translated_text_only = []
+    for line in translated_lines:
+        if not line.strip():
+            continue
+        
+        # Remove timestamp patterns: [start → end] or [start]
+        text_without_timestamp = re.sub(r'\[\d+\.?\d*s\s*→\s*\d+\.?\d*s\]\s*', '', line)
+        text_without_timestamp = re.sub(r'\[\d+\.?\d*s\]\s*', '', text_without_timestamp)
+        text_without_timestamp = text_without_timestamp.strip()
+        
+        if text_without_timestamp:
+            translated_text_only.append(text_without_timestamp)
+    
+    # Save version without timestamps
+    # Use same directory as output_file but with different name
+    output_path = Path(output_file)
+    no_timestamps_file = str(output_path.parent / f"{output_path.stem}_no_timestamps{output_path.suffix}")
+    with open(no_timestamps_file, "w", encoding="utf-8") as file:
+        file.write("\n".join(translated_text_only))
+    
+    # Verify file was created
+    if not Path(no_timestamps_file).exists():
+        print(f"⚠ Warning: Translated lyrics file (no timestamps) was not created: {no_timestamps_file}")
+    else:
+        file_size = Path(no_timestamps_file).stat().st_size
+        print(f"✓ Translated lyrics (no timestamps) saved: {no_timestamps_file} ({file_size} bytes)")
+    
     print(f"Translated {len(lines_with_timestamps)} lines")
     print(f"Translated lyrics saved to: {output_file}")
-    return output_file
+    print(f"Translated lyrics (no timestamps) saved to: {no_timestamps_file}")
+    return output_file, no_timestamps_file
 
 
 def parse_lyrics_with_timestamps(filename):
@@ -466,7 +496,7 @@ def create_timed_lyrics_file(translated_file, output_file=None):
     return output_file
 
 
-def save_video_metadata(video_path, song_name, target_language, original_file=None):
+def save_video_metadata(video_path, song_name, target_language, original_file=None, preview_path=None, translated_lyrics_no_timestamps_path=None):
     """
     Save metadata about a processed video to the database.
     
@@ -475,6 +505,8 @@ def save_video_metadata(video_path, song_name, target_language, original_file=No
         song_name: Name of the song
         target_language: Target language for translation
         original_file: Original input file path (optional)
+        preview_path: Path to the preview audio file (optional)
+        translated_lyrics_no_timestamps_path: Path to translated lyrics without timestamps (optional)
     """
     DATABASE_DIR.mkdir(exist_ok=True)
     
@@ -495,6 +527,18 @@ def save_video_metadata(video_path, song_name, target_language, original_file=No
     file_size = video_path_obj.stat().st_size if video_path_obj.exists() else 0
     file_size_mb = file_size / (1024 * 1024)
     
+    # Verify translated lyrics file exists if path is provided
+    translated_lyrics_path_str = None
+    translated_lyrics_filename = None
+    if translated_lyrics_no_timestamps_path:
+        translated_lyrics_path_obj = Path(translated_lyrics_no_timestamps_path)
+        if translated_lyrics_path_obj.exists():
+            translated_lyrics_path_str = str(translated_lyrics_path_obj)
+            translated_lyrics_filename = translated_lyrics_path_obj.name
+            print(f"✓ Translated lyrics (no timestamps) verified: {translated_lyrics_path_str}")
+        else:
+            print(f"⚠ Warning: Translated lyrics file does not exist: {translated_lyrics_no_timestamps_path}")
+    
     # Create metadata entry
     metadata_entry = {
         "id": len(metadata_list) + 1,
@@ -503,6 +547,10 @@ def save_video_metadata(video_path, song_name, target_language, original_file=No
         "video_filename": video_path_obj.name,
         "video_path": str(video_path),
         "original_file": original_file if original_file else None,
+        "preview_path": str(preview_path) if preview_path else None,
+        "preview_filename": Path(preview_path).name if preview_path else None,
+        "translated_lyrics_no_timestamps_path": translated_lyrics_path_str,
+        "translated_lyrics_no_timestamps_filename": translated_lyrics_filename,
         "file_size_bytes": file_size,
         "file_size_mb": round(file_size_mb, 2),
         "created_at": datetime.now().isoformat(),
@@ -528,6 +576,10 @@ def save_video_metadata(video_path, song_name, target_language, original_file=No
         f.write(f"Video Path: {video_path}\n")
         if original_file:
             f.write(f"Original File: {original_file}\n")
+        if preview_path:
+            f.write(f"Preview File: {preview_path}\n")
+        if translated_lyrics_no_timestamps_path:
+            f.write(f"Translated Lyrics (no timestamps): {translated_lyrics_no_timestamps_path}\n")
         f.write(f"File Size: {file_size_mb:.2f} MB ({file_size} bytes)\n")
         f.write(f"Created: {metadata_entry['created_at']}\n")
         f.write(f"{'='*60}\n")
@@ -605,10 +657,69 @@ async def process_music_video(song_name, mp4_file, target_language, save_to_data
         print("\n=== Step 5: Using transcribed lyrics only ===")
         aligned_file = transcribed_file
     
-    # Step 6: Translate to target language
-    translated_file = await translate_lyrics(aligned_file, target_language)
+    # Step 6: Translate to target language using ElevenLabs (dub and transcribe)
+    print(f"\n=== Step 6: Translating lyrics using ElevenLabs ===")
     
-    # Step 7: Create timed lyrics file
+    # Get language code for ElevenLabs
+    language_map = {
+        'english': 'en', 'spanish': 'es', 'french': 'fr', 'german': 'de',
+        'italian': 'it', 'portuguese': 'pt', 'russian': 'ru', 'chinese': 'zh',
+        'japanese': 'ja', 'korean': 'ko', 'arabic': 'ar', 'hindi': 'hi',
+        'romanian': 'ro', 'polish': 'pl', 'dutch': 'nl', 'greek': 'el',
+        'turkish': 'tr', 'swedish': 'sv', 'norwegian': 'no', 'danish': 'da',
+        'finnish': 'fi', 'czech': 'cs', 'hungarian': 'hu', 'ukrainian': 'uk',
+        'vietnamese': 'vi', 'thai': 'th', 'indonesian': 'id', 'malay': 'ms',
+        'tagalog': 'tl', 'hebrew': 'he', 'cherokee': 'chr'
+    }
+    target_lang_lower = target_language.lower().strip()
+    target_code = language_map.get(target_lang_lower, target_lang_lower[:2] if len(target_lang_lower) >= 2 else 'en')
+    if len(target_lang_lower) == 2:
+        target_code = target_lang_lower
+    
+    # Use ElevenLabs to dub and transcribe
+    import elevenlabs_dubbing
+    translated_file = elevenlabs_dubbing.dub_and_transcribe_full_vocals(
+        vocals_path,
+        target_lang=target_code,
+        output_dir=DATABASE_DIR if save_to_database else OUTPUT_DIR,
+        lyrics_file_with_timestamps=aligned_file,
+        song_name=song_name
+    )
+    
+    if not translated_file or not Path(translated_file).exists():
+        print("⚠ Warning: ElevenLabs dubbing/transcription failed, falling back to Google Translator")
+        # Fallback to Google Translator
+        if save_to_database:
+            safe_song_name = "".join(c for c in song_name if c.isalnum() or c in (' ', '-', '_')).strip()
+            safe_song_name = safe_song_name.replace(' ', '_')
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            translated_output = str(DATABASE_DIR / f"translated_lyrics_{safe_song_name}_{target_language}_{timestamp}.txt")
+        else:
+            translated_output = None
+        translated_file, translated_no_timestamps_file = await translate_lyrics(aligned_file, target_language, output_file=translated_output)
+    else:
+        # Extract text without timestamps for voice comparison
+        translated_text_only = []
+        pattern_full = r'\[(\d+\.?\d*)s → (\d+\.?\d*)s\] (.+)'
+        with open(translated_file, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                match = re.match(pattern_full, line)
+                if match:
+                    text = match.group(3).strip()
+                    if text:
+                        translated_text_only.append(text)
+    
+        # Save version without timestamps
+        no_timestamps_file = str(Path(translated_file).parent / f"{Path(translated_file).stem}_no_timestamps.txt")
+        with open(no_timestamps_file, "w", encoding="utf-8") as f:
+            f.write("\n".join(translated_text_only))
+        translated_no_timestamps_file = no_timestamps_file
+        print(f"Translated lyrics (no timestamps) saved to: {translated_no_timestamps_file}")
+    
+    # Step 7: Create timed lyrics file (already has timestamps from ElevenLabs, but format it)
     time_lyrics_file = create_timed_lyrics_file(translated_file)
     
     # Step 8: Get background image from Unsplash
@@ -633,13 +744,66 @@ async def process_music_video(song_name, mp4_file, target_language, save_to_data
     
     time_music.create_lyrics_video(music_path, time_lyrics_file, final_output, background_image=background_image)
     
+    # Step 10: Create preview
+    print(f"\n=== Step 10: Creating preview ===")
+    preview_path = None
+    try:
+        import elevenlabs_dubbing
+        # Get language code for ElevenLabs
+        language_map = {
+            'english': 'en', 'spanish': 'es', 'french': 'fr', 'german': 'de',
+            'italian': 'it', 'portuguese': 'pt', 'russian': 'ru', 'chinese': 'zh',
+            'japanese': 'ja', 'korean': 'ko', 'arabic': 'ar', 'hindi': 'hi',
+            'romanian': 'ro', 'polish': 'pl', 'dutch': 'nl', 'greek': 'el',
+            'turkish': 'tr', 'swedish': 'sv', 'norwegian': 'no', 'danish': 'da',
+            'finnish': 'fi', 'czech': 'cs', 'hungarian': 'hu', 'ukrainian': 'uk',
+            'vietnamese': 'vi', 'thai': 'th', 'indonesian': 'id', 'malay': 'ms',
+            'tagalog': 'tl', 'hebrew': 'he', 'cherokee': 'chr'
+        }
+        target_lang_lower = target_language.lower().strip()
+        target_code = language_map.get(target_lang_lower, target_lang_lower[:2] if len(target_lang_lower) >= 2 else 'en')
+        if len(target_lang_lower) == 2:
+            target_code = target_lang_lower
+        
+        preview_path = elevenlabs_dubbing.create_preview(
+            vocals_path,
+            music_path,
+            time_lyrics_file,
+            target_lang=target_code,
+            output_dir=DATABASE_DIR if save_to_database else OUTPUT_DIR,
+            duration=10.0
+        )
+        if preview_path:
+            print(f"Preview created successfully: {preview_path}")
+        else:
+            print("Warning: Preview creation failed, continuing without preview")
+    except Exception as e:
+        print(f"Warning: Could not create preview: {e}")
+        print("Continuing without preview...")
+        import traceback
+        traceback.print_exc()
+    
     # Save metadata if saving to database
     if save_to_database:
-        save_video_metadata(final_output, song_name, target_language, mp4_file)
+        # Verify translated lyrics file exists before saving metadata
+        if translated_no_timestamps_file and not Path(translated_no_timestamps_file).exists():
+            print(f"⚠ Warning: Translated lyrics file (no timestamps) not found: {translated_no_timestamps_file}")
+            print(f"   Attempting to find it in database directory...")
+            # Try to find it by looking for files with similar name
+            db_files = list(DATABASE_DIR.glob("*translated*no_timestamps*.txt"))
+            if db_files:
+                translated_no_timestamps_file = str(db_files[-1])  # Use most recent
+                print(f"   Found: {translated_no_timestamps_file}")
+            else:
+                print(f"   Could not find translated lyrics file in database directory")
+        
+        save_video_metadata(final_output, song_name, target_language, mp4_file, preview_path=preview_path, translated_lyrics_no_timestamps_path=translated_no_timestamps_file)
     
     print(f"\n{'='*60}")
     print(f"Pipeline complete!")
     print(f"Final video: {final_output}")
+    if preview_path:
+        print(f"Preview: {preview_path}")
     print(f"{'='*60}\n")
     
     return final_output

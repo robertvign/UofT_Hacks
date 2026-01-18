@@ -953,6 +953,29 @@ def list_songs():
                             song_info['has_video'] = True
                             break
                 
+                # Check videos_metadata.json for preview information
+                metadata_file = DATABASE_DIR / "videos_metadata.json"
+                if metadata_file.exists():
+                    try:
+                        with open(metadata_file, 'r', encoding='utf-8') as f:
+                            videos_metadata = json.load(f)
+                        
+                        # Try to find matching video metadata by song name
+                        song_name_lower = song_info.get('song_name', '').lower()
+                        for video_meta in videos_metadata:
+                            meta_song_name = video_meta.get('song_name', '').lower()
+                            if song_name_lower and meta_song_name and \
+                               (song_name_lower in meta_song_name or meta_song_name in song_name_lower):
+                                # Found matching metadata, check for preview
+                                if video_meta.get('preview_filename'):
+                                    preview_path = DATABASE_DIR / video_meta['preview_filename']
+                                    if preview_path.exists():
+                                        song_info['preview_url'] = f'/api/preview/{video_meta["preview_filename"]}'
+                                        song_info['has_preview'] = True
+                                        break
+                    except Exception as e:
+                        print(f"Warning: Could not read videos_metadata.json: {e}")
+                
                 # Use folder name as ID (or generate one)
                 song_info['id'] = hash(song_folder.name) % 1000000
                 
@@ -1255,6 +1278,35 @@ def serve_video(filename):
             conditional=True  # Support range requests for video seeking
         )
     return jsonify({'error': 'Video not found'}), 404
+
+
+@app.route('/api/preview/<filename>', methods=['GET'])
+def serve_preview(filename):
+    """Serve preview audio files from the database directory for playback."""
+    # Security: only allow alphanumeric, dash, underscore, and dot in filename
+    if not all(c.isalnum() or c in ('-', '_', '.') for c in filename):
+        return jsonify({'error': 'Invalid filename'}), 400
+    
+    # Try database folder first, then output folder
+    file_path = DATABASE_DIR / filename
+    if not file_path.exists():
+        file_path = OUTPUT_DIR / filename
+    
+    if file_path.exists() and file_path.is_file():
+        # Determine mimetype based on file extension
+        if filename.endswith('.mp3'):
+            mimetype = 'audio/mpeg'
+        elif filename.endswith('.wav'):
+            mimetype = 'audio/wav'
+        else:
+            mimetype = 'audio/mpeg'  # default
+        
+        return send_file(
+            str(file_path),
+            mimetype=mimetype,
+            conditional=True  # Support range requests for audio seeking
+        )
+    return jsonify({'error': 'Preview not found'}), 404
 
 
 @app.route('/database/metadata', methods=['GET'])
@@ -1636,14 +1688,104 @@ def compare_song_recording():
                 song_data = next((s for s in metadata_list if song_title.lower() in s.get('song_name', '').lower()), None)
             
             if song_data:
-                song_folder_name = song_data.get('folder_name') or song_data.get('song_name', '').replace(' ', '_')
-                song_folder = DATABASE_DIR / song_folder_name
+                # Get the translation language from song metadata
+                song_translation_language = song_data.get('translation_language', '').lower().strip()
+                print(f"Looking for translated lyrics in language: {song_translation_language}")
                 
-                # Look for lyrics file
-                for lyrics_file in song_folder.glob('*.txt'):
-                    if 'lyrics' in lyrics_file.name.lower() or 'transcribed' in lyrics_file.name.lower():
-                        lyrics_path = lyrics_file
-                        break
+                # First, try to use translated lyrics without timestamps (preferred for voice comparison)
+                translated_lyrics_path = song_data.get('translated_lyrics_no_timestamps_path')
+                if translated_lyrics_path:
+                    translated_lyrics_path_obj = Path(translated_lyrics_path)
+                    if translated_lyrics_path_obj.exists():
+                        lyrics_path = translated_lyrics_path_obj
+                        print(f"✓ Using translated lyrics (no timestamps) from metadata: {lyrics_path}")
+                    else:
+                        # Try to find it in database directory by filename
+                        translated_filename = song_data.get('translated_lyrics_no_timestamps_filename')
+                        if translated_filename:
+                            db_lyrics_path = DATABASE_DIR / translated_filename
+                            if db_lyrics_path.exists():
+                                lyrics_path = db_lyrics_path
+                                print(f"✓ Using translated lyrics (no timestamps) from database: {lyrics_path}")
+                            else:
+                                print(f"⚠ Translated lyrics file not found: {translated_lyrics_path} or {db_lyrics_path}")
+                else:
+                    print("⚠ No translated_lyrics_no_timestamps_path in metadata")
+                
+                # Fallback: look for lyrics file in database directory matching song name AND language
+                if not lyrics_path:
+                    # Try database directory first for translated lyrics
+                    db_translated_files = list(DATABASE_DIR.glob("translated_lyrics*no_timestamps*.txt"))
+                    if db_translated_files:
+                        # Try to match by song name AND translation language
+                        song_name_lower = song_data.get('song_name', '').lower().replace(' ', '_')
+                        # Normalize language name for matching (handle variations like "French" vs "french" vs "fr")
+                        lang_variations = [song_translation_language]
+                        if len(song_translation_language) >= 2:
+                            lang_variations.append(song_translation_language[:2])  # First 2 letters
+                        # Add capitalized version
+                        if song_translation_language:
+                            lang_variations.append(song_translation_language.capitalize())
+                        
+                        print(f"Searching for lyrics matching song: '{song_name_lower}', language: '{song_translation_language}'")
+                        print(f"  Language variations to match: {lang_variations}")
+                        
+                        # Sort by most recent first (by modification time)
+                        db_translated_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+                        
+                        best_match = None
+                        best_match_has_lang = False
+                        for db_file in db_translated_files:
+                            file_stem_lower = db_file.stem.lower()
+                            file_name = db_file.name
+                            
+                            # Check if song name matches
+                            song_match = song_name_lower in file_stem_lower
+                            
+                            # Check if language matches (try all variations)
+                            lang_match = False
+                            for lang_var in lang_variations:
+                                if lang_var.lower() in file_stem_lower or lang_var.capitalize() in file_name:
+                                    lang_match = True
+                                    break
+                            
+                            if song_match and lang_match:
+                                best_match = db_file
+                                best_match_has_lang = True
+                                print(f"✓ Found matching translated lyrics: {db_file.name}")
+                                print(f"  Song match: ✓, Language match: ✓")
+                                break
+                            elif song_match and not best_match:
+                                # Store as fallback if no language match found yet
+                                best_match = db_file
+                                best_match_has_lang = False
+                                print(f"  Found by song name (checking language): {db_file.name}")
+                        
+                        if best_match:
+                            lyrics_path = best_match
+                            if best_match_has_lang:
+                                print(f"✓ Using translated lyrics file: {lyrics_path}")
+                            else:
+                                print(f"⚠ Using translated lyrics by song name only (language may not match): {lyrics_path}")
+                                print(f"  Expected language: {song_translation_language}")
+                                print(f"  File contains: {best_match.name}")
+                        else:
+                            print(f"⚠ No matching translated lyrics file found for song '{song_name_lower}' in language '{song_translation_language}'")
+                    
+                    # If still not found, look in song folder
+                    if not lyrics_path:
+                        song_folder_name = song_data.get('folder_name') or song_data.get('song_name', '').replace(' ', '_')
+                        song_folder = DATABASE_DIR / song_folder_name
+                        
+                        if song_folder.exists():
+                            # Look for lyrics file
+                            for lyrics_file in song_folder.glob('*.txt'):
+                                # Prefer translated lyrics, avoid transcribed (English) files
+                                file_lower = lyrics_file.name.lower()
+                                if 'translated' in file_lower and 'no_timestamps' in file_lower:
+                                    lyrics_path = lyrics_file
+                                    print(f"✓ Using translated lyrics from song folder: {lyrics_path}")
+                                    break
         
         # If no lyrics found for this specific song, use the most recent upload's lyrics
         if not lyrics_path and metadata_file.exists():
@@ -1666,13 +1808,32 @@ def compare_song_recording():
                     
                     # Try each song from most recent to oldest
                     for recent_song in songs_with_timestamps:
+                        # First, try to get translated lyrics from metadata
+                        recent_translated_path = recent_song.get('translated_lyrics_no_timestamps_path')
+                        if recent_translated_path and Path(recent_translated_path).exists():
+                            lyrics_path = Path(recent_translated_path)
+                            print(f"✓ Using translated lyrics from most recent upload: {recent_song.get('song_name')} - {lyrics_path}")
+                            break
+                        
+                        # Try database directory for translated lyrics files
+                        recent_song_name = recent_song.get('song_name', '').lower().replace(' ', '_')
+                        recent_lang = recent_song.get('translation_language', '').lower()
+                        if recent_song_name and recent_lang:
+                            db_translated = list(DATABASE_DIR.glob(f"*translated*{recent_song_name}*{recent_lang}*no_timestamps*.txt"))
+                            if db_translated:
+                                lyrics_path = db_translated[0]
+                                print(f"✓ Found translated lyrics for most recent upload: {lyrics_path}")
+                                break
+                        
+                        # Last resort: look in song folder for translated lyrics (not transcribed)
                         recent_folder_path = Path(recent_song.get('folder_path'))
                         if recent_folder_path.exists():
-                            # Look for lyrics file in this song's folder
                             for lyrics_file in recent_folder_path.glob('*.txt'):
-                                if 'lyrics' in lyrics_file.name.lower() or 'transcribed' in lyrics_file.name.lower():
+                                # Prefer translated lyrics, avoid transcribed (English) files
+                                file_lower = lyrics_file.name.lower()
+                                if 'translated' in file_lower and 'no_timestamps' in file_lower:
                                     lyrics_path = lyrics_file
-                                    print(f"Using lyrics from most recent upload: {recent_song.get('song_name')} - {lyrics_path}")
+                                    print(f"✓ Using translated lyrics from song folder: {lyrics_path}")
                                     break
                             
                             if lyrics_path:
@@ -1680,19 +1841,25 @@ def compare_song_recording():
             except Exception as e:
                 print(f"Error finding most recent upload lyrics: {e}")
         
-        # Final fallback: try data folder (but prefer most recent upload)
+        # Final fallback: try database directory for any translated lyrics (NOT transcribed_lyrics.txt)
         if not lyrics_path:
-            transcribed_path = PROJECT_ROOT / "data" / "transcribed_lyrics.txt"
-            if transcribed_path.exists():
-                lyrics_path = transcribed_path
-                print(f"Using fallback lyrics from data folder: {transcribed_path}")
+            # Look for translated lyrics files in database directory
+            db_translated_files = list(DATABASE_DIR.glob("*translated*no_timestamps*.txt"))
+            if db_translated_files:
+                # Use most recent translated lyrics file
+                db_translated_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+                lyrics_path = db_translated_files[0]
+                print(f"⚠ Using most recent translated lyrics from database (may not match song): {lyrics_path}")
+            else:
+                print("⚠ No translated lyrics files found anywhere. Cannot perform voice comparison.")
         
         if not lyrics_path or not lyrics_path.exists():
             return jsonify({
                 'status': 'warning',
-                'message': 'Recording saved but lyrics not found for comparison',
+                'message': 'Recording saved but translated lyrics not found for comparison. Please ensure the song has been processed with translation.',
                 'recording_path': str(file_path),
-                'filename': safe_filename
+                'filename': safe_filename,
+                'note': 'Voice comparison requires translated lyrics (not English transcribed lyrics)'
             }), 200
         
         # Perform pronunciation comparison using SingingLanguageTrainer
@@ -1729,7 +1896,22 @@ def compare_song_recording():
             print(f"Analyzing recording for song: {song_title}")
             print(f"  Audio: {final_audio_path} (size: {final_audio_path.stat().st_size} bytes)")
             print(f"  Lyrics: {lyrics_path}")
-            print(f"  Language: {language}")
+            if lyrics_path and lyrics_path.exists():
+                lyrics_size = lyrics_path.stat().st_size
+                with open(lyrics_path, 'r', encoding='utf-8') as f:
+                    lyrics_content = f.read()
+                    lyrics_preview = lyrics_content[:100].replace('\n', ' ')
+                print(f"  Lyrics file size: {lyrics_size} bytes")
+                print(f"  Lyrics preview: {lyrics_preview}...")
+                # Verify this is the translated lyrics (not English)
+                if 'translated_lyrics' in str(lyrics_path) and 'no_timestamps' in str(lyrics_path):
+                    lang_info = 'unknown'
+                    if song_data is not None:
+                        lang_info = song_data.get('translation_language', 'unknown')
+                    print(f"  ✓ Using TRANSLATED lyrics file (correct for language: {lang_info})")
+                else:
+                    print(f"  ⚠ Warning: May not be using translated lyrics file!")
+            print(f"  Language code for comparison: {language}")
             print(f"{'='*60}\n")
             
             try:

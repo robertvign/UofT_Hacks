@@ -54,3 +54,28 @@ Original File: /Users/ryan/Developer/UofT_Hacks/database/Stay/1768693799_1768693
 File Size: 9.20 MB (9651422 bytes)
 Created: 2026-01-17T18:56:27.543597
 ============================================================
+
+============================================================
+Video ID: 12
+Song Name: Jingle Bells
+Translation Language: Romanian
+Video Filename: Jingle_Bells_Romanian_20260117_210523.mp4
+Video Path: /Users/ryan/Developer/UofT_Hacks/database/Jingle_Bells_Romanian_20260117_210523.mp4
+Original File: /Users/ryan/Developer/UofT_Hacks/database/Jingle_Bells/1768701844_1768701844_Jingle_Bells_with_Lyrics___Christmas_Songs_HD___Christmas_Songs_and_Carols.mp3
+Preview File: /Users/ryan/Developer/UofT_Hacks/database/preview_30.0s_to_40.0s_ro.wav
+File Size: 5.80 MB (6078495 bytes)
+Created: 2026-01-17T21:07:49.797866
+============================================================
+
+============================================================
+Video ID: 14
+Song Name: Shake It Off
+Translation Language: French
+Video Filename: Shake_It_Off_French_20260117_213218.mp4
+Video Path: /Users/ryan/Developer/UofT_Hacks/database/Shake_It_Off_French_20260117_213218.mp4
+Original File: /Users/ryan/Developer/UofT_Hacks/database/Shake_It_Off/1768703177_1768703177_Taylor_Swift_-_Shake_It_Off.mp3
+Preview File: /Users/ryan/Developer/UofT_Hacks/database/preview_0.0s_to_10.0s_fr.wav
+Translated Lyrics (no timestamps): /Users/ryan/Developer/UofT_Hacks/database/translated_lyrics_Shake_It_Off_French_20260117_213110_no_timestamps.txt
+File Size: 7.14 MB (7486141 bytes)
+Created: 2026-01-17T21:36:44.900596
+============================================================

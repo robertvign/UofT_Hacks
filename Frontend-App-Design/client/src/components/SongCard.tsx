@@ -1,5 +1,5 @@
 import { Song } from "@shared/schema";
-import { Play, Pause, Heart, Disc, Maximize2, Minimize2, Mic, Square, CheckCircle2, Loader2, Volume2, Send } from "lucide-react";
+import { Play, Pause, Heart, Disc, Maximize2, Minimize2, Mic, Square, CheckCircle2, Loader2, Volume2, Send, Headphones } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { JuicyButton } from "@/components/JuicyButton";
 
 interface SongCardProps {
-  song: Song & { videoUrl?: string | null; hasVideo?: boolean };
+  song: Song & { videoUrl?: string | null; hasVideo?: boolean; previewUrl?: string | null; hasPreview?: boolean };
 }
 
 // Flask backend API base URL
@@ -32,7 +32,9 @@ export function SongCard({ song }: SongCardProps) {
   } | null>(null);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [recordingTime, setRecordingTime] = useState(0);
+  const [isPlayingPreview, setIsPlayingPreview] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const previewAudioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { mutate: toggleFavorite } = useToggleFavorite();
@@ -467,6 +469,45 @@ export function SongCard({ song }: SongCardProps) {
               </p>
             </>
           )}
+          {song.hasPreview && song.previewUrl && (
+            <>
+              <span className="text-slate-300">•</span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (previewAudioRef.current) {
+                    if (isPlayingPreview) {
+                      previewAudioRef.current.pause();
+                      setIsPlayingPreview(false);
+                    } else {
+                      previewAudioRef.current.currentTime = 0;
+                      previewAudioRef.current.play();
+                      setIsPlayingPreview(true);
+                    }
+                  }
+                }}
+                className={cn(
+                  "flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-all",
+                  isPlayingPreview
+                    ? "bg-green-100 text-green-700 hover:bg-green-200"
+                    : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                )}
+                title={isPlayingPreview ? "Stop preview" : "Play 10-second preview"}
+              >
+                {isPlayingPreview ? (
+                  <>
+                    <Square className="w-3 h-3" />
+                    Stop
+                  </>
+                ) : (
+                  <>
+                    <Headphones className="w-3 h-3" />
+                    Preview
+                  </>
+                )}
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -474,6 +515,17 @@ export function SongCard({ song }: SongCardProps) {
       <div className="absolute bottom-4 right-4 w-8 h-8 hidden">
         {/* Keeping hidden for now as play button is central, but could be enabled for complex layouts */}
       </div>
+      
+      {/* Hidden audio element for preview */}
+      {song.hasPreview && song.previewUrl && (
+        <audio
+          ref={previewAudioRef}
+          src={`${API_BASE}${song.previewUrl}`}
+          onEnded={() => setIsPlayingPreview(false)}
+          onPause={() => setIsPlayingPreview(false)}
+          className="hidden"
+        />
+      )}
       
       {/* Recording Button and Progress Bar */}
       <div className="mt-4 space-y-3">

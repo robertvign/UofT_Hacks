@@ -1,0 +1,74 @@
+[0.00s → 7.00s] Je dis que j'arrive trop tard.
+[7.00s → 11.00s] Je n'ai rien dans la tête.
+[11.00s → 14.00s] C'est ce que disent les gens.
+[14.00s → 17.00s] C'est ce que disent les gens.
+[17.00s → 20.00s] Je ne veux pas trop de rendez-vous.
+[20.00s → 22.00s] Mais je ne peux pas les faire rester.
+[22.00s → 26.00s] C'est du moins ce que disent les gens.
+[26.00s → 29.00s] C'est ce que disent les gens.
+[29.00s → 34.00s] Mais je ne peux pas arrêter de bouger.
+[34.00s → 39.00s] C'est comme si j'avais cette musique en tête.
+[39.00s → 42.00s] Et ça ira.
+[42.00s → 44.00s] Il y a une place dans une assiette.
+[44.00s → 45.00s] Jouez, jouez, jouez.
+[45.00s → 48.00s] Et ma tête est sur une assiette.
+[48.00s → 51.00s] Je vais juste trembler, secouer, secouer, secouer.
+[51.00s → 53.00s] Secouez-le.
+[53.00s → 54.00s] Secouez-le.
+[54.00s → 55.00s] Je n'ai pas peur.
+[55.00s → 56.00s] Je vais juste casser.
+[56.00s → 57.00s] Casse, casse, casse.
+[57.00s → 62.00s] Je vais juste secouer, secouer, secouer, secouer.
+[62.00s → 63.00s] Secouez-le.
+[63.00s → 67.00s] Je ne manque jamais un battement.
+[67.00s → 70.00s] Je me redresse.
+[70.00s → 74.00s] Et c'est ce que les gens disent.
+[74.00s → 76.00s] C'est ce que disent les gens.
+[76.00s → 79.00s] Je danse toute seule.
+[79.00s → 82.00s] Je fais les mouvements si vite que je pars.
+[82.00s → 85.00s] Et c'est ce que les gens savent.
+[85.00s → 88.00s] C'est ce que les gens savent.
+[88.00s → 91.00s] Mais je continue à naviguer.
+[91.00s → 94.00s] Je ne peux pas m'arrêter, je vais arrêter de bouger.
+[94.00s → 98.00s] C'est comme si j'avais cette musique en tête.
+[98.00s → 101.00s] Et ça ira.
+[101.00s → 103.00s] Il y a une place dans une assiette.
+[103.00s → 104.00s] Jouez, jouez, jouez.
+[104.00s → 106.00s] Et ma tête est sur une assiette.
+[106.00s → 108.00s] Hé, hé, hé, hé, hé, hé, hé, hé, hé.
+[108.00s → 111.00s] Je vais juste secouer, secouer, secouer, secouer, secouer.
+[111.00s → 112.00s] Secouez-le.
+[112.00s → 113.00s] Secouez-le.
+[113.00s → 115.00s] Je pense que ça va casser.
+[115.00s → 117.00s] Casse, casse, casse, casse.
+[117.00s → 119.00s] Je pense que ça va casser.
+[119.00s → 120.00s] Casse, casse, casse, casse.
+[120.00s → 123.00s] Je vais juste secouer, secouer, secouer, secouer, secouer.
+[123.00s → 126.00s] Secouez-le, secouez-le.
+[126.00s → 128.00s] Secouez-le, secouez-le.
+[128.00s → 131.00s] Hé, hé, hé, hé, hé, hé.
+[131.00s → 142.00s] Je pense juste que pendant que tu descendais
+[142.00s → 145.20s] Et maintenant aux menteurs et aux draps sales et sales du monde
+[145.20s → 148.96s] Tu aurais pu te mettre à ce rythme malade
+[150.00s → 152.56s] Mon ex-homme a acheté sa nouvelle petite amie
+[152.56s → 155.52s] Elle dit, oh mon dieu, je vais juste trembler
+[155.52s → 158.56s] Dans le gars là-bas avec les sacrément beaux cheveux
+[158.56s → 162.16s] Une fois que tu es arrivé, bébé, tu peux secouer, secouer, secouer
+[163.52s → 164.72s] Ouais
+[164.72s → 167.52s] Ceux qui jouent vont jouer, jouer, jouer, jouer
+[167.52s → 170.96s] Même mes mains disent, hé, hé, hé, hé
+[171.12s → 173.84s] Je vais juste secouer, secouer, secouer, secouer, secouer
+[173.84s → 176.64s] Je vais le secouer, je vais le secouer
+[176.64s → 179.60s] Comme si lors des derniers week-ends, j'allais casser, casser, casser, casser, casser
+[179.60s → 182.08s] Et je vais faire une pause maintenant, être à la maison, hé, pause, pause, pause
+[182.08s → 184.08s] Pause, pause, pause, s'arrêtera sans surveillance
+[184.08s → 186.08s] Secoue, secoue, secoue, secoue, secoue
+[186.08s → 188.24s] Je vais le secouer, je vais le secouer
+[188.24s → 190.08s] Je veux le secouer
+[190.08s → 191.52s] je vais le secouer
+[191.52s → 192.88s] je vais m'en débarrasser
+[192.88s → 194.08s] je vais m'en débarrasser
+[194.08s → 196.56s] je vais m'en débarrasser
+[196.92s → 198.80s] je vais m'en débarrasser
+[198.80s → 200.72s] je vais m'en débarrasser
+[200.72s → 223.80s] Secouez tout—

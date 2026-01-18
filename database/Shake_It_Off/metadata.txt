@@ -1,0 +1,15 @@
+============================================================
+Song Information
+============================================================
+Song Name: Shake It Off
+Artist: Taylor Swift
+Translation Language: French
+Genre: Pop
+Original Filename: 1768703177_1768703177_Taylor_Swift_-_Shake_It_Off.mp3
+Saved Filename: 1768703177_1768703177_Taylor_Swift_-_Shake_It_Off.mp3
+File Path: /Users/ryan/Developer/UofT_Hacks/database/Shake_It_Off/1768703177_1768703177_Taylor_Swift_-_Shake_It_Off.mp3
+File Size: 3.69 MB (3867513 bytes)
+Uploaded: 2026-01-17T21:26:17.241883
+Processed Video: /Users/ryan/Developer/UofT_Hacks/database/Shake_It_Off_French_20260117_213218.mp4
+Status: processed
+============================================================
