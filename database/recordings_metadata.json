@@ -106,5 +106,59 @@
       }
     ],
     "analyzed_at": "2026-01-17T19:25:14.747235"
+  },
+  {
+    "song_id": "202023",
+    "song_title": "Stay",
+    "recording_path": "/Users/ryan/Developer/UofT_Hacks/uploads/recording_202023_1768700759_song_202023_recording_1768700759356.webm",
+    "filename": "recording_202023_1768700759_song_202023_recording_1768700759356.webm",
+    "accuracy": 0.0033670033670033517,
+    "weighted_score": 0.0,
+    "avg_line_accuracy": 0.0,
+    "worst_lines": [
+      {
+        "line": 1,
+        "text": "[0.00s → 20.00s] All along it was a fever.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 2,
+        "text": "[20.00s → 30.00s] A cold sweat I'd had at believer.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 3,
+        "text": "[30.00s → 40.00s] I threw my hands in the air and said, show me something.",
+        "accuracy": 0.0
+      }
+    ],
+    "analyzed_at": "2026-01-17T20:46:07.689476"
+  },
+  {
+    "song_id": "202023",
+    "song_title": "Stay",
+    "recording_path": "/Users/ryan/Developer/UofT_Hacks/uploads/recording_202023_1768701023_song_202023_recording_1768701023789.webm",
+    "filename": "recording_202023_1768701023_song_202023_recording_1768701023789.webm",
+    "accuracy": 0.023569023569023573,
+    "weighted_score": 0.0,
+    "avg_line_accuracy": 0.0044607469227202715,
+    "worst_lines": [
+      {
+        "line": 1,
+        "text": "[0.00s → 20.00s] All along it was a fever.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 2,
+        "text": "[20.00s → 30.00s] A cold sweat I'd had at believer.",
+        "accuracy": 0.0
+      },
+      {
+        "line": 3,
+        "text": "[30.00s → 40.00s] I threw my hands in the air and said, show me something.",
+        "accuracy": 0.0
+      }
+    ],
+    "analyzed_at": "2026-01-17T20:50:50.579660"
   }
 ]
