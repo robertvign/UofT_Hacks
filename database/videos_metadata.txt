@@ -32,3 +32,25 @@ Original File: /Users/ryan/Developer/UofT_Hacks/database/Butter/1768691344_17686
 File Size: 6.33 MB (6642094 bytes)
 Created: 2026-01-17T18:16:36.842279
 ============================================================
+
+============================================================
+Video ID: 8
+Song Name: Beautiful Things
+Translation Language: French
+Video Filename: Beautiful_Things_French_20260117_184222.mp4
+Video Path: /Users/ryan/Developer/UofT_Hacks/database/Beautiful_Things_French_20260117_184222.mp4
+Original File: /Users/ryan/Developer/UofT_Hacks/database/Beautiful_Things/1768693133_1768693133_Benson_Boone_-_Beautiful_Things_Official_Music_Video.mp3
+File Size: 9.67 MB (10137103 bytes)
+Created: 2026-01-17T18:45:18.205631
+============================================================
+
+============================================================
+Video ID: 10
+Song Name: Stay
+Translation Language: French
+Video Filename: Stay_French_20260117_185229.mp4
+Video Path: /Users/ryan/Developer/UofT_Hacks/database/Stay_French_20260117_185229.mp4
+Original File: /Users/ryan/Developer/UofT_Hacks/database/Stay/1768693799_1768693799_stay.mp3
+File Size: 9.20 MB (9651422 bytes)
+Created: 2026-01-17T18:56:27.543597
+============================================================

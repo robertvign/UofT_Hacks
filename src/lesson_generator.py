@@ -9,7 +9,7 @@ from pathlib import Path
 import json
 from typing import List, Dict, Optional
 import tempfile
-from backboard import BackboardClient
+from backboard.client import BackboardClient
 import asyncio
 
 client = BackboardClient(api_key=os.getenv("BACKBOARD_API_KEY"))

@@ -1,6 +1,6 @@
 # Install: pip install backboard-sdk
 import asyncio
-from backboard import BackboardClient
+from backboard.client import BackboardClient
 import lyricgeneration as lyricsGeneration
 
 
@@ -30,7 +30,7 @@ async def main():
         model_name="gemini-2.5-flash",
         stream=False
     )
-    print("BIUSFHAIUGFGUIOGUO": assistant.assistant_id)
+    print("BIUSFHAIUGFGUIOGUO:", assistant.assistant_id)
 
     # Print the AI's response
     with open("translated_genius_lyrics.txt", "w", encoding="utf-8") as file:

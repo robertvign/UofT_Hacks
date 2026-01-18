@@ -1,6 +1,6 @@
 # Install: pip install backboard-sdk
 import asyncio
-from backboard import BackboardClient
+from backboard.client import BackboardClient
 import os
 
 async def main():

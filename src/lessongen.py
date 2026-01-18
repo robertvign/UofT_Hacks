@@ -13,7 +13,7 @@ import time
 from pathlib import Path
 from typing import List, Dict, Optional
 from xmlrpc import client
-from backboard import BackboardClient
+from backboard.client import BackboardClient
 
 # Try importing audio recording libraries
 try:
@@ -484,8 +484,7 @@ Output ONLY the response in {language_name}, nothing else."""
 
 def get_backboard_credentials(raise_on_missing: bool = True):
     """
-    Get Backboard credentials from environment variables.
-    Works for both local development and web deployment.
+    Get Backboard credentials. API key is hardcoded, assistant_id from environment.
     
     Args:
         raise_on_missing: Whether to raise an error if credentials are missing (default: True)
@@ -496,7 +495,8 @@ def get_backboard_credentials(raise_on_missing: bool = True):
     Raises:
         ValueError: If credentials are missing or invalid and raise_on_missing=True
     """
-    api_key = os.getenv("BACKBOARD_API_KEY")
+    # Hardcoded API key
+    api_key = "espr_-E7xd5n6PKHueWcNykyoDWDE3hewLEWyduHKDXmhKSI"
     assistant_id = os.getenv("BACKBOARD_ASSISTANT_ID")
     
     # Validate assistant_id format (should be a UUID, typically 32 chars without dashes or 36 with)

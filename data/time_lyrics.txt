@@ -1,80 +1,36 @@
-[0.00s → 2.00s] Je vais aller aux toilettes.
-[2.00s → 4.00s] Je vais aller aux toilettes.
-[4.00s → 6.00s] Je vais aller aux toilettes.
-[6.00s → 8.00s] Je vais aller aux toilettes.
-[8.00s → 10.00s] Je vais aller aux toilettes.
-[10.00s → 12.00s] Je vais aller aux toilettes.
-[12.00s → 14.00s] Je vais aller aux toilettes.
-[14.00s → 16.00s] Je vais aller aux toilettes.
-[16.00s → 18.00s] Je vais aller aux toilettes.
-[18.00s → 20.00s] Je vais aller aux toilettes.
-[20.00s → 22.00s] Je vais aller aux toilettes.
-[22.00s → 24.00s] Je vais aller aux toilettes.
-[24.00s → 26.00s] Je vais aller aux toilettes.
-[26.00s → 28.00s] Je vais aller aux toilettes.
-[28.00s → 30.00s] Oh, et je te l'ai fait savoir, n'est-ce pas ?
-[30.00s → 32.00s] Je vais essayer de me cacher et de passer.
-[32.00s → 34.00s] J'ai enlevé les gants supersetites.
-[34.00s → 36.00s] À la police.
-[36.00s → 40.00s] Les sites que je gère adorent mes pieds.
-[40.00s → 44.00s] J'aime le plus de rock avec moi.
-[44.00s → 46.00s] Bébé, sache que je ne peux pas le supporter.
-[46.00s → 48.00s] Laissez-moi vous montrer le parking pour enfants.
-[48.00s → 50.00s] Siroter.
-[50.00s → 52.00s] Des sites que j'aime à mes pieds.
-[52.00s → 54.00s] Obtenez-le, laissez-le jeter.
-[54.00s → 56.00s] Booth, léger, beurre.
-[56.00s → 58.00s] Pour vous et pas comme les autres.
-[58.00s → 60.00s] Pas besoin d'huissier.
-[60.00s → 62.00s] Rêve de moi, tu ne peux pas être mauvais.
-[62.00s → 64.00s] Il n'y en a pas d'autre.
-[64.00s → 66.00s] Je pourrais te balayer comme un caoutchouc.
-[66.00s → 68.00s] Directement.
-[68.00s → 70.00s] Je t'ai eu.
-[70.00s → 72.00s] Te faire tomber comme ça.
-[72.00s → 74.00s] Décomposez-le.
-[74.00s → 76.00s] Je vais me regarder dans le miroir.
-[76.00s → 78.00s] Je vais essayer de me cacher et de passer.
-[78.00s → 80.00s] J'ai enlevé les gants supersetites.
-[80.00s → 82.00s] À la police.
-[82.00s → 84.00s] Les sites que je gère adorent mes pieds.
-[84.00s → 86.00s] J'aime le plus de rock avec moi.
-[86.00s → 90.00s] Bébé, sache que je ne peux pas le supporter.
-[90.00s → 92.00s] Laissez-moi vous montrer le parking pour enfants.
-[92.00s → 94.00s] Des sites que j'aime à mes pieds.
-[94.00s → 96.00s] Obtenez-le, laissez-le jeter.
-[96.00s → 98.00s] Obtenez-le, laissez-le jeter.
-[98.00s → 102.00s] Booth, léger, beurre.
-[102.00s → 104.00s] Booth, léger, beurre.
-[104.00s → 106.00s] Obtenez-le, laissez-le jeter.
-[106.00s → 108.00s] Booth, léger, beurre.
-[108.00s → 110.00s] Booth, léger, beurre.
-[110.00s → 112.00s] Booth, léger, beurre.
-[112.00s → 114.00s] Obtenez-le, laissez-le jeter.
-[114.00s → 116.00s] J'ai vu mon poignet, je suis le prochain gars.
-[116.00s → 118.00s] J'ai le bon corps et le bon esprit.
-[118.00s → 120.00s] Je quitte la fête et j'ai la bonne ambiance.
-[120.00s → 122.00s] Nous aimons les haineux.
-[122.00s → 124.00s] Les garçons flexibles s'arrêtent et nous faisons profil bas.
-[124.00s → 126.00s] Le meilleur jour, bougez avec les basses basses.
-[126.00s → 128.00s] Got Army, qu'est-ce qui est derrière nous, on dit show.
-[128.00s → 130.00s] Allons-y.
-[130.00s → 132.00s] Mettons-nous debout.
-[132.00s → 134.00s] Jusqu'à mes pieds.
-[134.00s → 136.00s] Jusqu'à mes pieds.
-[136.00s → 138.00s] Jusqu'à mes pieds.
-[138.00s → 140.00s] Jusqu'à mes pieds.
-[140.00s → 142.00s] Bébé, sache que j'ai la chaleur.
-[142.00s → 144.00s] Laisse-moi te montrer, parce que je suis un enfant.
-[144.00s → 146.00s] Ne continue pas à dire ça Brian.
-[146.00s → 148.00s] Laissé debout.
-[148.00s → 150.00s] Obtenez-le, laissez-le jeter.
-[150.00s → 152.00s] Booth, ombre légère et fraîche.
-[152.00s → 154.00s] Et tu sais que nous ne nous arrêtons pas.
-[154.00s → 156.00s] Combien de temps?
-[156.00s → 158.00s] Ce n'est pas non.
-[158.00s → 160.00s] Tu as dit, oh mon dieu.
-[160.00s → 162.00s] On va lui mettre la puce à l'oreille.
-[162.00s → 164.00s] On va faire la basse dans sa tête.
-[164.00s → 166.00s] Comment balayer la glacière.
-[166.00s → 168.00s] Obtenez-le, laissez-le jeter.
+[0.00s → 3.00s] ```
+[0.00s → 20.00s] Tout au long, c'était de la fièvre.
+[20.00s → 30.00s] Une sueur froide que j'avais eu chez le croyant.
+[30.00s → 40.00s] J'ai levé les mains en l'air et j'ai dit : montre-moi quelque chose.
+[41.00s → 50.00s] Il a dit, si vous osez vous rapprocher un peu.
+[50.00s → 58.00s] Nous tournons et tournons et tournons et tournons.
+[58.00s → 68.00s] Oh maintenant, maintenant, maintenant, maintenant, maintenant, maintenant, maintenant, maintenant, tu sais.
+[69.00s → 73.00s] Je ne sais pas vraiment ce que je pense de cela.
+[73.00s → 77.00s] Quelque chose dans la façon dont tu bouges.
+[77.00s → 82.00s] Ça me donne l'impression que je ne peux pas vivre sans toi.
+[82.00s → 85.00s] Cela m'emmène jusqu'au bout.
+[85.00s → 94.00s] Je veux que vous restiez.
+[94.00s → 102.00s] Ce n'est pas vraiment une vie que vous vivez.
+[102.00s → 111.00s] Ce n'est pas seulement quelque chose que l'on prend, c'est donné.
+[111.00s → 119.00s] Nous tournons et tournons et tournons et tournons.
+[119.00s → 129.00s] Oh maintenant, maintenant, maintenant, maintenant, maintenant, maintenant, maintenant, maintenant, maintenant, maintenant, tu sais.
+[129.00s → 133.00s] Je ne sais pas vraiment ce que je pense de cela.
+[133.00s → 137.00s] Quelque chose dans la façon dont tu bouges.
+[137.00s → 141.00s] Ça me donne l'impression que je ne peux pas vivre sans toi.
+[141.00s → 144.00s] Cela m'emmène jusqu'au bout.
+[144.00s → 151.00s] Je veux que vous restiez.
+[154.00s → 160.00s] Oh, la raison pour laquelle je tiens le coup.
+[160.00s → 170.00s] Oh, c'est le soleil qui a fait tout ce gong.
+[170.00s → 179.00s] Les plus drôles sont ceux qui sont cassés mais je suis le seul à avoir besoin d'être sauvé.
+[179.00s → 189.00s] Parce que quand on ne voit jamais la lumière, il est difficile de savoir lequel d'entre nous est une grotte.
+[189.00s → 193.00s] Je ne sais pas vraiment ce que je pense de cela.
+[193.00s → 197.00s] Quelque chose dans la façon dont tu bouges.
+[197.00s → 201.00s] Ça me donne l'impression que je ne peux pas vivre sans toi.
+[201.00s → 205.00s] Cela m'emmène jusqu'au bout.
+[205.00s → 213.00s] Je veux que vous restiez.
+[213.00s → 221.00s] Rester.
+[221.00s → 226.00s] Je veux que vous restiez.
+[235.00s → 245.00s] Rester.
+[245.00s → 253.00s] Rester.
+[253.00s → 261.00s] Rester.
+[261.00s → 264.00s] ```
