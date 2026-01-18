@@ -332,26 +332,26 @@ export default function Upload() {
                     }}
                     className={`p-4 rounded-xl border-2 transition-all ${
                       isRecording
-                        ? "border-green-500 bg-green-50 animate-pulse"
+                        ? "border-[#B878E8] bg-purple-50 animate-pulse"
                         : uploadMethod === "record"
-                        ? "border-green-400 bg-green-50"
+                        ? "border-purple-400 bg-purple-50"
                         : "border-slate-200 bg-slate-50 hover:border-slate-300"
                     }`}
                   >
                     {isRecording ? (
                       <>
-                        <Square className="w-6 h-6 mx-auto mb-2 text-green-500" />
-                        <p className="text-sm font-bold text-green-600">
+                        <Square className="w-6 h-6 mx-auto mb-2 text-[#B878E8]" />
+                        <p className="text-sm font-bold text-purple-600">
                           {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
                         </p>
                       </>
                     ) : (
                       <>
                         <Mic className={`w-6 h-6 mx-auto mb-2 ${
-                          uploadMethod === "record" ? "text-green-500" : "text-slate-400"
+                          uploadMethod === "record" ? "text-[#B878E8]" : "text-slate-400"
                         }`} />
                         <p className={`text-sm font-bold ${
-                          uploadMethod === "record" ? "text-green-600" : "text-slate-500"
+                          uploadMethod === "record" ? "text-purple-600" : "text-slate-500"
                         }`}>Record</p>
                       </>
                     )}
@@ -363,7 +363,7 @@ export default function Upload() {
                     <div className="border-2 border-dashed border-slate-300 rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-50 hover:border-blue-400 transition-colors group">
                       <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                         {uploadMethod === "record" && selectedFile ? (
-                          <Mic className="w-6 h-6 text-green-500" />
+                          <Mic className="w-6 h-6 text-[#B878E8]" />
                         ) : (
                           <FileAudio className="w-6 h-6 text-blue-500" />
                         )}
@@ -437,7 +437,7 @@ export default function Upload() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="mt-6 bg-green-100 border-2 border-green-200 rounded-2xl p-4 flex items-center gap-4 text-green-700"
+            className="mt-6 bg-purple-100 border-2 border-purple-200 rounded-2xl p-4 flex items-center gap-4 text-purple-700"
           >
             <CheckCircle2 className="w-8 h-8 flex-shrink-0" />
             <div>

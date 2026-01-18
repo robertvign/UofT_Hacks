@@ -38,7 +38,7 @@ export function Navigation() {
 
       {/* Desktop Top Header Nav */}
       <nav className="hidden md:flex fixed top-0 left-0 right-0 bg-white border-b-2 border-slate-100 px-8 py-3 z-50 justify-between items-center">
-        <div className="text-2xl font-black text-green-500 tracking-tight flex items-center gap-2">
+        <div className="text-2xl font-black text-[#B878E8] tracking-tight flex items-center gap-2">
           <Music className="w-8 h-8" strokeWidth={3} />
           <span>Duosingo</span>
         </div>

@@ -412,9 +412,9 @@ export function SongCard({ song }: SongCardProps) {
               )}
             >
               {isPlaying ? (
-                <Pause className="w-6 h-6 text-green-500 fill-green-500" />
+                <Pause className="w-6 h-6 text-[#B878E8] fill-[#B878E8]" />
               ) : (
-                <Play className="w-6 h-6 text-green-500 fill-green-500 ml-1" />
+                <Play className="w-6 h-6 text-[#B878E8] fill-[#B878E8] ml-1" />
               )}
             </button>
             
@@ -426,9 +426,9 @@ export function SongCard({ song }: SongCardProps) {
                 title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
               >
                 {isFullscreen ? (
-                  <Minimize2 className="w-5 h-5 text-green-500" />
+                  <Minimize2 className="w-5 h-5 text-[#B878E8]" />
                 ) : (
-                  <Maximize2 className="w-5 h-5 text-green-500" />
+                  <Maximize2 className="w-5 h-5 text-[#B878E8]" />
                 )}
               </button>
             )}
@@ -489,7 +489,7 @@ export function SongCard({ song }: SongCardProps) {
                 className={cn(
                   "flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-all",
                   isPlayingPreview
-                    ? "bg-green-100 text-green-700 hover:bg-green-200"
+                    ? "bg-purple-100 text-purple-700 hover:bg-purple-200"
                     : "bg-blue-100 text-blue-700 hover:bg-blue-200"
                 )}
                 title={isPlayingPreview ? "Stop preview" : "Play 10-second preview"}
@@ -567,7 +567,7 @@ export function SongCard({ song }: SongCardProps) {
                       "w-10 h-10 rounded-xl flex items-center justify-center transition-all",
                       isPlayingRecording 
                         ? "bg-red-100 text-red-500 hover:bg-red-200" 
-                        : "bg-green-100 text-green-500 hover:bg-green-200"
+                        : "bg-purple-100 text-[#B878E8] hover:bg-purple-200"
                     )}
                     title={isPlayingRecording ? "Pause playback" : "Play recording"}
                   >
@@ -606,7 +606,7 @@ export function SongCard({ song }: SongCardProps) {
                 initial={{ width: 0 }}
                 animate={{ width: `${analysisProgress}%` }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-                className="h-full bg-gradient-to-r from-blue-500 to-green-500 rounded-full"
+                className="h-full bg-gradient-to-r from-blue-500 to-[#B878E8] rounded-full"
               />
             </div>
           </div>
@@ -627,11 +627,11 @@ export function SongCard({ song }: SongCardProps) {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-4 border-2 border-green-200 space-y-4"
+            className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-4 border-2 border-purple-200 space-y-4"
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-slate-600 uppercase tracking-wide">Accuracy Score</span>
-              <span className="text-lg font-black text-green-600">
+              <span className="text-lg font-black text-purple-600">
                 {(score.accuracy * 100).toFixed(1)}%
               </span>
             </div>
@@ -661,7 +661,7 @@ export function SongCard({ song }: SongCardProps) {
                 transition={{ duration: 1, ease: "easeOut" }}
                 className={cn(
                   "h-full rounded-full",
-                  score.accuracy >= 0.8 ? "bg-green-500" : score.accuracy >= 0.6 ? "bg-yellow-500" : "bg-red-500"
+                  score.accuracy >= 0.8 ? "bg-[#B878E8]" : score.accuracy >= 0.6 ? "bg-yellow-500" : "bg-red-500"
                 )}
               />
             </div>
@@ -706,7 +706,7 @@ export function SongCard({ song }: SongCardProps) {
               transition={{ duration: 1, ease: "easeOut" }}
               className={cn(
                 "h-full rounded-full",
-                currentProgress === 100 ? "bg-yellow-400" : "bg-green-500"
+                currentProgress === 100 ? "bg-yellow-400" : "bg-[#B878E8]"
               )}
             />
           </div>

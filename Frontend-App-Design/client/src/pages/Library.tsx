@@ -50,7 +50,7 @@ export default function Library() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center">
-        <Loader2 className="w-12 h-12 text-green-500 animate-spin mb-4" />
+        <Loader2 className="w-12 h-12 text-[#B878E8] animate-spin mb-4" />
         <h2 className="text-xl font-bold text-slate-400">Loading your library...</h2>
       </div>
     );
@@ -171,7 +171,7 @@ export default function Library() {
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="mt-4 px-4 py-2 bg-green-500 text-white rounded-xl font-bold hover:bg-green-600 transition-colors"
+                className="mt-4 px-4 py-2 bg-[#B878E8] text-white rounded-xl font-bold hover:bg-purple-600 transition-colors"
               >
                 Clear Filters
               </button>

@@ -83,7 +83,7 @@ export default function Lessons() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center">
-        <Loader2 className="w-12 h-12 text-green-500 animate-spin mb-4" />
+        <Loader2 className="w-12 h-12 text-[#B878E8] animate-spin mb-4" />
         <h2 className="text-xl font-bold text-slate-400">Loading lessons...</h2>
       </div>
     );
@@ -182,11 +182,11 @@ export default function Lessons() {
                         </span>
                       </div>
                       <h3 className="text-lg font-bold text-slate-700 mb-1">
-                        Target Word: <span className="text-green-500">{conv.target_word}</span>
+                        Target Word: <span className="text-[#B878E8]">{conv.target_word}</span>
                       </h3>
                     </div>
                     {practiceRecordings[index] && (
-                      <CheckCircle2 className="w-6 h-6 text-green-500 flex-shrink-0" />
+                      <CheckCircle2 className="w-6 h-6 text-[#B878E8] flex-shrink-0" />
                     )}
                   </div>
 
@@ -200,8 +200,8 @@ export default function Lessons() {
                       </p>
                     </div>
 
-                    <div className="bg-green-50 rounded-2xl p-4 border-2 border-green-100">
-                      <p className="text-xs font-bold text-green-400 uppercase tracking-wide mb-2">
+                    <div className="bg-purple-50 rounded-2xl p-4 border-2 border-purple-100">
+                      <p className="text-xs font-bold text-purple-400 uppercase tracking-wide mb-2">
                         Your Response (Practice saying this)
                       </p>
                       <p className="text-slate-700 font-medium text-lg">

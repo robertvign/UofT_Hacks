@@ -202,7 +202,7 @@ export function useCreateSong() {
       toast({
         title: "Song Uploaded!",
         description: "Song has been saved to the database successfully!",
-        className: "bg-green-500 text-white border-none shadow-xl",
+        className: "bg-[#B878E8] text-white border-none shadow-xl",
       });
     },
     onError: () => {

@@ -35,7 +35,7 @@ export default function AuthPage() {
           toast({
             title: "Welcome back!",
             description: "You're now ready to reclaim ancestral songs.",
-            className: "bg-green-500 text-white border-none shadow-xl",
+            className: "bg-[#B878E8] text-white border-none shadow-xl",
           });
           setLocation("/");
         },
@@ -59,7 +59,7 @@ export default function AuthPage() {
         className="w-full max-w-md"
       >
         <div className="flex flex-col items-center mb-8">
-          <div className="bg-green-500 p-4 rounded-3xl shadow-lg mb-4 hover-elevate transition-transform">
+          <div className="bg-[#B878E8] p-4 rounded-3xl shadow-lg mb-4 hover-elevate transition-transform">
             <Music className="w-10 h-10 text-white" strokeWidth={2.5} />
           </div>
           <h1 className="text-4xl font-black text-slate-800 tracking-tight">Duosingo</h1>
@@ -90,7 +90,7 @@ export default function AuthPage() {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Enter your username" 
-                    className="pl-10 h-11 rounded-xl border-2 focus-visible:ring-green-500" 
+                    className="pl-10 h-11 rounded-xl border-2 focus-visible:ring-[#B878E8]" 
                     required 
                   />
                 </div>
@@ -105,7 +105,7 @@ export default function AuthPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••" 
-                    className="pl-10 h-11 rounded-xl border-2 focus-visible:ring-green-500" 
+                    className="pl-10 h-11 rounded-xl border-2 focus-visible:ring-[#B878E8]" 
                     required 
                   />
                 </div>
@@ -118,7 +118,7 @@ export default function AuthPage() {
               <Button 
                 type="submit" 
                 disabled={isLoggingIn}
-                className="w-full h-12 rounded-2xl bg-green-500 hover:bg-green-600 text-white font-bold text-lg shadow-lg shadow-green-200/50 mt-4 group disabled:opacity-50"
+                className="w-full h-12 rounded-2xl bg-[#B878E8] hover:bg-purple-600 text-white font-bold text-lg shadow-lg shadow-purple-200/50 mt-4 group disabled:opacity-50"
               >
                 {isLoggingIn ? "Signing in..." : "Sign In"}
                 {!isLoggingIn && <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />}

@@ -6,10 +6,10 @@
 
 :root {
   /* Duolingo-inspired Palette */
-  /* Primary Green */
-  --primary: 94 99% 40%;    /* #58CC02 */
+  /* Primary Purple */
+  --primary: 276 72% 69%;    /* #B878E8 */
   --primary-foreground: 0 0% 100%;
-  --primary-depth: 94 99% 30%; /* Darker green for button depth */
+  --primary-depth: 276 72% 55%; /* Darker purple for button depth */
 
   /* Secondary Blue */
   --secondary: 198 90% 54%; /* #1CB0F6 */
@@ -32,7 +32,7 @@
 
   --border: 214 32% 91%;
   --input: 214 32% 91%;
-  --ring: 94 99% 40%;
+  --ring: 276 72% 69%;
   
   --radius: 1rem;
 }
