@@ -1,0 +1,15 @@
+============================================================
+Song Information
+============================================================
+Song Name: Stay
+Artist: Rihanna
+Translation Language: French
+Genre: Pop
+Original Filename: 1768693799_1768693799_stay.mp3
+Saved Filename: 1768693799_1768693799_stay.mp3
+File Path: /Users/ryan/Developer/UofT_Hacks/database/Stay/1768693799_1768693799_stay.mp3
+File Size: 9.07 MB (9507662 bytes)
+Uploaded: 2026-01-17T18:49:59.971775
+Processed Video: /Users/ryan/Developer/UofT_Hacks/database/Stay_French_20260117_185229.mp4
+Status: processed
+============================================================

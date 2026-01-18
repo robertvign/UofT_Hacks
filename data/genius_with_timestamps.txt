@@ -1,80 +1,36 @@
-[0.00s → 2.00s] I'm gonna go to the bathroom.
-[2.00s → 4.00s] I'm gonna go to the bathroom.
-[4.00s → 6.00s] I'm gonna go to the bathroom.
-[6.00s → 8.00s] I'm gonna go to the bathroom.
-[8.00s → 10.00s] I'm gonna go to the bathroom.
-[10.00s → 12.00s] I'm gonna go to the bathroom.
-[12.00s → 14.00s] I'm gonna go to the bathroom.
-[14.00s → 16.00s] I'm gonna go to the bathroom.
-[16.00s → 18.00s] I'm gonna go to the bathroom.
-[18.00s → 20.00s] I'm gonna go to the bathroom.
-[20.00s → 22.00s] I'm gonna go to the bathroom.
-[22.00s → 24.00s] I'm gonna go to the bathroom.
-[24.00s → 26.00s] I'm gonna go to the bathroom.
-[26.00s → 28.00s] I'm gonna go to the bathroom.
-[28.00s → 30.00s] Oh, and I let you know me, right?
-[30.00s → 32.00s] I'm gonna try to hide and get through.
-[32.00s → 34.00s] I got the supersetite gloves off.
-[34.00s → 36.00s] To the police.
-[36.00s → 40.00s] The sites that I run love to my feet.
-[40.00s → 44.00s] I like the more rock with me.
-[44.00s → 46.00s] Baby, know that I can't take it.
-[46.00s → 48.00s] Let me show you kids' parking.
-[48.00s → 50.00s] Sip.
-[50.00s → 52.00s] Sites that I love to my feet.
-[52.00s → 54.00s] Get it, let it throw.
-[54.00s → 56.00s] Booth, light, butter.
-[56.00s → 58.00s] For you and like no other.
-[58.00s → 60.00s] Don't need no usher.
-[60.00s → 62.00s] Dream at me, you can't be bad.
-[62.00s → 64.00s] Ain't no other.
-[64.00s → 66.00s] I could sweep you up like a rubber.
-[66.00s → 68.00s] Straight up.
-[68.00s → 70.00s] Gotcha.
-[70.00s → 72.00s] Making you fall like that.
-[72.00s → 74.00s] Break it down.
-[74.00s → 76.00s] I'm gonna look in the mirror.
-[76.00s → 78.00s] I'm gonna try to hide and get through.
-[78.00s → 80.00s] I got the supersetite gloves off.
-[80.00s → 82.00s] To the police.
-[82.00s → 84.00s] The sites that I run love to my feet.
-[84.00s → 86.00s] I like the more rock with me.
-[86.00s → 90.00s] Baby, know that I can't take it.
-[90.00s → 92.00s] Let me show you kids' parking.
-[92.00s → 94.00s] Sites that I love to my feet.
-[94.00s → 96.00s] Get it, let it throw.
-[96.00s → 98.00s] Get it, let it throw.
-[98.00s → 102.00s] Booth, light, butter.
-[102.00s → 104.00s] Booth, light, butter.
-[104.00s → 106.00s] Get it, let it throw.
-[106.00s → 108.00s] Booth, light, butter.
-[108.00s → 110.00s] Booth, light, butter.
-[110.00s → 112.00s] Booth, light, butter.
-[112.00s → 114.00s] Get it, let it throw.
-[114.00s → 116.00s] I saw my wrist, I'm the next guy.
-[116.00s → 118.00s] Got the right body and the right mind.
-[118.00s → 120.00s] Rolling off the party, got the right vibes.
-[120.00s → 122.00s] We like haters.
-[122.00s → 124.00s] Flex boys pull up and we lay low.
-[124.00s → 126.00s] On the best day, moving with the bass low.
-[126.00s → 128.00s] Got Army, what behind us, we say show.
-[128.00s → 130.00s] Let's go.
-[130.00s → 132.00s] Let's step right up to my feet.
-[132.00s → 134.00s] Right up to my feet.
-[134.00s → 136.00s] Right up to my feet.
-[136.00s → 138.00s] Right up to my feet.
-[138.00s → 140.00s] Right up to my feet.
-[140.00s → 142.00s] Baby, know that I got the heat.
-[142.00s → 144.00s] Let me show you, cuz I'm a kid.
-[144.00s → 146.00s] Don't keep saying that Brian.
-[146.00s → 148.00s] Left up to my feet.
-[148.00s → 150.00s] Get it, let it throw.
-[150.00s → 152.00s] Booth, light, cool shade.
-[152.00s → 154.00s] And you know we don't stop.
-[154.00s → 156.00s] How long?
-[156.00s → 158.00s] Ain't no.
-[158.00s → 160.00s] You been like, oh my god.
-[160.00s → 162.00s] We gonna make the rock in his head.
-[162.00s → 164.00s] We gonna make the bass in his head.
-[164.00s → 166.00s] How to sweep the cooler.
-[166.00s → 168.00s] Get it, let it throw.
+```
+[0.00s → 20.00s] All along it was a fever.
+[20.00s → 30.00s] A cold sweat I'd had at believer.
+[30.00s → 40.00s] I threw my hands in the air and said, show me something.
+[41.00s → 50.00s] He said, if you dare come a little closer.
+[50.00s → 58.00s] Round and around and around and around we go.
+[58.00s → 68.00s] Oh now, now, now, now, now, now, now, now, you know.
+[69.00s → 73.00s] Not really sure how to feel about it.
+[73.00s → 77.00s] Something in the way you move.
+[77.00s → 82.00s] Makes me feel like I can't live without you.
+[82.00s → 85.00s] It takes me all the way.
+[85.00s → 94.00s] I want you to stay.
+[94.00s → 102.00s] It's not much of a life you're living.
+[102.00s → 111.00s] It's not just something you take, it's given.
+[111.00s → 119.00s] Round and around and around and around we go.
+[119.00s → 129.00s] Oh now, now, now, now, now, now, now, now, now, now, you know.
+[129.00s → 133.00s] Not really sure how to feel about it.
+[133.00s → 137.00s] Something in the way you move.
+[137.00s → 141.00s] Makes me feel like I can't live without you.
+[141.00s → 144.00s] It takes me all the way.
+[144.00s → 151.00s] I want you to stay.
+[154.00s → 160.00s] Oh, the reason I hold on.
+[160.00s → 170.00s] Oh, the sun made this whole gong.
+[170.00s → 179.00s] The funny are the broken one but I'm the only one who needed saving.
+[179.00s → 189.00s] Because when you never see the light it's hard to know which one of us is cave.
+[189.00s → 193.00s] Not really sure how to feel about it.
+[193.00s → 197.00s] Something in the way you move.
+[197.00s → 201.00s] Makes me feel like I can't live without you.
+[201.00s → 205.00s] It takes me all the way.
+[205.00s → 213.00s] I want you to stay.
+[213.00s → 221.00s] Stay.
+[221.00s → 226.00s] I want you to stay.
+[235.00s → 245.00s] Stay.
+[245.00s → 253.00s] Stay.
+[253.00s → 261.00s] Stay.
+```

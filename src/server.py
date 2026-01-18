@@ -21,6 +21,15 @@ import hashlib
 # Import the main processing function
 from music_video import process_music_video
 
+# Import lesson generator
+try:
+    from lessongen import LessonGenerator, get_backboard_credentials
+    from backboard.client import BackboardClient
+    LESSON_GENERATOR_AVAILABLE = True
+except ImportError as e:
+    LESSON_GENERATOR_AVAILABLE = False
+    print(f"Warning: Lesson generator not available: {e}")
+
 # Initialize Flask app
 app = Flask("Duosingo")
 app.secret_key = "duosingo-secret-key-change-in-production"  # Change this in production
@@ -1305,6 +1314,640 @@ def get_video_metadata(video_id):
         }), 500
 
 
+@app.route('/api/recordings/convert', methods=['POST'])
+def convert_recording_to_mp3():
+    """
+    Convert a recorded audio file (webm/wav) to MP3 format.
+    Used for recordings from the frontend.
+    Returns the MP3 file directly for download.
+    """
+    try:
+        if 'audio' not in request.files:
+            return jsonify({
+                'error': 'No audio file provided',
+                'message': 'Please provide an audio file in the "audio" field'
+            }), 400
+        
+        file = request.files['audio']
+        if file.filename == '':
+            return jsonify({
+                'error': 'No file selected',
+                'message': 'Please select an audio file'
+            }), 400
+        
+        # Save uploaded file
+        filename = secure_filename(file.filename)
+        timestamp = int(time.time())
+        safe_filename = f"{timestamp}_{filename}"
+        file_path = UPLOAD_FOLDER / safe_filename
+        file.save(str(file_path))
+        
+        # Convert to MP3 using ffmpeg if available
+        mp3_filename = f"{timestamp}_{Path(filename).stem}.mp3"
+        mp3_path = UPLOAD_FOLDER / mp3_filename
+        
+        try:
+            # Try to convert using ffmpeg
+            subprocess.run(
+                ['ffmpeg', '-i', str(file_path), '-acodec', 'libmp3lame', '-ab', '192k', str(mp3_path)],
+                check=True,
+                capture_output=True,
+                timeout=30
+            )
+            
+            if mp3_path.exists():
+                # Clean up original file
+                try:
+                    os.remove(file_path)
+                except:
+                    pass
+                
+                # Return the MP3 file
+                return send_file(
+                    str(mp3_path),
+                    mimetype='audio/mpeg',
+                    as_attachment=True,
+                    download_name=mp3_filename
+                )
+            else:
+                return jsonify({
+                    'error': 'Conversion failed',
+                    'message': 'MP3 file was not created'
+                }), 500
+        except subprocess.CalledProcessError as e:
+            # If ffmpeg fails, return the original file
+            return send_file(
+                str(file_path),
+                mimetype='audio/webm',
+                as_attachment=True,
+                download_name=safe_filename
+            )
+        except FileNotFoundError:
+            # If ffmpeg not found, return original file
+            return send_file(
+                str(file_path),
+                mimetype='audio/webm',
+                as_attachment=True,
+                download_name=safe_filename
+            )
+        
+    except Exception as e:
+        import traceback
+        error_trace = traceback.format_exc()
+        print(f"Error converting recording: {str(e)}")
+        print(error_trace)
+        
+        return jsonify({
+            'error': 'Conversion error',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/lessons', methods=['GET'])
+def get_lessons():
+    """Get the current lessons for the user."""
+    try:
+        lessons_file = PROJECT_ROOT / "lessons.json"
+        
+        if not lessons_file.exists():
+            return jsonify({
+                'error': 'No lessons found',
+                'message': 'Lessons have not been generated yet'
+            }), 404
+        
+        with open(lessons_file, 'r', encoding='utf-8') as f:
+            lessons_data = json.load(f)
+        
+        return jsonify({
+            'status': 'success',
+            'lessons': lessons_data
+        }), 200
+        
+    except Exception as e:
+        return jsonify({
+            'error': 'Failed to fetch lessons',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/lessons/generate', methods=['POST'])
+def generate_lessons():
+    """Generate personalized lessons based on user's pronunciation profile."""
+    if not LESSON_GENERATOR_AVAILABLE:
+        return jsonify({
+            'error': 'Lesson generator not available',
+            'message': 'Required dependencies are not installed'
+        }), 500
+    
+    try:
+        data = request.get_json() or {}
+        language = data.get('language', 'fr-fr')
+        num_conversations = data.get('num_conversations', 3)
+        
+        # Get Backboard credentials (API key is hardcoded in lessongen.py)
+        try:
+            api_key, assistant_id = get_backboard_credentials(raise_on_missing=True)
+        except ValueError as e:
+            return jsonify({
+                'error': 'Backboard credentials not configured',
+                'message': str(e)
+            }), 500
+        
+        # Initialize client and lesson generator
+        client = BackboardClient(api_key=api_key)
+        profile_path = PROJECT_ROOT / "user_profile.json"
+        
+        if not profile_path.exists():
+            return jsonify({
+                'error': 'User profile not found',
+                'message': 'Please create a user profile first by practicing with songs'
+            }), 404
+        
+        lesson_gen = LessonGenerator(str(profile_path), language=language)
+        
+        # Generate conversations
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            conversations = loop.run_until_complete(
+                lesson_gen.generate_conversations(
+                    client=client,
+                    assistant_id=assistant_id,
+                    num_conversations=num_conversations,
+                    language=language
+                )
+            )
+        finally:
+            loop.close()
+        
+        if not conversations:
+            return jsonify({
+                'error': 'No conversations generated',
+                'message': 'Could not generate lessons. Check your user profile for error words.'
+            }), 500
+        
+        # Save lessons to file
+        lessons_data = {
+            'conversations': conversations,
+            'generated_at': datetime.now().isoformat(),
+            'language': language
+        }
+        
+        lessons_file = PROJECT_ROOT / "lessons.json"
+        with open(lessons_file, 'w', encoding='utf-8') as f:
+            json.dump(lessons_data, f, indent=2, ensure_ascii=False)
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'Lessons generated successfully',
+            'lessons': lessons_data
+        }), 200
+        
+    except Exception as e:
+        import traceback
+        error_trace = traceback.format_exc()
+        print(f"Error generating lessons: {str(e)}")
+        print(error_trace)
+        
+        return jsonify({
+            'error': 'Failed to generate lessons',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/songs/compare', methods=['POST'])
+def compare_song_recording():
+    """Compare a user's recording with a song for pronunciation analysis."""
+    try:
+        if 'audio' not in request.files:
+            return jsonify({
+                'error': 'No audio file provided',
+                'message': 'Please provide an audio file in the "audio" field'
+            }), 400
+        
+        file = request.files['audio']
+        song_id = request.form.get('song_id', '').strip()
+        song_title = request.form.get('song_title', '').strip()
+        language = request.form.get('language', 'en-us').strip()
+        
+        if file.filename == '':
+            return jsonify({
+                'error': 'No file selected',
+                'message': 'Please select an audio file'
+            }), 400
+        
+        # Save uploaded file
+        filename = secure_filename(file.filename)
+        timestamp = int(time.time())
+        
+        # Ensure upload folder exists
+        UPLOAD_FOLDER.mkdir(parents=True, exist_ok=True)
+        
+        # Save the file first (preserve original extension)
+        safe_filename = f"recording_{song_id}_{timestamp}_{filename}"
+        file_path = UPLOAD_FOLDER / safe_filename
+        file.save(str(file_path))
+        
+        # Verify file was saved and exists
+        if not file_path.exists():
+            return jsonify({
+                'error': 'File save failed',
+                'message': 'Could not save uploaded file'
+            }), 500
+        
+        # Check file size
+        file_size = file_path.stat().st_size
+        if file_size == 0:
+            return jsonify({
+                'error': 'Empty file',
+                'message': 'Uploaded file is empty'
+            }), 400
+        
+        print(f"Saved recording file: {file_path} (size: {file_size} bytes)")
+        
+        # Always convert to WAV for librosa processing (more reliable)
+        print(f"Converting {filename} to WAV format for processing...")
+        wav_filename = f"recording_{song_id}_{timestamp}.wav"
+        wav_path = UPLOAD_FOLDER / wav_filename
+        
+        final_audio_path = None
+        try:
+            # Convert to WAV using ffmpeg (more reliable than MP3 for librosa)
+            # Use 16kHz mono PCM for librosa compatibility
+            result = subprocess.run(
+                ['ffmpeg', '-i', str(file_path), '-acodec', 'pcm_s16le', '-ar', '16000', '-ac', '1', '-y', str(wav_path)],
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            
+            if wav_path.exists():
+                wav_size = wav_path.stat().st_size
+                if wav_size > 0:
+                    final_audio_path = wav_path
+                    print(f"✓ Converted to WAV: {wav_path} (size: {wav_size} bytes)")
+                else:
+                    raise Exception("WAV file is empty after conversion")
+            else:
+                raise Exception("WAV file was not created")
+                
+        except subprocess.CalledProcessError as e:
+            print(f"✗ FFmpeg conversion failed:")
+            print(f"  stdout: {e.stdout}")
+            print(f"  stderr: {e.stderr}")
+            return jsonify({
+                'error': 'Audio conversion failed',
+                'message': f'Could not convert audio to WAV format: {e.stderr}'
+            }), 500
+        except FileNotFoundError:
+            return jsonify({
+                'error': 'FFmpeg not found',
+                'message': 'FFmpeg is required to process audio files. Please install ffmpeg.'
+            }), 500
+        except Exception as e:
+            print(f"✗ Conversion error: {e}")
+            return jsonify({
+                'error': 'Audio conversion failed',
+                'message': f'Could not convert audio file: {str(e)}'
+            }), 500
+        
+        if not final_audio_path or not final_audio_path.exists():
+            return jsonify({
+                'error': 'Audio conversion failed',
+                'message': 'Could not create WAV file for processing'
+            }), 500
+        
+        # Try to find lyrics for this song
+        lyrics_path = None
+        song_folder = None
+        
+        # Look for song in database
+        metadata_file = DATABASE_DIR / "videos_metadata.json"
+        if metadata_file.exists():
+            with open(metadata_file, 'r', encoding='utf-8') as f:
+                metadata_list = json.load(f)
+            
+            # Find song by ID or title
+            song_data = None
+            if song_id:
+                song_data = next((s for s in metadata_list if s.get('id') == int(song_id)), None)
+            elif song_title:
+                song_data = next((s for s in metadata_list if song_title.lower() in s.get('song_name', '').lower()), None)
+            
+            if song_data:
+                song_folder_name = song_data.get('folder_name') or song_data.get('song_name', '').replace(' ', '_')
+                song_folder = DATABASE_DIR / song_folder_name
+                
+                # Look for lyrics file
+                for lyrics_file in song_folder.glob('*.txt'):
+                    if 'lyrics' in lyrics_file.name.lower() or 'transcribed' in lyrics_file.name.lower():
+                        lyrics_path = lyrics_file
+                        break
+        
+        # If no lyrics found for this specific song, use the most recent upload's lyrics
+        if not lyrics_path and metadata_file.exists():
+            try:
+                with open(metadata_file, 'r', encoding='utf-8') as f:
+                    all_metadata = json.load(f)
+                
+                # Filter to only entries with uploaded_at timestamp and sort by most recent
+                songs_with_timestamps = [
+                    s for s in all_metadata 
+                    if s.get('uploaded_at') and s.get('folder_path')
+                ]
+                
+                if songs_with_timestamps:
+                    # Sort by uploaded_at (most recent first)
+                    songs_with_timestamps.sort(
+                        key=lambda x: x.get('uploaded_at', ''),
+                        reverse=True
+                    )
+                    
+                    # Try each song from most recent to oldest
+                    for recent_song in songs_with_timestamps:
+                        recent_folder_path = Path(recent_song.get('folder_path'))
+                        if recent_folder_path.exists():
+                            # Look for lyrics file in this song's folder
+                            for lyrics_file in recent_folder_path.glob('*.txt'):
+                                if 'lyrics' in lyrics_file.name.lower() or 'transcribed' in lyrics_file.name.lower():
+                                    lyrics_path = lyrics_file
+                                    print(f"Using lyrics from most recent upload: {recent_song.get('song_name')} - {lyrics_path}")
+                                    break
+                            
+                            if lyrics_path:
+                                break
+            except Exception as e:
+                print(f"Error finding most recent upload lyrics: {e}")
+        
+        # Final fallback: try data folder (but prefer most recent upload)
+        if not lyrics_path:
+            transcribed_path = PROJECT_ROOT / "data" / "transcribed_lyrics.txt"
+            if transcribed_path.exists():
+                lyrics_path = transcribed_path
+                print(f"Using fallback lyrics from data folder: {transcribed_path}")
+        
+        if not lyrics_path or not lyrics_path.exists():
+            return jsonify({
+                'status': 'warning',
+                'message': 'Recording saved but lyrics not found for comparison',
+                'recording_path': str(file_path),
+                'filename': safe_filename
+            }), 200
+        
+        # Perform pronunciation comparison using SingingLanguageTrainer
+        try:
+            from singing_language_trainer import SingingLanguageTrainer
+            
+            # Initialize trainer with user profile
+            profile_file = str(PROJECT_ROOT / "user_profile.json")
+            trainer = SingingLanguageTrainer(profile_file=profile_file)
+            
+            # Verify file exists before processing
+            if not file_path.exists():
+                return jsonify({
+                    'error': 'File not found',
+                    'message': f'Recording file does not exist: {file_path}'
+                }), 404
+            
+            # Check if file is readable
+            try:
+                file_size = file_path.stat().st_size
+                if file_size == 0:
+                    return jsonify({
+                        'error': 'Empty file',
+                        'message': 'Recording file is empty'
+                    }), 400
+            except Exception as e:
+                return jsonify({
+                    'error': 'File access error',
+                    'message': f'Cannot access file: {str(e)}'
+                }), 500
+            
+            # Process audio and compare with lyrics
+            print(f"\n{'='*60}")
+            print(f"Analyzing recording for song: {song_title}")
+            print(f"  Audio: {final_audio_path} (size: {final_audio_path.stat().st_size} bytes)")
+            print(f"  Lyrics: {lyrics_path}")
+            print(f"  Language: {language}")
+            print(f"{'='*60}\n")
+            
+            try:
+                result = trainer.process_audio_and_lyrics(
+                    audio_path=str(final_audio_path),
+                    lyrics_path=str(lyrics_path),
+                    language=language,
+                    save_phonemes=False
+                )
+            except FileNotFoundError as e:
+                return jsonify({
+                    'error': 'Audio file not found',
+                    'message': f'Could not find audio file: {str(e)}'
+                }), 404
+            except Exception as e:
+                import traceback
+                error_trace = traceback.format_exc()
+                print(f"Error processing audio: {str(e)}")
+                print(error_trace)
+                return jsonify({
+                    'error': 'Audio processing failed',
+                    'message': f'Failed to process audio file: {str(e)}',
+                    'hint': 'Make sure the audio file is a valid MP3/WAV file and librosa can read it'
+                }), 500
+            
+            # Save updated profile
+            trainer.save_profile(profile_file)
+            
+            # Extract scores from result
+            accuracy = result.get('accuracy', 0.0)
+            weighted_score = result.get('weighted_score', 0.0)
+            weak_phonemes = result.get('weak_phonemes', [])
+            line_accuracies = result.get('line_accuracies', [])
+            word_errors_by_line = result.get('word_errors_by_line', [])
+            
+            # Calculate average line accuracy
+            avg_line_accuracy = 0.0
+            if line_accuracies:
+                avg_line_accuracy = sum(line.get('accuracy', 0.0) for line in line_accuracies) / len(line_accuracies)
+            
+            # Get top 3 worst lines (lowest accuracy)
+            worst_lines = sorted(line_accuracies, key=lambda x: x.get('accuracy', 1.0))[:3]
+            worst_lines_formatted = [
+                {
+                    'line': line.get('line', 0),
+                    'text': line.get('text', ''),
+                    'accuracy': line.get('accuracy', 0.0)
+                }
+                for line in worst_lines
+            ]
+            
+            print(f"\n{'='*60}")
+            print(f"Analysis Complete!")
+            print(f"  Overall Accuracy: {accuracy:.2%}")
+            print(f"  Weighted Score: {weighted_score:.2%}")
+            print(f"  Average Line Accuracy: {avg_line_accuracy:.2%}")
+            print(f"\nTop 3 Worst Lines:")
+            for line in worst_lines_formatted:
+                print(f"  Line {line['line']}: {line['accuracy']:.2%} - {line['text'][:50]}")
+            print(f"{'='*60}\n")
+            
+            # Save to database (recordings metadata)
+            recording_metadata = {
+                'song_id': song_id,
+                'song_title': song_title,
+                'recording_path': str(file_path),
+                'filename': safe_filename,
+                'accuracy': accuracy,
+                'weighted_score': weighted_score,
+                'avg_line_accuracy': avg_line_accuracy,
+                'worst_lines': worst_lines_formatted,
+                'analyzed_at': datetime.now().isoformat()
+            }
+            
+            # Save to recordings metadata file
+            recordings_metadata_file = DATABASE_DIR / "recordings_metadata.json"
+            if recordings_metadata_file.exists():
+                with open(recordings_metadata_file, 'r', encoding='utf-8') as f:
+                    recordings_list = json.load(f)
+            else:
+                recordings_list = []
+            
+            recordings_list.append(recording_metadata)
+            
+            with open(recordings_metadata_file, 'w', encoding='utf-8') as f:
+                json.dump(recordings_list, f, indent=2, ensure_ascii=False)
+            
+            return jsonify({
+                'status': 'success',
+                'message': 'Recording analyzed successfully',
+                'accuracy': accuracy,
+                'weighted_score': weighted_score,
+                'avg_line_accuracy': avg_line_accuracy,
+                'weak_phonemes': weak_phonemes[:10],  # Top 10 weak phonemes
+                'line_count': len(line_accuracies),
+                'worst_lines': worst_lines_formatted,  # Top 3 worst lines
+                'recording_path': str(final_audio_path),
+                'filename': final_audio_path.name,
+                'saved_to_db': True,
+                'result': {
+                    'accuracy': accuracy,
+                    'weighted_score': weighted_score,
+                    'avg_line_accuracy': avg_line_accuracy,
+                    'weak_phonemes': weak_phonemes[:10],
+                    'line_accuracies': line_accuracies[:5],  # Top 5 lines for display
+                    'worst_lines': worst_lines_formatted
+                }
+            }), 200
+            
+        except ImportError:
+            # If comparison modules not available, just save the recording
+            return jsonify({
+                'status': 'success',
+                'message': 'Recording saved (comparison modules not available)',
+                'recording_path': str(file_path),
+                'filename': safe_filename
+            }), 200
+        except Exception as e:
+            import traceback
+            error_trace = traceback.format_exc()
+            print(f"Error comparing recording: {str(e)}")
+            print(error_trace)
+            
+            # Still return success but with warning
+            return jsonify({
+                'status': 'warning',
+                'message': f'Recording saved but comparison failed: {str(e)}',
+                'recording_path': str(file_path),
+                'filename': safe_filename
+            }), 200
+        
+    except Exception as e:
+        import traceback
+        error_trace = traceback.format_exc()
+        print(f"Error saving song recording: {str(e)}")
+        print(error_trace)
+        
+        return jsonify({
+            'error': 'Failed to save recording',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/lessons/practice', methods=['POST'])
+def save_practice_recording():
+    """Save a practice recording for a lesson conversation."""
+    try:
+        if 'audio' not in request.files:
+            return jsonify({
+                'error': 'No audio file provided',
+                'message': 'Please provide an audio file in the "audio" field'
+            }), 400
+        
+        file = request.files['audio']
+        conversation_index = request.form.get('conversation_index', '0')
+        
+        if file.filename == '':
+            return jsonify({
+                'error': 'No file selected',
+                'message': 'Please select an audio file'
+            }), 400
+        
+        # Save uploaded file
+        filename = secure_filename(file.filename)
+        timestamp = int(time.time())
+        safe_filename = f"practice_{conversation_index}_{timestamp}_{filename}"
+        file_path = UPLOAD_FOLDER / safe_filename
+        file.save(str(file_path))
+        
+        # Try to convert to MP3 if possible
+        mp3_path = None
+        try:
+            mp3_filename = f"practice_{conversation_index}_{timestamp}.mp3"
+            mp3_path = UPLOAD_FOLDER / mp3_filename
+            
+            subprocess.run(
+                ['ffmpeg', '-i', str(file_path), '-acodec', 'libmp3lame', '-ab', '192k', str(mp3_path)],
+                check=True,
+                capture_output=True,
+                timeout=30
+            )
+            
+            if mp3_path.exists():
+                # Remove original if conversion successful
+                try:
+                    os.remove(file_path)
+                except:
+                    pass
+                final_path = mp3_path
+                final_filename = mp3_filename
+            else:
+                final_path = file_path
+                final_filename = safe_filename
+        except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+            # If conversion fails, use original file
+            final_path = file_path
+            final_filename = safe_filename
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'Practice recording saved',
+            'recording_path': str(final_path),
+            'filename': final_filename,
+            'conversation_index': conversation_index
+        }), 200
+        
+    except Exception as e:
+        import traceback
+        error_trace = traceback.format_exc()
+        print(f"Error saving practice recording: {str(e)}")
+        print(error_trace)
+        
+        return jsonify({
+            'error': 'Failed to save recording',
+            'message': str(e)
+        }), 500
+
+
 if __name__ == '__main__':
     # Run the Flask app
     print(f"\n{'='*60}")
@@ -1322,6 +1965,10 @@ if __name__ == '__main__':
     print(f"  GET  /download/<file>      - Download processed video")
     print(f"  GET  /database/metadata    - Get all video metadata")
     print(f"  GET  /database/metadata/<id> - Get specific video metadata")
+    print(f"  POST /api/recordings/convert - Convert recording to MP3")
+    print(f"  GET  /api/lessons          - Get user lessons")
+    print(f"  POST /api/lessons/generate - Generate personalized lessons")
+    print(f"  POST /api/lessons/practice - Save practice recording")
     print(f"\nStarting server on http://localhost:6767")
     print(f"{'='*60}\n")
     

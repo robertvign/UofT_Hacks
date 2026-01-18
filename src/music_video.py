@@ -30,7 +30,7 @@ try:
     from moviepy import VideoFileClip
     import whisper
     import librosa
-    from backboard import BackboardClient
+    from backboard.client import BackboardClient
 except ImportError as e:
     print(f"Error: Required packages not installed. {e}")
     print("Please install: pip install moviepy openai-whisper librosa backboard-sdk")
