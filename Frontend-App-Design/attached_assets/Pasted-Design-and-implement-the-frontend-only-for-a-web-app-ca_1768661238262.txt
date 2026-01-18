@@ -1,0 +1,90 @@
+Design and implement the frontend only for a web app called Singmantic.
+Do NOT create or assume any backend, APIs, databases, authentication, or server logic.
+The project should be purely static / client-side UI with placeholder data and mock interactions.
+
+Purpose & Identity:
+Singmantic helps people reclaim and rekindle ancestral languages affected by colonization, using music as a bridge for learning, memory, and cultural continuity. The experience should feel hopeful, playful, and empowering.
+
+Overall Visual Style (Very Important):
+
+Inspired by Duolingo
+
+Bright but soft colors
+
+Rounded cards, buttons, and inputs
+
+Friendly typography
+
+Subtle hover and transition animations
+
+Mobile-first and responsive
+
+Pages to Build (Frontend Only):
+
+1. Library Page (Main View)
+
+Acts as the home screen
+
+Displays a grid or list of song cards using mock data
+
+Each song card includes:
+
+Song title
+
+Language name
+
+Optional cultural/region tag
+
+Play button (UI only, no real audio logic required)
+
+Progress indicator (Duolingo-style ring, bar, or badge — visual only)
+
+Layout should encourage exploration and joy, not performance pressure
+
+2. Upload Page
+
+Simple, friendly upload form (UI only)
+
+Inputs:
+
+MP3 file input (no real upload handling)
+
+Song title text input
+
+Language input (dropdown or free text)
+
+Supportive explanatory copy such as:
+
+“Sharing songs helps keep living languages alive.”
+
+Mock success and error states using client-side state only
+
+Clear primary CTA (e.g., “Add to Library”)
+
+Functional Constraints (Important):
+
+❌ No backend logic
+
+❌ No authentication
+
+❌ No API calls
+
+❌ No database assumptions
+
+✅ Use mock data and local UI state only
+
+✅ Focus on layout, components, and interaction design
+
+Technical Expectations:
+
+React-based frontend (or equivalent)
+
+Component-driven architecture
+
+Clean, readable code
+
+Tailwind or modern CSS preferred
+
+Easy to later connect to a backend, but do not implement it now
+
+The final result should feel like Duolingo’s warmth and delight applied to cultural language revival through music, delivered as a polished frontend prototype.

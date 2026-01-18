@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Duolingo-inspired Palette */
+  /* Primary Green */
+  --primary: 94 99% 40%;    /* #58CC02 */
+  --primary-foreground: 0 0% 100%;
+  --primary-depth: 94 99% 30%; /* Darker green for button depth */
+
+  /* Secondary Blue */
+  --secondary: 198 90% 54%; /* #1CB0F6 */
+  --secondary-foreground: 0 0% 100%;
+  --secondary-depth: 198 90% 40%;
+
+  /* Accent Yellow */
+  --accent: 48 100% 50%;    /* #FFD900 */
+  --accent-foreground: 30 40% 20%;
+  
+  /* Backgrounds */
+  --background: 0 0% 100%;
+  --foreground: 215 25% 27%; /* Slate-700 */
+  
+  --card: 0 0% 100%;
+  --card-foreground: 215 25% 27%;
+  
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 94 99% 40%;
+  
+  --radius: 1rem;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-accent/30;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-extrabold tracking-tight text-slate-700;
+  }
+}
+
+/* Custom "Juicy" Button Styles */
+.btn-3d {
+  @apply transition-all active:translate-y-[4px] active:border-b-0;
+}
+
+.card-hover {
+  @apply transition-transform hover:-translate-y-1 duration-300;
+}
