@@ -1,125 +1,95 @@
 import os
-import sys
+import time
+import re
 from pathlib import Path
+from elevenlabs.client import ElevenLabs
 
-# Try importing whisper (openai-whisper package) and librosa
-try:
-    import whisper
-    import librosa
-except ImportError as e:
-    print("Error: Required packages not installed.")
-    print("Please run: pip install openai-whisper librosa")
-    print(f"Missing: {e}")
-    sys.exit(1)
+# --- PATH SETUP ---
+SCRIPT_DIR = Path(__file__).parent
+PROJECT_ROOT = SCRIPT_DIR.parent
+# This ensures it aligns with your pipeline's DATA_DIR
+DATA_DIR = PROJECT_ROOT / "data"
 
-# Check if load_model exists (verify it's the right package)
-if not hasattr(whisper, 'load_model'):
-    print("Error: Wrong 'whisper' package installed.")
-    print("The 'whisper' module doesn't have 'load_model' attribute.")
-    print("Please uninstall any old whisper package and install openai-whisper:")
-    print("  pip uninstall whisper")
-    print("  pip install openai-whisper")
-    sys.exit(1)
-
-# Check if file exists
-audio_file = "lights_vocals.wav"
-if not Path(audio_file).exists():
-    print(f"Error: File '{audio_file}' not found!")
-    print(f"Current directory: {os.getcwd()}")
-    sys.exit(1)
-
-print("Loading Whisper model...")
-model = whisper.load_model("base")
-
-print(f"Loading audio file: {audio_file}...")
-# Load audio with librosa to avoid ffmpeg dependency
-# Whisper expects mono audio at 16kHz
-audio, sr = librosa.load(audio_file, sr=16000, mono=True)
-
-print(f"Transcribing {audio_file}...")
-# Pass audio as numpy array instead of file path to avoid ffmpeg
-result = model.transcribe(
-    audio,
-    language="en",
-    verbose=True
-)
-
-print("\nTranscribing audio...")
-print(f"Full transcription:\n{result['text']}")
-
-# Filter segments to keep only real lyrics with timestamps
-# Remove filler sounds but preserve actual lyrics
-filler_sounds = ['um', 'uh', 'er', 'ah', 'hmm']
-filtered_segments = []
-
-# Process segments to filter out filler sounds
-for segment in result["segments"]:
-    text = segment['text'].strip()
-    if not text:
-        continue
+def transcribe_audio(audio_file, output_file=None):
+    """
+    Transcribe audio using ElevenLabs Scribe and save with timestamps.
+    Matches the function signature used in the Music Video Pipeline.
+    """
+    if output_file is None:
+        # Matches your pipeline's default location
+        output_file = str(DATA_DIR / "transcribed_lyrics.txt")
     
-    # Skip segments that are only filler sounds
-    words = text.split()
-    if not words:
-        continue
+    output_path = Path(output_file)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    print(f"\n=== Step 3: Transcribing audio with ElevenLabs Scribe ===")
     
-    # Check if segment is mostly filler sounds (more than half)
-    filler_count = sum(1 for w in words if w.lower().rstrip('.,!?;:') in filler_sounds)
-    if filler_count > len(words) / 2 and len(words) <= 3:
-        continue  # Skip segments that are mostly filler sounds
+    if not Path(audio_file).exists():
+        raise FileNotFoundError(f"Audio file not found: {audio_file}")
+
+    # 1. Initialize Client
+    client = ElevenLabs(api_key="3b733eee1638020b18512a51e5346319b8ceb2453b964e9869baf93db035d8e2")
+
+    print(f"Sending {Path(audio_file).name} to ElevenLabs...")
     
-    # Keep all other segments as they contain lyrics
-    filtered_segments.append(segment)
+    with open(audio_file, "rb") as audio_input:
+        transcription = client.speech_to_text.convert(
+            file=audio_input,
+            model_id="scribe_v1",
+        )
 
-# Ensure "I'm Sorry" and "Okay" are included if they appear in the original
-original_lower = result['text'].lower()
-filtered_texts = [seg['text'].lower().strip() for seg in filtered_segments]
+    # 2. FILTERS AND CLEANING
+    ignore_list = {'oh', 'um', 'uh', 'er', 'ah', 'hmm', 'yeah', 'mhm'}
+    
+    sentences = []
+    current_sentence_words = []
+    start_time = None
 
-# Add "I'm Sorry" if present in original but not in filtered
-if ("i'm sorry" in original_lower or "im sorry" in original_lower):
-    if not any("i'm sorry" in text or "im sorry" in text for text in filtered_texts):
-        # Find the segment with "I'm sorry" and add it
-        for segment in result["segments"]:
-            seg_text = segment['text'].lower().strip()
-            if "i'm sorry" in seg_text or "im sorry" in seg_text:
-                filtered_segments.insert(0, segment)
-                break
+    for word_data in transcription.words:
+        # A. Remove parentheses content like (music)
+        raw_text = re.sub(r'\(.*?\)', '', word_data.text).strip()
+        
+        # B. Clean for ignore list
+        clean_word = raw_text.lower().rstrip('.,!?;:')
+        
+        if not clean_word or clean_word in ignore_list:
+            continue
+            
+        if start_time is None:
+            start_time = word_data.start
+            
+        current_sentence_words.append(raw_text)
+        end_time = word_data.end
 
-# Add "Okay" if present in original but not in filtered
-if "okay" in original_lower or (" ok " in original_lower):
-    if not any("okay" in text or (" ok " in text and len(text.split()) <= 3) for text in filtered_texts):
-        # Find the segment with "Okay" and add it
-        for segment in result["segments"]:
-            seg_text = segment['text'].lower().strip()
-            if "okay" in seg_text or (" ok " in seg_text and len(seg_text.split()) <= 3):
-                # Check if it's not already in filtered_segments
-                if segment not in filtered_segments:
-                    filtered_segments.append(segment)
-                break
+        # C. Detect sentence breaks (punctuation)
+        if any(punct in raw_text for punct in ['.', '!', '?']):
+            # Collapse random spaces into exactly one
+            full_sentence = " ".join(" ".join(current_sentence_words).split())
+            
+            if full_sentence:
+                sentences.append(f"[{start_time:.2f}s → {end_time:.2f}s] {full_sentence}")
+            
+            current_sentence_words = []
+            start_time = None
 
-# Remove duplicates while preserving order
-seen = set()
-unique_segments = []
-for segment in filtered_segments:
-    text_key = segment['text'].strip().lower()
-    if text_key not in seen:
-        seen.add(text_key)
-        unique_segments.append(segment)
+    # Handle remaining words
+    if current_sentence_words:
+        full_sentence = " ".join(" ".join(current_sentence_words).split())
+        if full_sentence:
+            sentences.append(f"[{start_time:.2f}s → {end_time:.2f}s] {full_sentence}")
 
-# Format with timestamps: [start → end] lyrics
-lyrics_with_timestamps = []
-for segment in unique_segments:
-    start = segment['start']
-    end = segment['end']
-    text = segment['text'].strip()
-    lyrics_with_timestamps.append(f"[{start:.2f}s → {end:.2f}s] {text}")
+    # 3. Save output
+    final_lyrics = "\n".join(sentences)
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(final_lyrics)
 
-final_lyrics = '\n'.join(lyrics_with_timestamps)
+    print(f"Cleanup complete: Parentheses removed, fillers ignored, spaces collapsed.")
+    print(f"Transcription saved to: {output_file}")
+    
+    return output_file
 
-# Save to text file
-output_file = "transcribed_lyrics.txt"
-with open(output_file, 'w', encoding='utf-8') as f:
-    f.write(final_lyrics)
-
-print(f"\nFiltered lyrics saved to: {output_file}")
-print(f"\nFiltered lyrics:\n{final_lyrics}")
+if __name__ == "__main__":
+    # Test block to ensure it works standalone within your project structure
+    TEST_VOCALS = PROJECT_ROOT / "output" / "lights_vocals.wav"
+    if TEST_VOCALS.exists():
+        transcribe_audio(str(TEST_VOCALS))
