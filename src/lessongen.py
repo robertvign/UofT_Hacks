@@ -482,80 +482,69 @@ Output ONLY the response in {language_name}, nothing else."""
         print("="*70)
 
 
-def get_backboard_credentials(raise_on_missing: bool = True):
+async def get_or_create_assistant(client, assistant_name="Pronunciation Coach"):
     """
-    Get Backboard credentials. API key is hardcoded, assistant_id from environment.
+    Get or create a Backboard assistant. Creates one if it doesn't exist.
     
     Args:
-        raise_on_missing: Whether to raise an error if credentials are missing (default: True)
+        client: BackboardClient instance
+        assistant_name: Name for the assistant (if creating new one)
         
     Returns:
-        tuple: (api_key, assistant_id) or (None, None) if not found and raise_on_missing=False
+        str: assistant_id
+    """
+    assistant_id = os.getenv("BACKBOARD_ASSISTANT_ID")
+    
+    # If assistant_id is provided and valid, use it
+    if assistant_id:
+        assistant_id = assistant_id.strip()
+        if len(assistant_id) in [32, 36]:
+            return assistant_id
+    
+    # Otherwise, create a new assistant
+    print(f"Creating new Backboard assistant: {assistant_name}")
+    assistant = await client.create_assistant(
+        name=assistant_name,
+        description="A pronunciation coach assistant for language learning"
+    )
+    print(f"Created assistant with ID: {assistant.assistant_id}")
+    return assistant.assistant_id
+
+
+def get_backboard_credentials(raise_on_missing: bool = True):
+    """
+    Get Backboard credentials. API key is hardcoded, assistant_id is optional.
+    
+    Args:
+        raise_on_missing: Whether to raise an error if API key is missing (default: True)
+        
+    Returns:
+        tuple: (api_key, assistant_id) where assistant_id may be None if not set
         
     Raises:
-        ValueError: If credentials are missing or invalid and raise_on_missing=True
+        ValueError: If API key is missing and raise_on_missing=True
     """
     # Hardcoded API key
     api_key = "espr_-E7xd5n6PKHueWcNykyoDWDE3hewLEWyduHKDXmhKSI"
     assistant_id = os.getenv("BACKBOARD_ASSISTANT_ID")
     
-    # Validate assistant_id format (should be a UUID, typically 32 chars without dashes or 36 with)
+    # Validate assistant_id format if provided (should be a UUID, typically 32 chars without dashes or 36 with)
     if assistant_id:
         # Remove any whitespace
         assistant_id = assistant_id.strip()
         # Check if it looks like a valid UUID (32 chars without dashes, or 36 with dashes)
         if len(assistant_id) not in [32, 36]:
-            error_msg = (
-                f"BACKBOARD_ASSISTANT_ID appears to be invalid. "
+            print(f"⚠️  WARNING: BACKBOARD_ASSISTANT_ID appears to be invalid. "
                 f"Expected a UUID (32 or 36 characters), but got {len(assistant_id)} characters. "
-                f"Value: '{assistant_id[:20]}...' (truncated)"
-            )
-            if raise_on_missing:
-                raise ValueError(error_msg)
-            else:
-                return None, None
+                  f"Will create a new assistant instead.")
+            assistant_id = None
     
-    if not api_key or not assistant_id:
-        # Only show debug info in development (when running as script)
-        if __name__ == "__main__":
-            print("\n⚠️  Environment variable check:")
-            print(f"  BACKBOARD_API_KEY: {'✅ Set' if api_key else '❌ Not set'}")
-            if api_key:
-                print(f"    Value: {api_key[:10]}... (truncated)")
-            
-            print(f"  BACKBOARD_ASSISTANT_ID: {'✅ Set' if assistant_id else '❌ Not set'}")
-            if assistant_id:
-                print(f"    Value: '{assistant_id}' (length: {len(assistant_id)})")
-                if len(assistant_id) not in [32, 36]:
-                    print(f"    ⚠️  WARNING: Expected UUID format (32 or 36 chars), got {len(assistant_id)} chars")
-            
-            # Show all backboard-related env vars for debugging
-            backboard_vars = {k: v[:20] + "..." if len(v) > 20 else v 
-                             for k, v in os.environ.items() 
-                             if 'backboard' in k.lower() or 'board' in k.lower() or 'assistant' in k.lower()}
-            if backboard_vars:
-                print(f"\n  Found related environment variables:")
-                for k, v in backboard_vars.items():
-                    print(f"    {k}: {v}")
-            
-            print("\n  To set in PowerShell (local), use:")
-            print('    $env:BACKBOARD_API_KEY = "your_api_key"')
-            print('    $env:BACKBOARD_ASSISTANT_ID = "your_assistant_id"')
-            print("  Note: assistant_id should be a UUID (32 or 36 characters)")
-            print("\n  For web deployment, set environment variables in your hosting platform:")
-            print("    - Heroku: heroku config:set BACKBOARD_API_KEY=your_key")
-            print("    - AWS: Use AWS Systems Manager Parameter Store or Secrets Manager")
-            print("    - Docker: Use -e flags or .env file")
-            print("    - Other: Set in your platform's environment variable settings")
-        
+    if not api_key:
         if raise_on_missing:
-            if not api_key:
-                raise ValueError("BACKBOARD_API_KEY environment variable not set")
-            if not assistant_id:
-                raise ValueError("BACKBOARD_ASSISTANT_ID environment variable not set")
-        else:
+            raise ValueError("BACKBOARD_API_KEY is missing")
             return None, None
     
+    # assistant_id is optional - will be created dynamically if not provided
     return api_key, assistant_id
 
 
@@ -566,6 +555,10 @@ async def main():
     
     # Initialize client
     client = BackboardClient(api_key=api_key)
+    
+    # Get or create assistant (creates one if assistant_id is None)
+    if not assistant_id:
+        assistant_id = await get_or_create_assistant(client, assistant_name="Pronunciation Coach")
     
     # Create lesson generator (default to French, change to match your song's language)
     print("Loading user profile...")

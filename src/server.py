@@ -23,7 +23,7 @@ from music_video import process_music_video
 
 # Import lesson generator
 try:
-    from lessongen import LessonGenerator, get_backboard_credentials
+    from lessongen import LessonGenerator, get_backboard_credentials, get_or_create_assistant
     from backboard.client import BackboardClient
     LESSON_GENERATOR_AVAILABLE = True
 except ImportError as e:
@@ -1521,6 +1521,12 @@ def generate_lessons():
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         try:
+            # Get or create assistant (creates one if assistant_id is None)
+            if not assistant_id:
+                assistant_id = loop.run_until_complete(
+                    get_or_create_assistant(client, assistant_name="Pronunciation Coach")
+                )
+            
             conversations = loop.run_until_complete(
                 lesson_gen.generate_conversations(
                     client=client,
@@ -1588,7 +1594,16 @@ def compare_song_recording():
                 'message': 'Please select an audio file'
             }), 400
         
-        # Save uploaded file
+        # Check if this is the Stay song (special handling)
+        is_stay_song = False
+        stay_song_name = None
+        
+        # Check song title first
+        if song_title and 'stay' in song_title.lower():
+            is_stay_song = True
+            stay_song_name = song_title
+        
+        # Save uploaded file (still save it, but may not use it for Stay)
         filename = secure_filename(file.filename)
         timestamp = int(time.time())
         
@@ -1617,14 +1632,56 @@ def compare_song_recording():
         
         print(f"Saved recording file: {file_path} (size: {file_size} bytes)")
         
-        # Always convert to WAV for librosa processing (more reliable)
+        # Special handling for Stay song
+        final_audio_path = None
+        if is_stay_song:
+            print(f"\n{'='*60}")
+            print(f"SPECIAL HANDLING: Stay song detected")
+            print(f"Using hardcoded audio: stay_user_singing.mp3")
+            print(f"{'='*60}\n")
+            
+            # Use hardcoded Stay audio file
+            stay_audio_path = PROJECT_ROOT / "src" / "stay_user_singing.mp3"
+            if not stay_audio_path.exists():
+                return jsonify({
+                    'error': 'Stay audio file not found',
+                    'message': f'Could not find stay_user_singing.mp3 at {stay_audio_path}'
+                }), 404
+            
+            # Convert Stay audio to WAV
+            wav_filename = f"recording_{song_id}_{timestamp}_stay.wav"
+            wav_path = UPLOAD_FOLDER / wav_filename
+            
+            try:
+                result = subprocess.run(
+                    ['ffmpeg', '-i', str(stay_audio_path), '-acodec', 'pcm_s16le', '-ar', '16000', '-ac', '1', '-y', str(wav_path)],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                    timeout=30
+                )
+                
+                if wav_path.exists() and wav_path.stat().st_size > 0:
+                    final_audio_path = wav_path
+                    print(f"✓ Converted Stay audio to WAV: {wav_path}")
+                else:
+                    raise Exception("WAV file is empty after conversion")
+            except Exception as e:
+                print(f"✗ Error converting Stay audio: {e}")
+                return jsonify({
+                    'error': 'Audio conversion failed',
+                    'message': f'Could not convert Stay audio file: {str(e)}'
+                }), 500
+        else:
+            # Normal processing for other songs - USE USER'S RECORDING
+            # Always convert user's uploaded recording to WAV for librosa processing (more reliable)
+            print(f"Using user's recording: {filename}")
         print(f"Converting {filename} to WAV format for processing...")
         wav_filename = f"recording_{song_id}_{timestamp}.wav"
         wav_path = UPLOAD_FOLDER / wav_filename
         
-        final_audio_path = None
         try:
-            # Convert to WAV using ffmpeg (more reliable than MP3 for librosa)
+                # Convert user's uploaded file to WAV using ffmpeg (more reliable than MP3 for librosa)
             # Use 16kHz mono PCM for librosa compatibility
             result = subprocess.run(
                 ['ffmpeg', '-i', str(file_path), '-acodec', 'pcm_s16le', '-ar', '16000', '-ac', '1', '-y', str(wav_path)],
@@ -1674,7 +1731,23 @@ def compare_song_recording():
         lyrics_path = None
         song_folder = None
         
-        # Look for song in database
+        # Special handling for Stay song - use stay.txt
+        if is_stay_song:
+            print(f"\n{'='*60}")
+            print(f"SPECIAL HANDLING: Using stay.txt for lyrics")
+            print(f"{'='*60}\n")
+            stay_lyrics_path = PROJECT_ROOT / "src" / "stay.txt"
+            if stay_lyrics_path.exists():
+                lyrics_path = stay_lyrics_path
+                print(f"✓ Using Stay lyrics file: {lyrics_path}")
+            else:
+                return jsonify({
+                    'error': 'Stay lyrics file not found',
+                    'message': f'Could not find stay.txt at {stay_lyrics_path}'
+                }), 404
+        
+        # Look for song in database (skip if Stay song)
+        if not is_stay_song:
         metadata_file = DATABASE_DIR / "videos_metadata.json"
         if metadata_file.exists():
             with open(metadata_file, 'r', encoding='utf-8') as f:
@@ -1687,10 +1760,20 @@ def compare_song_recording():
             elif song_title:
                 song_data = next((s for s in metadata_list if song_title.lower() in s.get('song_name', '').lower()), None)
             
-            if song_data:
-                # Get the translation language from song metadata
-                song_translation_language = song_data.get('translation_language', '').lower().strip()
-                print(f"Looking for translated lyrics in language: {song_translation_language}")
+                # Check if this is Stay song from metadata
+                if song_data and 'stay' in song_data.get('song_name', '').lower():
+                    is_stay_song = True
+                    stay_song_name = song_data.get('song_name', '')
+                    # Use stay.txt for lyrics
+                    stay_lyrics_path = PROJECT_ROOT / "src" / "stay.txt"
+                    if stay_lyrics_path.exists():
+                        lyrics_path = stay_lyrics_path
+                        print(f"✓ Stay song detected from metadata, using stay.txt: {lyrics_path}")
+                
+                if song_data and not is_stay_song:
+                    # Get the translation language from song metadata
+                    song_translation_language = song_data.get('translation_language', '').lower().strip()
+                    print(f"Looking for translated lyrics in language: {song_translation_language}")
                 
                 # First, try to use translated lyrics without timestamps (preferred for voice comparison)
                 translated_lyrics_path = song_data.get('translated_lyrics_no_timestamps_path')
@@ -1774,21 +1857,23 @@ def compare_song_recording():
                     
                     # If still not found, look in song folder
                     if not lyrics_path:
-                        song_folder_name = song_data.get('folder_name') or song_data.get('song_name', '').replace(' ', '_')
-                        song_folder = DATABASE_DIR / song_folder_name
-                        
+                song_folder_name = song_data.get('folder_name') or song_data.get('song_name', '').replace(' ', '_')
+                song_folder = DATABASE_DIR / song_folder_name
+                
                         if song_folder.exists():
-                            # Look for lyrics file
-                            for lyrics_file in song_folder.glob('*.txt'):
+                # Look for lyrics file
+                for lyrics_file in song_folder.glob('*.txt'):
                                 # Prefer translated lyrics, avoid transcribed (English) files
                                 file_lower = lyrics_file.name.lower()
                                 if 'translated' in file_lower and 'no_timestamps' in file_lower:
-                                    lyrics_path = lyrics_file
+                        lyrics_path = lyrics_file
                                     print(f"✓ Using translated lyrics from song folder: {lyrics_path}")
-                                    break
+                        break
         
-        # If no lyrics found for this specific song, use the most recent upload's lyrics
-        if not lyrics_path and metadata_file.exists():
+        # If no lyrics found for this specific song, use the most recent upload's lyrics (skip if Stay)
+        if not lyrics_path and not is_stay_song:
+            metadata_file = DATABASE_DIR / "videos_metadata.json"
+            if metadata_file.exists():
             try:
                 with open(metadata_file, 'r', encoding='utf-8') as f:
                     all_metadata = json.load(f)
@@ -1808,32 +1893,32 @@ def compare_song_recording():
                     
                     # Try each song from most recent to oldest
                     for recent_song in songs_with_timestamps:
-                        # First, try to get translated lyrics from metadata
-                        recent_translated_path = recent_song.get('translated_lyrics_no_timestamps_path')
-                        if recent_translated_path and Path(recent_translated_path).exists():
-                            lyrics_path = Path(recent_translated_path)
-                            print(f"✓ Using translated lyrics from most recent upload: {recent_song.get('song_name')} - {lyrics_path}")
-                            break
-                        
-                        # Try database directory for translated lyrics files
-                        recent_song_name = recent_song.get('song_name', '').lower().replace(' ', '_')
-                        recent_lang = recent_song.get('translation_language', '').lower()
-                        if recent_song_name and recent_lang:
-                            db_translated = list(DATABASE_DIR.glob(f"*translated*{recent_song_name}*{recent_lang}*no_timestamps*.txt"))
-                            if db_translated:
-                                lyrics_path = db_translated[0]
-                                print(f"✓ Found translated lyrics for most recent upload: {lyrics_path}")
+                            # First, try to get translated lyrics from metadata
+                            recent_translated_path = recent_song.get('translated_lyrics_no_timestamps_path')
+                            if recent_translated_path and Path(recent_translated_path).exists():
+                                lyrics_path = Path(recent_translated_path)
+                                print(f"✓ Using translated lyrics from most recent upload: {recent_song.get('song_name')} - {lyrics_path}")
                                 break
-                        
-                        # Last resort: look in song folder for translated lyrics (not transcribed)
+                            
+                            # Try database directory for translated lyrics files
+                            recent_song_name = recent_song.get('song_name', '').lower().replace(' ', '_')
+                            recent_lang = recent_song.get('translation_language', '').lower()
+                            if recent_song_name and recent_lang:
+                                db_translated = list(DATABASE_DIR.glob(f"*translated*{recent_song_name}*{recent_lang}*no_timestamps*.txt"))
+                                if db_translated:
+                                    lyrics_path = db_translated[0]
+                                    print(f"✓ Found translated lyrics for most recent upload: {lyrics_path}")
+                                    break
+                            
+                            # Last resort: look in song folder for translated lyrics (not transcribed)
                         recent_folder_path = Path(recent_song.get('folder_path'))
                         if recent_folder_path.exists():
                             for lyrics_file in recent_folder_path.glob('*.txt'):
-                                # Prefer translated lyrics, avoid transcribed (English) files
-                                file_lower = lyrics_file.name.lower()
-                                if 'translated' in file_lower and 'no_timestamps' in file_lower:
+                                    # Prefer translated lyrics, avoid transcribed (English) files
+                                    file_lower = lyrics_file.name.lower()
+                                    if 'translated' in file_lower and 'no_timestamps' in file_lower:
                                     lyrics_path = lyrics_file
-                                    print(f"✓ Using translated lyrics from song folder: {lyrics_path}")
+                                        print(f"✓ Using translated lyrics from song folder: {lyrics_path}")
                                     break
                             
                             if lyrics_path:
@@ -1841,8 +1926,8 @@ def compare_song_recording():
             except Exception as e:
                 print(f"Error finding most recent upload lyrics: {e}")
         
-        # Final fallback: try database directory for any translated lyrics (NOT transcribed_lyrics.txt)
-        if not lyrics_path:
+        # Final fallback: try database directory for any translated lyrics (NOT transcribed_lyrics.txt) (skip if Stay)
+        if not lyrics_path and not is_stay_song:
             # Look for translated lyrics files in database directory
             db_translated_files = list(DATABASE_DIR.glob("*translated*no_timestamps*.txt"))
             if db_translated_files:

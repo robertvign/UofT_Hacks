@@ -1,0 +1,27 @@
+{
+  "conversations": [
+    {
+      "question": "Tu as déjà rangé les courses ?",
+      "response": "Oui, je les ai déjà rangées.",
+      "target_word": "les",
+      "error_rate": 1.0,
+      "count": 42
+    },
+    {
+      "question": "Quel est ton signe astrologique ?",
+      "response": "Mon signe astrologique est le Lion.",
+      "target_word": "signe",
+      "error_rate": 1.0,
+      "count": 3
+    },
+    {
+      "question": "Comment va la vie ces temps-ci ?",
+      "response": "Ma vie va très bien, merci de demander.",
+      "target_word": "vie",
+      "error_rate": 1.0,
+      "count": 3
+    }
+  ],
+  "generated_at": "2026-01-17T23:36:15.958059",
+  "language": "fr-fr"
+}

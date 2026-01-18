@@ -12,7 +12,7 @@ import tempfile
 from backboard.client import BackboardClient
 import asyncio
 
-client = BackboardClient(api_key=os.getenv("BACKBOARD_API_KEY"))
+client = BackboardClient(api_key="espr_-E7xd5n6PKHueWcNykyoDWDE3hewLEWyduHKDXmhKSI")
 ASSISTANT_ID = os.getenv("BACKBOARD_ASSISTANT_ID")
 
 # Try importing text-to-speech
